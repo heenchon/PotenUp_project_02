@@ -3,6 +3,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Component/SurvivalComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -45,13 +46,29 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 {
 	const FVector VectorValue = Value.Get<FVector>();
-
-	UE_LOG(LogTemp, Display, TEXT("%f, %f, %f"), VectorValue.X, VectorValue.Y, VectorValue.Z);
+	
+	const FVector ForwardDirection = FRotationMatrix(GetController()->GetControlRotation()).GetUnitAxis(EAxis::X)
+	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+	* VectorValue.X
+	* (VectorValue.Y != 0 ? UKismetMathLibrary::Sin(UKismetMathLibrary::DegreesToRadians(45)) : 1);
+	
+	const FVector RightDirection = FRotationMatrix(GetController()->GetControlRotation()).GetUnitAxis(EAxis::Y)
+	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+	* VectorValue.Y
+	* (VectorValue.X != 0 ? UKismetMathLibrary::Cos(UKismetMathLibrary::DegreesToRadians(45)) : 1);
+	
+	AddMovementInput(ForwardDirection);
+	AddMovementInput(RightDirection);
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
-	
+	const FVector VectorValue = Value.Get<FVector>();
+
+	// Yaw가 가로 회전이기 때문에 X값을 넣어줌
+	AddControllerYawInput(VectorValue.X);
+	// Pitch는 앞 뒤가 아닌 위 아래 회전이기 때문에 Y값을 넣어줌
+	AddControllerPitchInput(VectorValue.Y);
 }
 
 
