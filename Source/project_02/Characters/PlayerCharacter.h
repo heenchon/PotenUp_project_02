@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class USpringArmComponent;
+class UCameraComponent;
 class USurvivalComponent;
 class UInputComponent;
 class UInputMappingContext;
@@ -27,6 +29,12 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UCameraComponent> CameraComponent;
+	
+	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = true))
+	TObjectPtr<USpringArmComponent> SpringArm;
+	
 	UPROPERTY(EditDefaultsOnly, Category = Survival, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USurvivalComponent> SurvivalComponent;
 	
@@ -34,6 +42,7 @@ private:
 		, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
+	// IA와 함수 1:1 매핑하게 하는 것도 방법으로 보임
 	UPROPERTY(EditAnywhere, Category = "Input"
 		, meta = (AllowPrivateAccess = "true"))
 	UInputAction* MoveInputAction;
@@ -41,6 +50,10 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input"
 		, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookInputAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = "true"))
+	UInputAction* JumpInputAction;
 
 	UFUNCTION()
 	void MoveTo(const FInputActionValue& Value);
