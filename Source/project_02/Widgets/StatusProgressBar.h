@@ -12,6 +12,6 @@ class PROJECT_02_API UStatusProgressBar : public UUserWidget
 	GENERATED_BODY()
 
 public: 
-	UPROPERTY(WidgetOnly, Blueprintable)
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UProgressBar> StatusBar;
 };
