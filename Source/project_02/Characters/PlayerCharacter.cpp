@@ -3,6 +3,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
+#include "project_02/Tool/HookRope.h"
 #include "Component/SurvivalComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -19,6 +20,14 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (IsValid(UseItem))
+	{ 
+		AActor* InteractiveTool = GetWorld()->SpawnActor(UseItem);
+		InteractiveTool->AttachToComponent(GetMesh(),
+			FAttachmentTransformRules::KeepRelativeTransform, "ToolSocket");
+	}
+	
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
 				GetLocalViewingPlayerController()->GetLocalPlayer()))
@@ -52,16 +61,16 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 	
 	const FVector ForwardDirection = FRotationMatrix(Rotator).GetUnitAxis(EAxis::X)
 	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
-	* VectorValue.X
-	* (VectorValue.Y != 0 ? UKismetMathLibrary::Sin(UKismetMathLibrary::DegreesToRadians(45)) : 1);
+	* VectorValue.X;
 	
 	const FVector RightDirection = FRotationMatrix(Rotator).GetUnitAxis(EAxis::Y)
 	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
-	* VectorValue.Y
-	* (VectorValue.X != 0 ? UKismetMathLibrary::Cos(UKismetMathLibrary::DegreesToRadians(45)) : 1);
+	* VectorValue.Y;
+
+	FVector FinalValue = FVector(ForwardDirection + RightDirection);
+	FinalValue = FinalValue.GetSafeNormal(1);
 	
-	AddMovementInput(ForwardDirection);
-	AddMovementInput(RightDirection);
+	AddMovementInput(FinalValue);
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)

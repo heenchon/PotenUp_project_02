@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class AHookRope;
 class USpringArmComponent;
 class UCameraComponent;
 class USurvivalComponent;
@@ -24,11 +25,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-	virtual void Tick(float DeltaTime) override;
+	// virtual void Tick(float DeltaTime) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = Equipment, meta = (AllowPrivateAccess = true))
+	TSubclassOf<AHookRope> UseItem;
+	
 	UPROPERTY(EditDefaultsOnly, Category = Camera, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCameraComponent> CameraComponent;
 	
