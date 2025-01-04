@@ -1,4 +1,8 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "PlayerGameUI.h"
 
+#include "StatusProgressBar.h"
 
-#include "PlayerGameUI.h"
+void UPlayerGameUI::SetHealthPercent(const uint8 Current, const uint8 Max)
+{
+	HealthBar->SetPercent( static_cast<float>(Current) / Max);
+}

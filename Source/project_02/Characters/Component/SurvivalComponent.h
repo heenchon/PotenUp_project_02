@@ -14,6 +14,12 @@ class PROJECT_02_API USurvivalComponent : public UActorComponent
 public:
 	USurvivalComponent();
 
+	void SetHealth(const uint8 NewValue);
+	
+	void SetHunger(const uint8 NewValue);
+
+	void SetThirst(const uint8 NewValue);
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -21,9 +27,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Data", meta = (AllowPrivateAccess = true))
 	FDataTableRowHandle PlayerInfoData;
 	
-	uint8 CurrentHealth = 0;
+	TPair<uint8, uint8> HealthInfo;
 	
-	uint8 CurrentHunger = 0;
+	TPair<uint8, uint8> HungerInfo;
 	
-	uint8 CurrentThirst = 0;
+	TPair<uint8, uint8> ThirstInfo;
 };
