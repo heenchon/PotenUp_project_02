@@ -26,9 +26,6 @@ protected:
 	virtual void NativePreConstruct() override;
 	
 private:
-	UPROPERTY()
-	float Percent;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Options", meta = (AllowPrivateAccess = true))
 	FSlateBrush ThumbnailOptions;
 

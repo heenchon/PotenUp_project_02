@@ -1,10 +1,10 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "FPlayerInfoData.generated.h"
+#include "FEntityInfoData.generated.h"
 
 USTRUCT(BlueprintType)
-struct PROJECT_02_API FPlayerInfoData : public FTableRowBase
+struct PROJECT_02_API FEntityInfoData : public FTableRowBase
 {
 	GENERATED_USTRUCT_BODY()
 

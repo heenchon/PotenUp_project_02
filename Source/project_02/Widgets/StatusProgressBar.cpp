@@ -12,5 +12,5 @@ void UStatusProgressBar::NativePreConstruct()
 
 void UStatusProgressBar::SetPercent(const float NewValue)
 {
-	Percent = NewValue;
+	StatusBar->SetPercent(NewValue);
 }
