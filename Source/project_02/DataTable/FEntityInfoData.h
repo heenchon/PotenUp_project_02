@@ -16,4 +16,16 @@ struct PROJECT_02_API FEntityInfoData : public FTableRowBase
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Data);
 	uint8 MaxThirst;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Data);
+	uint8 HungerDecreaseTime;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Data);
+	uint8 HungerDecreaseGage;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Data);
+	uint8 ThirstDecreaseTime;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = Data);
+	uint8 ThirstDecreaseGage;
 };
