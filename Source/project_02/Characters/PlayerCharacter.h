@@ -32,13 +32,14 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Survival)
 	TObjectPtr<USurvivalComponent> SurvivalComponent;
-
+	
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = Equipment, meta = (AllowPrivateAccess = true))
 	TSubclassOf<AHookRope> UseItem;
