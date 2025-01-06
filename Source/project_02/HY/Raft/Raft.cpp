@@ -2,7 +2,7 @@
 
 
 #include "Raft.h"
-
+#include "Sail.h"
 
 // Sets default values
 ARaft::ARaft()
@@ -18,13 +18,24 @@ ARaft::ARaft()
 	Buoyancy->AddCustomPontoon(100,"two");
 	Buoyancy->AddCustomPontoon(100,"three");
 	Buoyancy->AddCustomPontoon(100,"four");
+	
 }
 
 // Called when the game starts or when spawned
 void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;  // 부모 설정
+
+	Sail = GetWorld()->SpawnActor<ASail>(ASail::StaticClass(), GetActorLocation(), GetActorRotation(), SpawnParams);
+
+	if (Sail)
+	{
+		Sail->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+		Sail->SetActorRelativeLocation(FVector(0.f, 0.f, 10.f)); 
+		UE_LOG(LogTemp, Warning, TEXT("돛 부착조이고"));
+	}
 }
 
 // Called every frame

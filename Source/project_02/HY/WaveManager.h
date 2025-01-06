@@ -4,9 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "water"
-#include "GerstnerWaterWaves.h"
-#include "WaterBodyOceanActor.h"
 #include "WaveManager.generated.h"
 
 UCLASS()
@@ -18,14 +15,17 @@ public:
 	// Sets default values for this actor's properties
 	AWaveManager();
 	UPROPERTY(EditAnywhere)
-	AWaterBodyOcean *bodyOcean;
-	UPROPERTY(EditAnywhere)
-	UGerstnerWaterWaves* waterWaves;
+	class AWaterBodyOcean* BodyOcean;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UGerstnerWaterWaveGeneratorBase> GWaterWaves;
 
 	UPROPERTY(EditAnywhere, Category = "wave")
 	float WaveLength;
 	UPROPERTY(EditAnywhere, Category = "wave")
 	float Amplitude;
+	UPROPERTY(EditAnywhere, Category = "wave")
+	float Steepness;
 	UPROPERTY(EditAnywhere, Category = "wave")
 	float WaveSpeed;
 	UPROPERTY(EditAnywhere, Category = "wave")
@@ -41,4 +41,7 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION(BlueprintNativeEvent)
+	void GenerateGerstnerWaves(TArray<FGerstnerWave>&OutWaves) const;
 };

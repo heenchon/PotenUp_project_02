@@ -18,7 +18,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SailAngle;
 	UPROPERTY(EditAnywhere)
-	float MaxSailStrength = 10.0f;
+	float MaxSailStrength = 5.0f;
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* SailMesh;
+
+	FVector MyDirection;
 
 protected:
 	// Called when the game starts or when spawned

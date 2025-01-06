@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Chaos/PerCellBuoyancy.h"
+// #include "Chaos/PerCellBuoyancy.h"
 #include "GameFramework/Actor.h"
 #include "BuoyancyComponent.h"
 #include "Raft.generated.h"
@@ -29,6 +29,8 @@ public:
 	float WindStrength = 300.0f;
 	UPROPERTY(visibleAnywhere)
 	float SailStrength = 1.0f;
+
+	class ASail* Sail;
 
 protected:
 	// Called when the game starts or when spawned

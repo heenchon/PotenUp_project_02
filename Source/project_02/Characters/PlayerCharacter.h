@@ -40,9 +40,6 @@ protected:
 	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 private:
-	UPROPERTY(EditDefaultsOnly, Category = Equipment, meta = (AllowPrivateAccess = true))
-	TSubclassOf<AHookRope> UseItem;
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;

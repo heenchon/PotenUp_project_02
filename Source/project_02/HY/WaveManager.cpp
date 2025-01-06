@@ -1,21 +1,17 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "WaveManager.h"
+#include "GerstnerWaterWaves.h"
+#include "WaterBodyOceanActor.h"
+#include "GerstnerWaterWaveSubsystem.h"
 
-
-#include "WaveManager.h"
-
-
-// Sets default values
 AWaveManager::AWaveManager()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void AWaveManager::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	ChangeWaves();
 }
 
 // Called every frame
@@ -26,10 +22,23 @@ void AWaveManager::Tick(float DeltaTime)
 
 void AWaveManager::ChangeWaves()
 {
-	waterWaves->RecomputeWaves(true);
 	TArray<FGerstnerWave> OutWaves;
-	OutWaves.Add({WaveLength, Amplitude,0.0f,Direction,
-		WaveVector,WaveSpeed,0.0f,0.0f,0.0f});
-	waterWaves->GerstnerWaveGenerator->GenerateGerstnerWaves(OutWaves);
+	GenerateGerstnerWaves(OutWaves);
+
+
+
+	// auto* newWaterWave = NewObject<UWaterWavesBase>(this, GWaterWaves, TEXT("GWaterWaves"));
+	// BodyOcean->SetWaterWaves(newWaterWave);
+	// GWaterWaves->RecomputeWaves(true);
+	// TArray<FGerstnerWave> OutWaves;
+	// OutWaves.Add({WaveLength, Amplitude,Steepness, Direction,
+	// 	WaveVector,WaveSpeed,0.0f,0.0f,0.0f});
+	// GWaterWaves->GerstnerWaveGenerator->GenerateGerstnerWaves_Implementation(OutWaves);
+	// UE_LOG(LogTemp, Display, TEXT("테스트 %f"), WaveLength);
+	// BodyOcean->SetWaterWaves(GWaterWaves);
 }
 
+void AWaveManager::GenerateGerstnerWaves_Implementation(TArray<FGerstnerWave>&OutWaves) const
+{
+	
+}
