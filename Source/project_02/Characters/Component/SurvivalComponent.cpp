@@ -1,11 +1,12 @@
 ﻿#include "SurvivalComponent.h"
 
+#include "Blueprint/UserWidget.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/DataTable/FEntityAnimationData.h"
 #include "project_02/DataTable/FEntityInfoData.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/Widgets/PlayerGameUI.h"
-
 
 USurvivalComponent::USurvivalComponent()
 {
@@ -17,34 +18,45 @@ void USurvivalComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	if (const FEntityInfoData* Data = EntityInfo.GetRow<FEntityInfoData>(""))
-    {
-    	HealthInfo = { Data->MaxHealth, Data->MaxHealth };
-    	HungerInfo = { Data->MaxHunger, Data->MaxHunger };
-    	ThirstInfo = { Data->MaxThirst, Data->MaxThirst };
-		
-		InitialSurvivalData();
-    }
+	InitialSurvivalData();
+}
+
+void USurvivalComponent::SetHealth(const uint8 NewValue)
+{
+	HealthInfo.Key = NewValue;
+	OnChangedHealth();	
+}
+
+void USurvivalComponent::SetHunger(const uint8 NewValue)
+{
+	HungerInfo.Key = NewValue;
+	OnChangedHunger();	
+}
+
+void USurvivalComponent::SetThirst(const uint8 NewValue)
+{
+	ThirstInfo.Key = NewValue;
+	OnChangedThirst();	
 }
 
 void USurvivalComponent::AddDamage(const uint8 NewValue)
 {
 	if (IsDied) return;
-	HealthInfo.Key -= NewValue;
+	HealthInfo.Key = UKismetMathLibrary::Max(HealthInfo.Key - NewValue, 0);
 	OnChangedHealth();	
 }
 
 void USurvivalComponent::DecreaseHunger(const uint8 NewValue)
 {
 	if (IsDied) return;
-	HungerInfo.Key -= NewValue;
+	HungerInfo.Key = UKismetMathLibrary::Max(HungerInfo.Key - NewValue, 0);
 	OnChangedHunger();	
 }
 
 void USurvivalComponent::DecreaseThirst(const uint8 NewValue)
 {
 	if (IsDied) return;
-	ThirstInfo.Key -= NewValue;
+	ThirstInfo.Key = UKismetMathLibrary::Max(ThirstInfo.Key - NewValue, 0);
 	OnChangedThirst();	
 }
 
@@ -54,6 +66,12 @@ void USurvivalComponent::OnChangedHealth()
 	if (HealthInfo.Key == 0)
 	{
 		IsDied = true;
+		if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
+		{
+			ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
+			check(PC);
+			PC->OnDied();
+		}
 	}
 	
 	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
@@ -110,8 +128,16 @@ void USurvivalComponent::OnChangedThirst()
 
 void USurvivalComponent::InitialSurvivalData()
 {
+	IsDied = false;
 	if (const FEntityInfoData* Data = EntityInfo.GetRow<FEntityInfoData>(""))
 	{
+		HealthInfo = { Data->MaxHealth, Data->MaxHealth };
+		SetHealth(Data->MaxHealth);
+		HungerInfo = { Data->MaxHunger, Data->MaxHunger };
+		SetHunger(Data->MaxHunger);
+		ThirstInfo = { Data->MaxThirst, Data->MaxThirst };
+		SetThirst(Data->MaxThirst);
+		
 		FTimerManager& GlobalTimeManager = GetWorld()->GetTimerManager();
 		
 		GlobalTimeManager.ClearTimer(HungerDecreaseTimer);

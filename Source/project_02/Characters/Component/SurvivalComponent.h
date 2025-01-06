@@ -1,6 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -16,6 +14,10 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsDied() const { return IsDied; }
+
+	void SetHealth(const uint8 NewValue);
+	void SetHunger(const uint8 NewValue);
+	void SetThirst(const uint8 NewValue);
 	
 	void AddDamage(const uint8 NewValue);
 	
@@ -23,6 +25,8 @@ public:
 	void DecreaseHunger(const uint8 NewValue);
 	UFUNCTION()
 	void DecreaseThirst(const uint8 NewValue);
+	
+	void InitialSurvivalData();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -40,8 +44,6 @@ private:
 	
 	TPair<uint8, uint8> ThirstInfo;
 	FTimerHandle ThirstDecreaseTimer;
-
-	void InitialSurvivalData();
 	
 	void OnChangedHealth();
 	void OnChangedHunger();

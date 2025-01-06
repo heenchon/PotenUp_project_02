@@ -4,7 +4,6 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
-
 UCLASS()
 class PROJECT_02_API ABasePlayerController : public APlayerController
 {
@@ -12,6 +11,10 @@ class PROJECT_02_API ABasePlayerController : public APlayerController
 
 public:
 	FORCEINLINE TObjectPtr<UUserWidget> GetPlayerUI() { return PlayUI; }
+
+	void OnDied();
+	
+	void Respawn();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -22,4 +25,10 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UUserWidget> PlayUI;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UUserWidget> PlayerRespawnUIClass;
+
+	UPROPERTY()
+	TObjectPtr<UUserWidget> PlayerRespawnUI;
 };
