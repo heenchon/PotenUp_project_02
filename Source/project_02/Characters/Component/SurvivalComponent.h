@@ -14,16 +14,36 @@ class PROJECT_02_API USurvivalComponent : public UActorComponent
 public:
 	USurvivalComponent();
 
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE bool GetIsDied() const { return IsDied; }
+	
+	void AddDamage(const uint8 NewValue);
+	
+	UFUNCTION()
+	void DecreaseHunger(const uint8 NewValue);
+	UFUNCTION()
+	void DecreaseThirst(const uint8 NewValue);
+	
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	bool IsDied = false;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Data", meta = (AllowPrivateAccess = true))
-	FDataTableRowHandle PlayerInfoData;
+	FDataTableRowHandle EntityInfo;
 	
-	uint8 CurrentHealth = 0;
+	TPair<uint8, uint8> HealthInfo;
 	
-	uint8 CurrentHunger = 0;
+	TPair<uint8, uint8> HungerInfo;
+	FTimerHandle HungerDecreaseTimer;
 	
-	uint8 CurrentThirst = 0;
+	TPair<uint8, uint8> ThirstInfo;
+	FTimerHandle ThirstDecreaseTimer;
+
+	void InitialSurvivalData();
+	
+	void OnChangedHealth();
+	void OnChangedHunger();
+	void OnChangedThirst();
 };
