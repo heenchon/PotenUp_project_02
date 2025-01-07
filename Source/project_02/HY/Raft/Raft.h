@@ -16,7 +16,7 @@ class PROJECT_02_API ARaft : public AActor
 public:
 	// Sets default values for this actor's properties
 	ARaft();
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 	
 	UPROPERTY()
@@ -26,11 +26,8 @@ public:
 	FVector3d WindDirection = {1,0,0};
 	
 	UPROPERTY(EditAnywhere, Category = "Move")
-	float WindStrength = 300.0f;
-	UPROPERTY(visibleAnywhere)
+	float WindStrength = 150.0f;
 	float SailStrength = 1.0f;
-
-	class ASail* Sail;
 
 protected:
 	// Called when the game starts or when spawned
