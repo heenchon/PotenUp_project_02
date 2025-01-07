@@ -8,10 +8,13 @@ public class project_02 : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new [] { "Core", "CoreUObject", "Engine",
-			"InputCore", "EnhancedInput", "CableComponent", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[]
+		{
+			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
+			"UMG", "Slate", "SlateCore", "Buoyancy", "Water",
+		});
 
-		PrivateDependencyModuleNames.AddRange(new [] { "Slate", "SlateCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

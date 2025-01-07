@@ -3,10 +3,8 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
-#include "project_02/Tool/HookRope.h"
 #include "Component/SurvivalComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -20,13 +18,6 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (IsValid(UseItem))
-	{ 
-		AActor* InteractiveTool = GetWorld()->SpawnActor(UseItem);
-		InteractiveTool->AttachToComponent(GetMesh(),
-			FAttachmentTransformRules::KeepRelativeTransform, "ToolSocket");
-	}
 	
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
