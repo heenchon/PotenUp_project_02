@@ -10,6 +10,7 @@ AHookRope::AHookRope()
 	
 	Cable = CreateDefaultSubobject<UCableComponent>("Cable");
 	Cable->SetupAttachment(RootComponent);
+	Cable->CableWidth = 4;
 	
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>("Body Mesh");
 	BodyMesh->SetupAttachment(RootComponent);
@@ -21,5 +22,6 @@ AHookRope::AHookRope()
 void AHookRope::BeginPlay()
 {
 	Super::BeginPlay();
+	Cable->SetAttachEndToComponent(HookMesh, "Start");
 }
 
