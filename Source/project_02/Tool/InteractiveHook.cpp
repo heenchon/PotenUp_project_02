@@ -25,11 +25,25 @@ void AInteractiveHook::BeginPlay()
 	GrabOverlapBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlapHookGrab);
 }
 
+double AInteractiveHook::GetDistanceBetweenMoveToAndCurrentLocation()
+{
+	return UKismetMathLibrary::Distance2D({GetActorLocation().X, GetActorLocation().Y}, {MoveToPos.X, MoveToPos.Y});
+}
+
+
+bool AInteractiveHook::PullHook(const FVector& TargetLocation)
+{
+	MoveToPos = TargetLocation;
+	HookStatus = EHookStatus::Pulled;
+
+	return GetDistanceBetweenMoveToAndCurrentLocation() < HookCalcRadius;
+}
+
 void AInteractiveHook::StartLaunch(const FVector& MoveToVector, const uint8 NewPower)
 {
 	HookStatus = EHookStatus::Launched;
 	Power = NewPower;
-	MovetoPos = MoveToVector;
+	MoveToPos = MoveToVector;
 }
 
 // Called every frame
@@ -40,10 +54,23 @@ void AInteractiveHook::Tick(float DeltaTime)
 	if (HookStatus == EHookStatus::Launched)
 	{
 		const FVector Position = GetActorLocation() + 
-			(MovetoPos * DeltaTime * Power * PowerPercent) + 
+			(MoveToPos * DeltaTime * Power * PowerPercent) + 
 			(FVector::UpVector * (-1.f * GravityScale * DeltaTime));
 
 		SetActorLocation(Position);
+	}
+	if (HookStatus == EHookStatus::Pulled)
+	{
+		if (GetDistanceBetweenMoveToAndCurrentLocation() < HookCalcRadius)
+		{
+			Destroy();
+		}
+
+		FVector MoveTo = (MoveToPos - GetActorLocation())
+			.GetSafeNormal();
+		MoveTo.Z = 0;
+		
+		AddActorWorldOffset(MoveTo * DeltaTime * HookPullSpeed);
 	}
 }
 
@@ -56,16 +83,14 @@ void AInteractiveHook::OnOverlapHookGrab(
 		const FHitResult &SweepResult)
 {
 	if (OtherActor == this) return;
-	
-	UE_LOG(LogTemp, Display, TEXT("테스트 Overlap 실행 확인"));
 
-	HookStatus = EHookStatus::Idle;
-	MovetoPos = FVector::ZeroVector;
+	HookStatus = EHookStatus::Fixed;
+	MoveToPos = FVector::ZeroVector;
 	
 	if (Cast<AWaterBodyOcean>(OtherActor))
 	{
-		HookStatus = EHookStatus::Idle;
-		MovetoPos = FVector::ZeroVector;
+		HookStatus = EHookStatus::Fixed;
+		MoveToPos = FVector::ZeroVector;
 	}
 	
 }

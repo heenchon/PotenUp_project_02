@@ -7,10 +7,10 @@
 class AHookRope;
 class USpringArmComponent;
 class UCameraComponent;
-class USurvivalComponent;
 class UInputComponent;
 class UInputMappingContext;
 class UInputAction;
+class USurvivalComponent;
 
 struct FInputActionValue;
 

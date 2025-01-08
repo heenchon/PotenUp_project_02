@@ -26,6 +26,16 @@ void AHookRope::BeginPlay()
 
 void AHookRope::OnHoldInteractive()
 {
+	if (IsValid(ControlledHook))
+	{
+		if (ControlledHook->GetHookStatus() == EHookStatus::Fixed)
+		{
+			// TODO: 이 PullHook은 끌어오고 그 결과를 가져오는데, 이게 true가 되는 경우에 한해 특정 애니메이션 진행과 이 Hold Event를 강제 종료한다.
+			ControlledHook->PullHook(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation());
+		}
+		return;
+	}
+	
 	Power = UKismetMathLibrary::Min(Power + 1, MaxPower);
 }
 
@@ -33,9 +43,13 @@ void AHookRope::OnEndInteractive()
 {
 	if (IsValid(ControlledHook))
 	{
-		// 이미 훅이 있으면 굳이 처리할 이유가 없다.
+		if (ControlledHook->GetHookStatus() == EHookStatus::Pulled)
+		{
+			ControlledHook->SetHookStatus(EHookStatus::Fixed);
+		}
 		return;
 	}
+	
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	FVector NewLocation = GetActorLocation() + Player->GetActorForwardVector() * 50;
 	NewLocation.Z += 50;
