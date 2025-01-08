@@ -23,7 +23,7 @@ public:
 	UBuoyancyComponent* Buoyancy;
 
 	UPROPERTY(EditAnywhere, Category = "Move")
-	FVector3d WindDirection = {1,0,0};
+	FVector WindDirection = {1,0,0};
 	
 	UPROPERTY(EditAnywhere, Category = "Move")
 	float WindStrength = 150.0f;
@@ -36,4 +36,7 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	void UpdateWind();
 };
+
+

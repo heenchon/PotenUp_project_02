@@ -35,3 +35,7 @@ void ARaft::Tick(float DeltaTime)
 	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength*SailStrength);
 }
 
+void ARaft::UpdateWind()
+{
+	
+}
