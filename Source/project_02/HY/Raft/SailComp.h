@@ -26,6 +26,7 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	//TODO: 윈드 매니저 추가 후 cpp 수정
 	class ARaft* Raft;
 	FVector3d WindDirection;
 	float WindStrength;

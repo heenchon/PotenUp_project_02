@@ -15,6 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	APaddleTest();
 
+	//TODO: 윈드 매니저 추가 후 cpp 수정
 	//Raft의 바람 방향을 가져오기 위해
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	class ARaft* Raft;

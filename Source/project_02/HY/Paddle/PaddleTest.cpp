@@ -21,12 +21,6 @@ void APaddleTest::BeginPlay()
 		Player = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
 		UE_LOG(LogTemp,Warning,TEXT("플레이어는? %s"),*Player->GetName());
 	}
-
-	//딜레이 구조체
-	LatentInfo.CallbackTarget = this;
-	LatentInfo.ExecutionFunction = FName("PaddlingEnd");
-	LatentInfo.Linkage = 0;
-	LatentInfo.UUID = __LINE__;
 }
 
 // Called every frame
@@ -39,7 +33,7 @@ int APaddleTest::PaddlingStart()
 {
 	UE_LOG(LogTemp, Error, TEXT("Paddling..."));
 
-	//Yaw값만을 반영하는 
+	//Yaw값만을 반영하는 플레이어 정면
 	FRotator PlayerRotator = Player->GetActorRotation();
 	FVector PlayerForwardVector = FRotator(0.0f, PlayerRotator.Yaw,0.0f).Vector();
 	UE_LOG(LogTemp, Warning, TEXT("플레이어 방향: %s"), *PlayerForwardVector.ToString());

@@ -3,32 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-// #include "Chaos/PerCellBuoyancy.h"
 #include "GameFramework/Actor.h"
-#include "BuoyancyComponent.h"
-#include "Raft.generated.h"
+#include "WindArea.generated.h"
 
 UCLASS()
-class PROJECT_02_API ARaft : public AActor
+class PROJECT_02_API AWindArea : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	ARaft();
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* StaticMesh;
-	
-	UPROPERTY()
-	UBuoyancyComponent* Buoyancy;
+	AWindArea();
 
-	UPROPERTY(EditAnywhere, Category = "Move")
+	UPROPERTY(EditAnywhere, Category = "Wind")
 	FVector WindDirection = {1,0,0};
-
-	//TODO: 윈드 매니저 추가 후 cpp 수정
-	UPROPERTY(EditAnywhere, Category = "Move")
+	
+	UPROPERTY(EditAnywhere, Category = "Wind")
 	float WindStrength = 150.0f;
-	float SailStrength = 1.0f;
 
 protected:
 	// Called when the game starts or when spawned
@@ -37,7 +28,4 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 };
-
-
