@@ -18,12 +18,21 @@ class PROJECT_02_API AHookRope : public AActor
 public:
 	AHookRope();
 
-	// void ThrowHook();
-
+	UFUNCTION()
+	void OnHoldInteractive();
+	
+	UFUNCTION()
+	void OnEndInteractive();
+	
 protected:
 	virtual void BeginPlay() override;
 
 private:
+	TObjectPtr<AInteractiveHook> ControlledHook;
+	
+	uint8 Power = 0;
+	uint8 MaxPower = 100;
+	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCableComponent> Cable;
 

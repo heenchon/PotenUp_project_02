@@ -48,23 +48,42 @@ private:
 	// IA와 함수 1:1 매핑하게 하는 것도 방법으로 보임
 	UPROPERTY(EditAnywhere, Category = "Input"
 		, meta = (AllowPrivateAccess = true))
-	UInputAction* MoveInputAction;
+	TObjectPtr<UInputAction> MoveInputAction;
 
 	UPROPERTY(EditAnywhere, Category = "Input"
 		, meta = (AllowPrivateAccess = true))
-	UInputAction* LookInputAction;
+	TObjectPtr<UInputAction> LookInputAction;
 	
 	UPROPERTY(EditAnywhere, Category = "Input"
 		, meta = (AllowPrivateAccess = true))
-	UInputAction* JumpInputAction;
+	TObjectPtr<UInputAction> JumpInputAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> InteractiveInputAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Data"
 		, meta = (AllowPrivateAccess = true))
 	FDataTableRowHandle AnimationInfo;
+
+	// TODO: 추후 HookRope 자체를 공통화해서 상호작용하는 액터 자체를 적용할 예정
+	// 우선은 하드코딩으로 처리
+	UPROPERTY()
+	TObjectPtr<AHookRope> TestInteractiveItem;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data"
+		, meta = (AllowPrivateAccess = true))
+	TSubclassOf<AHookRope> TestInteractiveItemClass;
 
 	UFUNCTION()
 	void MoveTo(const FInputActionValue& Value);
 
 	UFUNCTION()
 	void Look(const FInputActionValue& Value);
+
+	UFUNCTION()
+	void OnInteractiveHolding();
+	
+	UFUNCTION()
+	void OnInteractiveEnd();
 };

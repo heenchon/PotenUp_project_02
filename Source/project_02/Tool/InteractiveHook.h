@@ -4,8 +4,14 @@
 #include "GameFramework/Actor.h"
 #include "InteractiveHook.generated.h"
 
-class UBuoyancyComponent;
 class USphereComponent;
+
+UENUM()
+enum class EHookStatus: uint8
+{
+	Idle,
+	Launched,
+};
 
 UCLASS()
 class PROJECT_02_API AInteractiveHook : public AActor
@@ -16,20 +22,34 @@ public:
 	AInteractiveHook();
 
 	FORCEINLINE UStaticMeshComponent* GetHookMesh() const { return HookMesh; };
+
+	void StartLaunch(const FVector& MoveToVector, const uint8 NewPower);
+
 protected:
 	virtual void BeginPlay() override;
 	
 	virtual void Tick(float DeltaTime) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	float GravityScale;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	float PowerPercent;
+	
+	EHookStatus HookStatus = EHookStatus::Idle;
+	
+	FVector MovetoPos;
+	uint8 Power;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<USceneComponent> DefaultRoot;
+	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USphereComponent> GrabOverlapBox;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UStaticMeshComponent> HookMesh;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Buoyancy", meta = (AllowPrivateAccess = true))
-	TObjectPtr<UBuoyancyComponent> Buoyancy;
 	
 	UFUNCTION()
 	void OnOverlapHookGrab(
