@@ -1,36 +1,39 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Raft.h"
+#include "Trash.h"
+#include "BuoyancyComponent.h"
+#include "../Raft/Raft.h"
+
 
 // Sets default values
-ARaft::ARaft()
+ATrash::ATrash()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RaftMesh"));
 	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
-	
-	// RaftMesh를 루트 컴포넌트로 설정
-	RootComponent = StaticMesh;
 
-	Buoyancy->AddCustomPontoon(100,"one");
-	Buoyancy->AddCustomPontoon(100,"two");
-	Buoyancy->AddCustomPontoon(100,"three");
-	Buoyancy->AddCustomPontoon(100,"four");
+	RootComponent = StaticMesh;
+	StaticMesh->SetSimulatePhysics(true);
 	
+	Buoyancy->AddCustomPontoon(100,"center");
 }
 
 // Called when the game starts or when spawned
-void ARaft::BeginPlay()
+void ATrash::BeginPlay()
 {
 	Super::BeginPlay();
+	//TODO: 윈드 매니저 추가 후 cpp 수정
+	WindDirection=Raft->WindDirection;
+	WindStrength=Raft->WindStrength;
 }
 
 // Called every frame
-void ARaft::Tick(float DeltaTime)
+void ATrash::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength*SailStrength);
+	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength);
 }
+

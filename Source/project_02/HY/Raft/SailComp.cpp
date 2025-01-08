@@ -14,7 +14,9 @@ void USailComp::BeginPlay()
 {
 	Super::BeginPlay();
 	Raft = Cast<ARaft>(GetOwner());
-	UE_LOG(LogTemp, Warning, TEXT("래프트 가져왔나요? %s"), *(Raft->GetName()));
+	// UE_LOG(LogTemp, Warning, TEXT("래프트 가져왔나요? %s"), *(Raft->GetName()));
+
+	//TODO: 윈드 매니저 추가 후 cpp 수정
 	WindDirection = Raft->WindDirection;
 	WindStrength = Raft->WindStrength;
 	// UE_LOG(LogTemp,Warning,TEXT("돛의 Min: %f"), MinSailStrength);
