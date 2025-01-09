@@ -1,25 +1,27 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "WindArea.h"
+#include "SharkAI.h"
+#include "Kismet/GameplayStatics.h"
 
 
 // Sets default values
-AWindArea::AWindArea()
+ASharkAI::ASharkAI()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
 // Called when the game starts or when spawned
-void AWindArea::BeginPlay()
+void ASharkAI::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	Player = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+
 }
 
 // Called every frame
-void AWindArea::Tick(float DeltaTime)
+void ASharkAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
