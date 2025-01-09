@@ -23,15 +23,23 @@ void AHookRope::BeginPlay()
 	Cable->SetVisibility(false);
 }
 
-
 void AHookRope::OnHoldInteractive()
 {
+	if (Status == EInteractiveToolStatus::Completed)
+	{
+		return;
+	}
+
+	Status = EInteractiveToolStatus::Interacting;
+
 	if (IsValid(ControlledHook))
 	{
-		if (ControlledHook->GetHookStatus() == EHookStatus::Fixed)
+		if (ControlledHook->GetHookStatus() == EHookStatus::Fixed || ControlledHook->GetHookStatus() == EHookStatus::Pulled)
 		{
-			// TODO: 이 PullHook은 끌어오고 그 결과를 가져오는데, 이게 true가 되는 경우에 한해 특정 애니메이션 진행과 이 Hold Event를 강제 종료한다.
-			ControlledHook->PullHook(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation());
+			if (ControlledHook->PullHook(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation()))
+			{
+				Status = EInteractiveToolStatus::Completed;
+			}
 		}
 		return;
 	}
@@ -41,6 +49,12 @@ void AHookRope::OnHoldInteractive()
 
 void AHookRope::OnEndInteractive()
 {
+	if (Status == EInteractiveToolStatus::Completed)
+	{
+		Status = EInteractiveToolStatus::Idle;
+		return;
+	}
+	
 	if (IsValid(ControlledHook))
 	{
 		if (ControlledHook->GetHookStatus() == EHookStatus::Pulled)
@@ -63,6 +77,8 @@ void AHookRope::OnEndInteractive()
 	}
 	
 	Power = 0;
+
+	Status = EInteractiveToolStatus::Idle;
 }
 
 

@@ -4,11 +4,20 @@
 #include "GameFramework/Actor.h"
 #include "HookRope.generated.h"
 
+class UInputAction;
 class AInteractiveHook;
 class AHook;
 class UCableComponent;
 class USphereComponent;
 class UBuoyancyComponent;
+
+UENUM()
+enum class EInteractiveToolStatus : uint8
+{
+	Idle,
+	Interacting,
+	Completed,
+};
 
 UCLASS()
 class PROJECT_02_API AHookRope : public AActor
@@ -28,8 +37,10 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	TObjectPtr<AInteractiveHook> ControlledHook;
+	EInteractiveToolStatus Status = EInteractiveToolStatus::Idle;
 	
+	TObjectPtr<AInteractiveHook> ControlledHook;
+
 	uint8 Power = 0;
 	uint8 MaxPower = 100;
 	
