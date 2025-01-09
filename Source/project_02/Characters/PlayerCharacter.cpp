@@ -5,6 +5,7 @@
 #include "Camera/CameraComponent.h"
 #include "Component/SurvivalComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "project_02/Tool/HookRope.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -25,6 +26,14 @@ void APlayerCharacter::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	TestInteractiveItem = GetWorld()->SpawnActor<AHookRope>(TestInteractiveItemClass);
+
+	if (TestInteractiveItem)
+	{
+		TestInteractiveItem->AttachToComponent(GetMesh(),
+			FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -39,9 +48,30 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::Look);
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Triggered
-																			, this, &ThisClass::Jump);
+		, this, &ThisClass::Jump);
+		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
+		, this, &ThisClass::OnInteractiveHolding);
+		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
+																			, this, &ThisClass::OnInteractiveEnd);
 	}
 }
+
+void APlayerCharacter::OnInteractiveHolding()
+{
+	if (TestInteractiveItem)
+	{
+		TestInteractiveItem->OnHoldInteractive();
+	}	
+}
+
+void APlayerCharacter::OnInteractiveEnd()
+{
+	if (TestInteractiveItem)
+	{
+		TestInteractiveItem->OnEndInteractive();
+	}
+}
+
 
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 {
