@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "InventoryList.generated.h"
 
+class UGridPanel;
 class UInventorySlot;
 /**
  * 
@@ -20,9 +21,17 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
-	uint8 MaxInventoryCount = 10;
-	// 인벤토리 정보 자체는 외부 PC or PS에서 가져올 것
+	uint8 ItemListColumn;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	uint8 MaxItemCount;
 
-	UPROPERTY(EditDefaultsOnly, Cateogory = "Options", meta = (AllowPrivateAccess = true))
-	TSubclassOf<UInventorySlot> ItemSlot;
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UInventorySlot> ItemSlotClass;
+
+	UPROPERTY()
+	TArray<TObjectPtr<UInventorySlot>> ItemSlotList;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UGridPanel> ItemGridList;
 };
