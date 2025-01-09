@@ -23,7 +23,6 @@ ARaft::ARaft()
 	Buoyancy->AddCustomPontoon(100,"two");
 	Buoyancy->AddCustomPontoon(100,"three");
 	Buoyancy->AddCustomPontoon(100,"four");
-	
 }
 
 // Called when the game starts or when spawned
