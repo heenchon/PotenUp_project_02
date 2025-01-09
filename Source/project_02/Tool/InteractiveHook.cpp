@@ -2,6 +2,7 @@
 #include "WaterBodyOceanActor.h"
 #include "Components/SphereComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "project_02/HY/Trash/Trash.h"
 
 // Sets default values
 AInteractiveHook::AInteractiveHook()
@@ -92,5 +93,12 @@ void AInteractiveHook::OnOverlapHookGrab(
 		HookStatus = EHookStatus::Fixed;
 		MoveToPos = FVector::ZeroVector;
 	}
-	
+
+	if (ATrash* NewTrash = Cast<ATrash>(OtherActor))
+	{
+		NewTrash->StaticMesh->SetSimulatePhysics(false);
+		NewTrash->SetActorLocation(GetActorLocation());
+		NewTrash->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, "");
+		// TODO: 폐품의 바람 이동을 막아야함.
+	}
 }
