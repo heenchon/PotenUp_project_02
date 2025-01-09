@@ -6,7 +6,7 @@
 #include "project_02/DataTable/FEntityAnimationData.h"
 #include "project_02/DataTable/FEntityInfoData.h"
 #include "project_02/Player/BasePlayerController.h"
-#include "project_02/Widgets/PlayerGameUI.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
 
 USurvivalComponent::USurvivalComponent()
 {

@@ -1,6 +1,6 @@
 ﻿#include "PlayerGameUI.h"
 
-#include "StatusProgressBar.h"
+#include "../HUD/Module/StatusProgressBar.h"
 
 void UPlayerGameUI::SetHealthPercent(const uint8 Current, const uint8 Max)
 {
