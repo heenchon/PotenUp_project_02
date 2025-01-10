@@ -1,0 +1,80 @@
+﻿#pragma once
+
+#include "CoreMinimal.h"
+#include "ItemInfoData.generated.h"
+
+UENUM()
+enum class EItemType : uint32
+{
+	Undefined,
+	Equipment,
+	Consume,
+	Ingredient,
+	Max,
+};
+
+
+UENUM()
+enum class EMetaDataKey : uint32
+{
+	Test, // 별 의미 없는 테스트용 데이터다. 상황에 따라 유연하게 쓸 수 있다.
+	Damage,
+};
+
+// 아이템 정보를 담아 추후 아이템을 구성할 때 사용할 요소
+USTRUCT(BlueprintType)
+struct PROJECT_02_API FItemInfoData : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+	
+	FORCEINLINE FString GetDisplayName() const { return DisplayName; }
+	FORCEINLINE EItemType GetItemType() const { return ItemType; }
+	FORCEINLINE TSoftObjectPtr<UTexture2D> GetThumbnail() const { return Thumbnail; }
+	FORCEINLINE int GetMaxItemCount() const { return MaxItemCount; }
+	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() const { return MetaData; }
+	
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
+	FString DisplayName;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
+	EItemType ItemType = EItemType::Undefined;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
+	TSoftObjectPtr<UTexture2D> Thumbnail;
+
+	// 드롭될 때 나올 아이템 액터 정보
+	// TODO: 액터는 추후 아이템 액터 공통화로 처리한다.
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
+	TSubclassOf<AActor> DroppedItemActor;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta = (AllowPrivateAccess = true,
+		ClampMin = 0, ClampMax = 1000, UIMin = 0, UIMax = 1000));
+	int MaxItemCount = 0;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
+	TMap<EMetaDataKey, FString> MetaData;
+};
+
+// 실제 플레이어가 저장할 정보 값
+USTRUCT(BlueprintType)
+struct PROJECT_02_API FInventoryInfo
+{
+	GENERATED_USTRUCT_BODY()
+	
+	FORCEINLINE int GetId() const { return Id; }
+	FORCEINLINE int GetCurrentCount() const { return CurrentCount; }
+	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() const { return MetaData; }
+	
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta =
+		(ClampMin = 0, ClampMax = 1000, UIMin = 0, UIMax = 1000));
+	int Id = 0;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta =
+		(ClampMin = 0, ClampMax = 1000, UIMin = 0, UIMax = 1000));
+	int CurrentCount = 0;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data");
+	TMap<EMetaDataKey, FString> MetaData;
+};
