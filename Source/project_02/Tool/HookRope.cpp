@@ -39,6 +39,7 @@ void AHookRope::OnHoldInteractive()
 			if (ControlledHook->PullHook(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation()))
 			{
 				Status = EInteractiveToolStatus::Completed;
+				Cable->SetVisibility(false);
 			}
 		}
 		return;
