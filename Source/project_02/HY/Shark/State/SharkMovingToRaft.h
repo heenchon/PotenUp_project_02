@@ -18,7 +18,9 @@ class PROJECT_02_API USharkMovingToRaft : public UObject, public ISharkState
 public:
 	FVector TargetLocation;
 	
-	virtual void Enter(ASharkAI* Shark) override;
+	virtual void Enter(ASharkAI* Shark, USharkStateMachine* FSM) override;
 	virtual void Update(ASharkAI* Shark, float DeltaTime) override;
 	virtual void Exit(ASharkAI* Shark) override;
+	// virtual void TestFSM(USharkStateMachine* StateMachine)  override;
+
 };

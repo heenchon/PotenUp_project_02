@@ -19,7 +19,8 @@ public:
 	float CurTime = 0.0f;
 	float AttackDuration = 5.0f;
 	
-	virtual void Enter(ASharkAI* Shark) override;
+	virtual void Enter(ASharkAI* Shark, USharkStateMachine* FSM) override;
 	virtual void Update(ASharkAI* Shark, float DeltaTime) override;
 	virtual void Exit(ASharkAI* Shark) override;
+	// virtual void TestFSM(USharkStateMachine* StateMachine) override;
 };

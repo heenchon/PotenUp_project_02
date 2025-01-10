@@ -1,9 +1,8 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "SharkAttackingRaft.h"
+// #include "../SharkStateMachine.h"
 
-void USharkAttackingRaft::Enter(ASharkAI* Shark)
+void USharkAttackingRaft::Enter(ASharkAI* Shark, USharkStateMachine* FSM)
 {
 	UE_LOG(LogTemp, Warning, TEXT("배공격 시작"));
 }

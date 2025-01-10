@@ -4,10 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "UObject/Object.h"
-// #include "../Shark/SharkState.h"
+// #include "../SharkState.h"
 #include "SharkStateMachine.generated.h"
 
-class ISharkState;
+enum class ESharkState : uint8;
+class USharkIdle;
+
 class ASharkAI;
 
 UCLASS()
@@ -20,8 +22,8 @@ public:
 	
 	UPROPERTY()
 	UObject* CurState;
-	// UPROPERTY()
-	// USharkIdle* Idle;
+	UPROPERTY()
+	USharkIdle* Idle;
 	// UPROPERTY()
 	// USharkMovingToRaft* MoveToRaft;
 	// UPROPERTY()
@@ -33,5 +35,6 @@ public:
 
 	// void Initialize();
 	void ChangeState(UObject* newState, ASharkAI* Shark);
+	// UObject GetStateObject(ESharkState State);
 	void Update(ASharkAI* Shark,float DeltaTime);
 };

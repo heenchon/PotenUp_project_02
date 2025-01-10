@@ -1,8 +1,10 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 #include "SharkMovingToRaft.h"
 #include "../SharkAI.h"
+// #include "../SharkStateMachine.h"
 
-void USharkMovingToRaft::Enter(ASharkAI* Shark)
+
+void USharkMovingToRaft::Enter(ASharkAI* Shark, USharkStateMachine* FSM)
 {
 	UE_LOG(LogTemp, Warning, TEXT("배 이동 시작"));
 	// TargetLocation = Shark->Player().GetActorLocation();
