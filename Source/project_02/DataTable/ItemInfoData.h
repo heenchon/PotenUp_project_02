@@ -58,7 +58,7 @@ private:
 
 // 실제 플레이어가 저장할 정보 값
 USTRUCT(BlueprintType)
-struct PROJECT_02_API FInventoryInfo
+struct PROJECT_02_API FItemMetaInfo
 {
 	GENERATED_USTRUCT_BODY()
 	
