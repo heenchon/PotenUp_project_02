@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "FEntityInfoData.generated.h"
+#include "EntityInfoData.generated.h"
 
 USTRUCT(BlueprintType)
 struct PROJECT_02_API FEntityInfoData : public FTableRowBase

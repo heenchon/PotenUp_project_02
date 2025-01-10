@@ -3,8 +3,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "project_02/Characters/PlayerCharacter.h"
-#include "project_02/DataTable/FEntityAnimationData.h"
-#include "project_02/DataTable/FEntityInfoData.h"
+#include "project_02/DataTable/EntityAnimationData.h"
+#include "project_02/DataTable/EntityInfoData.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 
@@ -83,7 +83,7 @@ void USurvivalComponent::OnChangedHealth()
 
 			check(AnimData);
 			Player->bBlockInput = true;
-			Player->PlayAnimMontage(AnimData->DiedAnimation);
+			Player->PlayAnimMontage(AnimData->DiedAnimation.Get());
 		}
 		
 		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
