@@ -33,6 +33,7 @@ void UInventoryList::NativeConstruct()
 	ItemGridList->ClearChildren();
 	if (const ABasePlayerState* PS = Cast<ABasePlayerState>(GetOwningPlayerState()))
 	{
+		
 		SetInventoryArray(PS->GetInventorySlotCount());
 		
 		for (int i = 0; i < PS->GetInventorySlotCount(); i++)

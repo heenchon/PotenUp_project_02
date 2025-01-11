@@ -1,0 +1,36 @@
+﻿#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "InventoryComponent.generated.h"
+
+class UInputAction;
+class UPlayerEquipmentUI;
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class PROJECT_02_API UInventoryComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+public:
+	UInventoryComponent();
+
+protected:
+	virtual void BeginPlay() override;
+	
+private:
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> InventoryAction;
+	
+	// TODO: UI 관련은 공통 컴포넌트로 이전해도 무방해보임
+	UPROPERTY(EditDefaultsOnly, Category="Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UPlayerEquipmentUI> EquipmentUIClass;
+	
+	TObjectPtr<UPlayerEquipmentUI> EquipmentUI;
+
+	bool IsOpenInventory = false;
+	
+	UFUNCTION()
+	void ToggleInventory();
+};

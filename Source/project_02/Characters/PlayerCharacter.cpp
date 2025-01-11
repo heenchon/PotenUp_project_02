@@ -4,14 +4,14 @@
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Component/SurvivalComponent.h"
+#include "Component/InventoryComponent.h"
 #include "GameFramework/SpringArmComponent.h"
-#include "project_02/Player/BasePlayerController.h"
-#include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Tool/HookRope.h"
 
 APlayerCharacter::APlayerCharacter()
 {
 	SurvivalComponent = CreateDefaultSubobject<USurvivalComponent>("Survival Component");
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArm->SetupAttachment(RootComponent);
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
@@ -55,32 +55,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
-		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered
-		, this, &ThisClass::ToggleInventory);
 	}
 }
 
-void APlayerCharacter::ToggleInventory()
-{
-	if(EquipmentUIClass)
-	{
-		if (!IsValid(EquipmentUI))
-		{
-			EquipmentUI = CreateWidget<UPlayerEquipmentUI>(
-				Cast<ABasePlayerController>(GetController()), EquipmentUIClass);
-		}
 
-		if (IsOpenInventory)
-		{
-			EquipmentUI->RemoveFromParent();
-		} else
-		{
-			EquipmentUI->AddToViewport();
-		}
-		
-		IsOpenInventory = !IsOpenInventory;
-	}
-}
 
 
 void APlayerCharacter::OnInteractiveHolding()

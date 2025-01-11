@@ -28,8 +28,8 @@ void ABasePlayerController::OnDied()
 
 void ABasePlayerController::Respawn()
 {
-	APlayerCharacter* PrevPlayer = Cast<APlayerCharacter>(GetPawn());
-	PrevPlayer->SurvivalComponent->InitialSurvivalData();
+	const APlayerCharacter* PrevPlayer = Cast<APlayerCharacter>(GetPawn());
+	PrevPlayer->GetSurvivalComponent()->InitialSurvivalData();
 	PlayerRespawnUI->RemoveFromParent();
 	SetShowMouseCursor(false);
 }

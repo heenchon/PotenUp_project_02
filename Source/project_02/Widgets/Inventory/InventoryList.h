@@ -8,9 +8,7 @@
 
 class UGridPanel;
 class UInventorySlot;
-/**
- * 
- */
+
 UCLASS()
 class PROJECT_02_API UInventoryList : public UUserWidget
 {

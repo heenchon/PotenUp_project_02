@@ -4,7 +4,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-class UPlayerEquipmentUI;
+class UInventoryComponent;
 class AHookRope;
 class USpringArmComponent;
 class UCameraComponent;
@@ -30,9 +30,9 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
 	TObjectPtr<USpringArmComponent> SpringArm;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Survival)
-	TObjectPtr<USurvivalComponent> SurvivalComponent;
+
+	FORCEINLINE TObjectPtr<USurvivalComponent> GetSurvivalComponent() const { return SurvivalComponent; }
+	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
 	
 protected:
 	virtual void BeginPlay() override;
@@ -42,6 +42,12 @@ protected:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<USurvivalComponent> SurvivalComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<UInventoryComponent> InventoryComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
@@ -62,10 +68,6 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> InteractiveInputAction;
-	
-	UPROPERTY(EditAnywhere, Category = "Input"
-		, meta = (AllowPrivateAccess = true))
-	TObjectPtr<UInputAction> InventoryAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Data"
 		, meta = (AllowPrivateAccess = true))
@@ -91,15 +93,4 @@ private:
 	
 	UFUNCTION()
 	void OnInteractiveEnd();
-
-	// TODO: UI 관련은 공통 컴포넌트로 이전해도 무방해보임
-	UPROPERTY(EditDefaultsOnly, Category="Options|UI", meta = (AllowPrivateAccess = true))
-	TSubclassOf<UPlayerEquipmentUI> EquipmentUIClass;
-	
-	TObjectPtr<UPlayerEquipmentUI> EquipmentUI;
-
-	bool IsOpenInventory = false;
-	
-	UFUNCTION()
-	void ToggleInventory();
 };
