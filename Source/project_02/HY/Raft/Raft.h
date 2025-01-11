@@ -19,7 +19,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	UBuoyancyComponent* Buoyancy;
 
 	UPROPERTY(EditAnywhere, Category = "Move")
