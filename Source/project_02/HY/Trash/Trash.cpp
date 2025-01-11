@@ -13,11 +13,13 @@ ATrash::ATrash()
 	PrimaryActorTick.bCanEverTick = true;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RaftMesh"));
-	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
-
 	RootComponent = StaticMesh;
 	StaticMesh->SetSimulatePhysics(true);
 	
+	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	if (DefaultMesh.Succeeded()) StaticMesh->SetStaticMesh(DefaultMesh.Object);
+	
+	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
 	Buoyancy->AddCustomPontoon(100,"center");
 }
 
@@ -26,8 +28,12 @@ void ATrash::BeginPlay()
 {
 	Super::BeginPlay();
 	//TODO: 윈드 매니저 추가 후 cpp 수정
-	WindDirection=Raft->WindDirection;
-	WindStrength=Raft->WindStrength;
+	if (Raft)
+	{
+		WindDirection=Raft->WindDirection;
+		WindStrength=Raft->WindStrength;
+	}
+	else UE_LOG(LogTemp,Error,TEXT("폐품은 Raft를 찾고있어요.. detail 패널 설정 부탁"));
 }
 
 // Called every frame
