@@ -18,6 +18,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AController> AIController;
 	
 	AActor* Player;
 	AActor* Raft;
@@ -34,20 +37,20 @@ public:
 
 	//상어 속성
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkBasicSpeed = 300.0f;
+	float SharkBasicSpeed = 400.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkAttackSpeed = 500.0f;
+	float SharkAttackSpeed = 700.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkAttackDuration = 5.0f;
 
 	//타겟 도달 거리 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float Distance = 200.0f;
+	float DetectionDistance = 500.0f;
 
 	//타겟 도망 거리 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float MaxDist = 6000.0f;
-	float MinDist = 4500.0f;
+	float MaxDist = 4000.0f;
+	float MinDist = 2000.0f;
 	FVector RunLocation = FVector::ZeroVector;
 	
 protected:
@@ -68,8 +71,9 @@ public:
 	void Runaway(float DeltaTime);
 
 	FVector RandomLocation(FVector originLoc, float maxDist, float minDist);
+
+//상민띠가 준 Enum to String 기능...
 public:
-	
 	template <typename EnumType>
 	static FString GetClassEnumKeyAsString(const EnumType EnumeratorValue)
 	{

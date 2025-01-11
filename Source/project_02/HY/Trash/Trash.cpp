@@ -3,6 +3,7 @@
 
 #include "Trash.h"
 #include "BuoyancyComponent.h"
+#include "VectorUtil.h"
 #include "../Raft/Raft.h"
 
 
@@ -26,8 +27,9 @@ void ATrash::BeginPlay()
 {
 	Super::BeginPlay();
 	//TODO: 윈드 매니저 추가 후 cpp 수정
-	WindDirection=Raft->WindDirection;
-	WindStrength=Raft->WindStrength;
+	FVector originDir = Raft->WindDirection;
+	WindDirection = FVector(-originDir.X,originDir.Y,originDir.Z);
+	// WindStrength=Raft->WindStrength;
 }
 
 // Called every frame

@@ -3,7 +3,7 @@
 
 #include "SharkAI.h"
 #include "Kismet/GameplayStatics.h"
-#include "project_02/HY/Raft/Raft.h"
+#include "SharkAIController.h"
 
 // Sets default values
 ASharkAI::ASharkAI()
@@ -12,6 +12,8 @@ ASharkAI::ASharkAI()
 	PrimaryActorTick.bCanEverTick = true;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	RootComponent = StaticMesh;
+
+	AIController = ASharkAIController::StaticClass();
 }
 
 // Called when the game starts or when spawned
@@ -63,18 +65,14 @@ void ASharkAI::ChangeState(ESharkState newState)
 void ASharkAI::Idle(float DeltaTime)
 {
 	// UE_LOG(LogTemp,Warning,TEXT("상어 Idle"));
-	//돌아다니면서 플레이어가 물에 있는지 체크
 	if (PlayerIsWater)
 	{
-		//물에 있다면 타겟을 플레이어로 전환하고 MoveToTarget
 		Target = Player;
 		ChangeState(ESharkState::MoveToTarget);
 	}
 	else
 	{
-		//아니라면 배 공격 쿨타임을 카운트
 		CurTime += DeltaTime;
-		//배 공격 쿨타임이 찼다면 타겟을 배로 전환하고 MoveToTarget
 		if (CurTime > SharkAttackDuration)
 		{
 			Target = Raft;
@@ -93,7 +91,7 @@ void ASharkAI::MoveToTarget(float DeltaTime)
 	FVector dir = Target->GetActorLocation()-GetActorLocation();
 	dir.Normalize();
 	SetActorLocation(dir*DeltaTime*SharkAttackSpeed + this->GetActorLocation());
-	if (FVector::Dist(GetActorLocation(),Target->GetActorLocation()) < Distance)
+	if (FVector::Dist(GetActorLocation(),Target->GetActorLocation()) < DetectionDistance)
 	{
 		UE_LOG(LogTemp,Warning,TEXT("타겟에 도착!"));
 		if (Target == Player) ChangeState(ESharkState::AttackPlayer);
@@ -104,6 +102,8 @@ void ASharkAI::MoveToTarget(float DeltaTime)
 void ASharkAI::AttackPlayer(float DeltaTime)
 {
 	UE_LOG(LogTemp,Warning, TEXT("플레이어 공격"))
+	RunLocation = RandomLocation(GetActorLocation(),MaxDist,MinDist);
+	UE_LOG(LogTemp,Warning, TEXT("도망갈 좌표: %s"),*RunLocation.ToString());
 	ChangeState(ESharkState::RunAway);
 }
 
@@ -116,20 +116,27 @@ void ASharkAI::AttackRaft(float DeltaTime)
 
 void ASharkAI::Runaway(float DeltaTime)
 {
-	SetActorLocation(RunLocation = RandomLocation(GetActorLocation(),MaxDist,MinDist));
-	ChangeState(ESharkState::Idle);
+	FVector dir = RunLocation-GetActorLocation();
+	dir.Normalize();
+	SetActorLocation(dir*SharkAttackSpeed*DeltaTime + GetActorLocation());
+	
+	if (FVector::Dist(GetActorLocation(),RunLocation) < 5.0)
+	{
+		UE_LOG(LogTemp,Warning,TEXT("도망완료"));
+		ChangeState(ESharkState::Idle);
+	}
 }
 
 FVector ASharkAI::RandomLocation(FVector originLoc, float maxDist, float minDist)
 {
-	float Angle = FMath::RandRange(0.0f, 360.0f);
-	FVector Direction = FVector(FMath::Cos(FMath::DegreesToRadians(Angle)), FMath::Sin(FMath::DegreesToRadians(Angle)), 0.0f);
-	float randDist = FMath::RandRange(minDist, maxDist);
+	float angle = FMath::RandRange(0.0f, 360.0f);
+	FVector direction = FVector(FMath::Cos(FMath::DegreesToRadians(angle)), FMath::Sin(FMath::DegreesToRadians(angle)), -0.5f);
 	
-	FVector RandomLocation = originLoc + Direction * randDist;
+	FVector RandomLocation = originLoc +direction * maxDist;
+	RandomLocation.Z = FMath::Min(originLoc.Z, -1800.f); //바닥 뚫지 않게 제한
 	
-	RandomLocation.Z = FMath::Min(originLoc.Z, RandomLocation.Z);
-
 	return RandomLocation;
+	
+	// float randDist = FMath::RandRange(minDist, maxDist);
 }
 
