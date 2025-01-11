@@ -14,12 +14,10 @@ ARaft::ARaft()
 	
 	// RaftMesh를 루트 컴포넌트로 설정
 	RootComponent = StaticMesh;
-	StaticMesh->SetSimulatePhysics(true);
-	
-	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Water/Caustics/Meshes/CausticsPreviewBase.CausticsPreviewBase'"));
-	if (DefaultMesh.Succeeded()) StaticMesh->SetStaticMesh(DefaultMesh.Object);
 
-	// StaticMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Water/Caustics/Meshes/CausticsPreviewBase.CausticsPreviewBase'"));
+
+	if (DefaultMesh.Succeeded()) StaticMesh->SetStaticMesh(DefaultMesh.Object);
 
 	Buoyancy->AddCustomPontoon(100,"one");
 	Buoyancy->AddCustomPontoon(100,"two");
