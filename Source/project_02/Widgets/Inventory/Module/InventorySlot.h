@@ -6,6 +6,9 @@
 #include "Blueprint/UserWidget.h"
 #include "InventorySlot.generated.h"
 
+struct FItemMetaInfo;
+class UTextBlock;
+class UImage;
 /**
  * 
  */
@@ -13,5 +16,15 @@ UCLASS()
 class PROJECT_02_API UInventorySlot : public UUserWidget
 {
 	GENERATED_BODY()
+	
+public:
+	void SetSlotInfo(const FItemMetaInfo& ItemMetaInfo) const;
+	
+private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> ItemThumbnail;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> ItemCount;
 };
  

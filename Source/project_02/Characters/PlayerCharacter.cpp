@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "Component/SurvivalComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "project_02/Player/BasePlayerController.h"
+#include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Tool/HookRope.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -52,9 +54,34 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
-																			, this, &ThisClass::OnInteractiveEnd);
+		, this, &ThisClass::OnInteractiveEnd);
+		EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered
+		, this, &ThisClass::ToggleInventory);
 	}
 }
+
+void APlayerCharacter::ToggleInventory()
+{
+	if(EquipmentUIClass)
+	{
+		if (!IsValid(EquipmentUI))
+		{
+			EquipmentUI = CreateWidget<UPlayerEquipmentUI>(
+				Cast<ABasePlayerController>(GetController()), EquipmentUIClass);
+		}
+
+		if (IsOpenInventory)
+		{
+			EquipmentUI->RemoveFromParent();
+		} else
+		{
+			EquipmentUI->AddToViewport();
+		}
+		
+		IsOpenInventory = !IsOpenInventory;
+	}
+}
+
 
 void APlayerCharacter::OnInteractiveHolding()
 {

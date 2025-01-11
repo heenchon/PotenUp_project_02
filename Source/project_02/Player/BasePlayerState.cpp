@@ -1,21 +1,30 @@
 ﻿#include "BasePlayerState.h"
+#include "project_02/DataTable/ItemInfoData.h"
 
 ABasePlayerState::ABasePlayerState()
 {
 	
 }
 
-// 무조건 true로 return 받지만 혹시 모를 딜레이 문제로 인해 아이템을
-// 여러개 먹는 것을 방지하기 위해 bool을 return 받아 이 함수가 끝날 때
-// 까지 기다리게 하는 것이 목적이다.
-// bool ABasePlayerState::AddItem(const FItemMetaInfo& NewItem)
-// {
-//
-// 	// for (FItemMetaInfo& InventoryList : PlayerInventoryList)
-// 	// {
-// 	// 	
-// 	// }
-// 	
-// 	return true;
-// }
+void ABasePlayerState::BeginPlay()
+{
+	// 테스트 코드
+	// TODO: 제거해야 할 코드
+	FItemMetaInfo NewItem;
+	NewItem.SetId(1);
+	NewItem.SetCurrentCount(10);
 
+	PlayerInventoryList.Add(NewItem);
+
+	FItemMetaInfo NewItem1;
+	NewItem1.SetId(2);
+	NewItem1.SetCurrentCount(3);
+
+	PlayerInventoryList.Add(NewItem1);
+
+	FItemMetaInfo NewItem2;
+	NewItem2.SetId(3);
+	NewItem2.SetCurrentCount(2);
+
+	PlayerInventoryList.Add(NewItem2);
+}

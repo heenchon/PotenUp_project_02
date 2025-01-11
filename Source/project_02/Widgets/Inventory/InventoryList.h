@@ -16,15 +16,20 @@ class PROJECT_02_API UInventoryList : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	void SetInventoryArray(const uint8 NewCount);
+
 protected:
 	virtual void NativePreConstruct() override;
+
+	virtual void NativeConstruct() override;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 ItemListColumn;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
-	uint8 MaxItemCount;
+	uint8 SlotCount;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UInventorySlot> ItemSlotClass;

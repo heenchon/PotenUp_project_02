@@ -4,7 +4,8 @@
 #include "GameFramework/PlayerState.h"
 #include "BasePlayerState.generated.h"
 
-// struct FItemMetaInfo;
+
+struct FItemMetaInfo;
 
 UCLASS()
 class PROJECT_02_API ABasePlayerState : public APlayerState
@@ -14,11 +15,16 @@ class PROJECT_02_API ABasePlayerState : public APlayerState
 public:
 	ABasePlayerState();
 
-	// bool AddItem(const FItemMetaInfo& NewItem);
+	FORCEINLINE uint8 GetInventorySlotCount() const  { return InventorySlotCount; }
+	FORCEINLINE TArray<FItemMetaInfo> GetPlayerInventoryList() const { return PlayerInventoryList; }
+
+protected:
+	virtual void BeginPlay() override;
 	
 private:
-	// TArray<FItemMetaInfo> PlayerInventoryList;
+	UPROPERTY()
+	TArray<FItemMetaInfo> PlayerInventoryList;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
-	uint8 MaxInventorySlotCount = 0;
+	uint8 InventorySlotCount = 0;
 };

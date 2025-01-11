@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerEquipmentUI;
 class AHookRope;
 class USpringArmComponent;
 class UCameraComponent;
@@ -62,6 +63,10 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> InteractiveInputAction;
 	
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> InventoryAction;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Data"
 		, meta = (AllowPrivateAccess = true))
 	FDataTableRowHandle AnimationInfo;
@@ -86,4 +91,15 @@ private:
 	
 	UFUNCTION()
 	void OnInteractiveEnd();
+
+	// TODO: UI 관련은 공통 컴포넌트로 이전해도 무방해보임
+	UPROPERTY(EditDefaultsOnly, Category="Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UPlayerEquipmentUI> EquipmentUIClass;
+	
+	TObjectPtr<UPlayerEquipmentUI> EquipmentUI;
+
+	bool IsOpenInventory = false;
+	
+	UFUNCTION()
+	void ToggleInventory();
 };
