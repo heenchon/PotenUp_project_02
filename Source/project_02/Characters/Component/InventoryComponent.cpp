@@ -27,6 +27,7 @@ void UInventoryComponent::BeginPlay()
 			, this, &ThisClass::ChangeHotSlot);
 		}
 	}
+	SetHotSlotItemToPlayer(SelectedHotSlot);
 }
 
 void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)

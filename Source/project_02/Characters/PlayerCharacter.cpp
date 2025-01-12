@@ -74,18 +74,18 @@ void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActo
 
 void APlayerCharacter::OnInteractiveHolding()
 {
-	// if (TestInteractiveItem)
-	// {
-	// 	TestInteractiveItem->OnHoldInteractive();
-	// }	
+	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	{
+		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
+	}	
 }
 
 void APlayerCharacter::OnInteractiveEnd()
 {
-	// if (TestInteractiveItem)
-	// {
-	// 	TestInteractiveItem->OnEndInteractive();
-	// }
+	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	{
+		static_cast<AHookRope*>(TestInteractiveItem)->OnEndInteractive();
+	}
 }
 
 void APlayerCharacter::FindToUse()
