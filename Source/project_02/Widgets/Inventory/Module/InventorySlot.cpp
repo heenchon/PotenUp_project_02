@@ -18,8 +18,11 @@ void UInventorySlot::SetSlotInfo(const FItemMetaInfo& ItemMetaInfo) const
 	
 	const UBaseGameInstance* GameInstance = static_cast<UBaseGameInstance*>(GetGameInstance());
 
-	UE_LOG(LogTemp, Display, TEXT("테스트 아이템 %d: %d"), ItemMetaInfo.GetId(), ItemMetaInfo.GetCurrentCount());
 	ItemThumbnail.Get()->SetBrushFromTexture(
 		GameInstance->GetItemInfoList()[ItemMetaInfo.GetId()].GetThumbnail().Get());
-	ItemCount->SetText(FText::AsNumber(ItemMetaInfo.GetCurrentCount()));
+	
+	if (ItemMetaInfo.GetCurrentCount() != 1)
+	{
+		ItemCount->SetText(FText::AsNumber(ItemMetaInfo.GetCurrentCount()));
+	}
 }

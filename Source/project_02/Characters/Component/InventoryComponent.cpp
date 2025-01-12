@@ -18,9 +18,18 @@ void UInventoryComponent::BeginPlay()
 		{
 			EnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Triggered
 			, this, &ThisClass::ToggleInventory);
+			EnhancedInputComponent->BindAction(ChangeHotSlotAction, ETriggerEvent::Triggered
+			, this, &ThisClass::ChangeHotSlot);
 		}
 	}
 }
+
+void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
+{
+	const float NewValue = Value.Get<float>();
+	UE_LOG(LogTemp, Display, TEXT("%f"), NewValue);
+}
+
 
 void UInventoryComponent::ToggleInventory()
 {

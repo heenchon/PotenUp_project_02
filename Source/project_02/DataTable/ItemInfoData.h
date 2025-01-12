@@ -7,6 +7,7 @@ UENUM()
 enum class EItemType : uint32
 {
 	Undefined,
+	Interactive,
 	Equipment,
 	Consume,
 	Ingredient,
