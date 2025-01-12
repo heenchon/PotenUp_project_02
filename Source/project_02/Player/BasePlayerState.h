@@ -22,8 +22,7 @@ public:
 	FORCEINLINE TArray<FItemMetaInfo> GetPlayerInventoryList() const { return PlayerInventoryList; }
 	FORCEINLINE TArray<FItemMetaInfo> GetPlayerHotSlotList() const { return PlayerHotSlotList; }
 
-protected:
-	virtual void BeginPlay() override;
+	void AddItem(const FItemMetaInfo& ItemInfo);
 	
 private:
 	UPROPERTY()

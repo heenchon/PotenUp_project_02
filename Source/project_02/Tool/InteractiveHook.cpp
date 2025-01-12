@@ -85,13 +85,8 @@ void AInteractiveHook::OnOverlapHookGrab(
 
 	HookStatus = EHookStatus::Fixed;
 	MoveToPos = FVector::ZeroVector;
-	
-	if (Cast<AWaterBodyOcean>(OtherActor))
-	{
-		HookStatus = EHookStatus::Fixed;
-		MoveToPos = FVector::ZeroVector;
-	}
 
+	UE_LOG(LogTemp, Display, TEXT("%s"), *OtherActor->GetName())
 	if (ATrash* NewTrash = Cast<ATrash>(OtherActor))
 	{
 		NewTrash->StaticMesh->SetSimulatePhysics(false);

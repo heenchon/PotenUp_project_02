@@ -6,8 +6,13 @@
 #include "Component/SurvivalComponent.h"
 #include "Component/InventoryComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Player/BasePlayerController.h"
+#include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
+#include "project_02/Widgets/Inventory/InventoryHotSlot.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -48,8 +53,28 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
+		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
+		, this, &ThisClass::AddItemToInventory);
 	}
 }
+
+void APlayerCharacter::AddItemToInventory()
+{
+	// TODO: 여기에 조건과 가지고 있는 아이템 (FindDroppedActor)에 대해
+	// 처리하는 로직을 추가해야 한다. 당분간은 임시 로직으로 대체
+	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
+	
+	FItemMetaInfo NewItem;
+	NewItem.SetId(2);
+	NewItem.SetCurrentCount(3);
+	
+	PS->AddItem(NewItem);
+	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetController());
+
+	UPlayerGameUI* GameUI = static_cast<UPlayerGameUI*>(PC->GetPlayerUI());
+	GameUI->GetInventoryHotSlot()->UpdateInventoryArray();
+}
+
 
 void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass)
 {
@@ -70,8 +95,6 @@ void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActo
 	}
 }
 
-
-
 void APlayerCharacter::OnInteractiveHolding()
 {
 	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
@@ -90,28 +113,25 @@ void APlayerCharacter::OnInteractiveEnd()
 
 void APlayerCharacter::FindToUse()
 {
-	const FVector StartPosition = GetActorLocation();
+	const FVector StartPosition = SpringArm->GetComponentLocation();
 	
 	const FVector EndPosition = StartPosition + CameraComponent->GetForwardVector() * UseInteractiveRange;
 
 	FHitResult HitResult;
-	FCollisionShape Shape = FCollisionShape::MakeCapsule(40.f, 500.f);
+	
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesArray;
+	ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+	
+	TArray<AActor*> ActorsToNotTargeting;
+	ActorsToNotTargeting.Add(this);
 
-	if (GetWorld()->SweepSingleByChannel(
-		HitResult,
-		StartPosition,
-		EndPosition,
-		FQuat::Identity,
-		// 드롭 가능한 아이템 or 상호작용 기기
-		ECC_GameTraceChannel1,
-		Shape
-	))
+	if (UKismetSystemLibrary::SphereTraceSingleForObjects(
+		GetWorld(), StartPosition, EndPosition, 20.f, ObjectTypesArray, false
+		, ActorsToNotTargeting, EDrawDebugTrace::ForOneFrame, HitResult, true))
 	{
-		// UE_LOG(LogTemp, Display, TEXT("%s"), *HitResult.GetActor()->GetName());
+		FindDroppedActor = HitResult.GetActor();
 	}
 }
-
-
 
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 {
@@ -158,8 +178,3 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	SurvivalComponent->AddDamage(static_cast<uint8>(DamageAmount));
 	return DamageAmount;
 }
-
-
-
-
-

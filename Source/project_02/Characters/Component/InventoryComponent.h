@@ -16,7 +16,7 @@ class PROJECT_02_API UInventoryComponent : public UActorComponent
 
 public:
 	UInventoryComponent();
-
+	
 	void SetHotSlotIndex(const uint8 NewIndex);
 
 	void SetHotSlotItemToPlayer(const uint8 NewIndex);

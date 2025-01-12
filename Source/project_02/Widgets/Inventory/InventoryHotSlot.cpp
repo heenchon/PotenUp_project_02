@@ -71,3 +71,17 @@ void UInventoryHotSlot::NativeConstruct()
 		}
 	}
 }
+
+void UInventoryHotSlot::UpdateInventoryArray()
+{
+	const ABasePlayerState* PS = Cast<ABasePlayerState>(GetOwningPlayerState());
+	
+	for (int i = 0; i < PS->GetHotSlotCount(); i++)
+	{
+		if (PS->GetPlayerHotSlotList().IsValidIndex(i))
+		{
+			const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
+			CurrentItemSlot->SetSlotInfo(PS->GetPlayerHotSlotList()[i]);
+		}
+	}
+}

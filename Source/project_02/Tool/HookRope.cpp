@@ -23,6 +23,21 @@ void AHookRope::BeginPlay()
 	Cable->SetVisibility(false);
 }
 
+
+void AHookRope::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (EndPlayReason == EEndPlayReason::Destroyed)
+	{
+		if (ControlledHook)
+		{
+			ControlledHook->Destroy();
+		}
+	}
+}
+
+
 void AHookRope::OnHoldInteractive()
 {
 	if (Status == EInteractiveToolStatus::Completed)
