@@ -69,6 +69,10 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> InteractiveInputAction;
 	
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> UseInputAction;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Data"
 		, meta = (AllowPrivateAccess = true))
 	FDataTableRowHandle AnimationInfo;
@@ -93,4 +97,11 @@ private:
 	
 	UFUNCTION()
 	void OnInteractiveEnd();
+
+	// TODO: 이후 상호작용 관련 컴포넌트로 이전
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
+		, meta = (AllowPrivateAccess = true))
+	float UseInteractiveRange;
+	
+	void FindToUse();
 };

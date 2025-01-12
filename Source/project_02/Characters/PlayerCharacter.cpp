@@ -6,6 +6,7 @@
 #include "Component/SurvivalComponent.h"
 #include "Component/InventoryComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "project_02/Player/BasePlayerController.h"
 #include "project_02/Tool/HookRope.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -77,6 +78,30 @@ void APlayerCharacter::OnInteractiveEnd()
 	}
 }
 
+void APlayerCharacter::FindToUse()
+{
+	const FVector StartPosition = GetActorLocation();
+	
+	const FVector EndPosition = StartPosition + CameraComponent->GetForwardVector() * UseInteractiveRange;
+
+	FHitResult HitResult;
+	FCollisionShape Shape = FCollisionShape::MakeCapsule(40.f, 500.f);
+
+	if (GetWorld()->SweepSingleByChannel(
+		HitResult,
+		StartPosition,
+		EndPosition,
+		FQuat::Identity,
+		// 드롭 가능한 아이템 or 상호작용 기기
+		ECC_GameTraceChannel1,
+		Shape
+	))
+	{
+		// UE_LOG(LogTemp, Display, TEXT("%s"), *HitResult.GetActor()->GetName());
+	}
+}
+
+
 
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 {
@@ -99,6 +124,8 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 	FinalValue = FinalValue.GetSafeNormal(1);
 	
 	AddMovementInput(FinalValue);
+
+	FindToUse();
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -111,6 +138,8 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	AddControllerYawInput(VectorValue.X);
 	// Pitch는 앞 뒤가 아닌 위 아래 회전이기 때문에 Y값을 넣어줌
 	AddControllerPitchInput(VectorValue.Y * - 0.5);
+	
+	FindToUse();
 }
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
