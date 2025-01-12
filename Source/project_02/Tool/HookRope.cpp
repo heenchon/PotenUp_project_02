@@ -39,6 +39,7 @@ void AHookRope::OnHoldInteractive()
 			if (ControlledHook->PullHook(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation()))
 			{
 				Status = EInteractiveToolStatus::Completed;
+				Cable->SetVisibility(false);
 			}
 		}
 		return;
@@ -67,8 +68,9 @@ void AHookRope::OnEndInteractive()
 	const APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	FVector NewLocation = GetActorLocation() + Player->GetActorForwardVector() * 50;
 	NewLocation.Z += 50;
-	
-	if (ControlledHook = GetWorld()->SpawnActor<AInteractiveHook>(HookItem, NewLocation, GetActorRotation()))
+
+	ControlledHook = GetWorld()->SpawnActor<AInteractiveHook>(HookItem, NewLocation, GetActorRotation());
+	if (ControlledHook)
 	{
 		Cable->SetVisibility(true);
 		Cable->SetAttachEndToComponent(ControlledHook->GetHookMesh(), "Start");

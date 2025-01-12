@@ -1,0 +1,55 @@
+﻿#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "InventoryComponent.generated.h"
+
+class UInputAction;
+class UPlayerEquipmentUI;
+
+struct FInputActionValue;
+
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
+class PROJECT_02_API UInventoryComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+public:
+	UInventoryComponent();
+
+	void SetHotSlotIndex(const uint8 NewIndex);
+
+	void SetHotSlotItemToPlayer(const uint8 NewIndex);
+
+protected:
+	virtual void BeginPlay() override;
+	
+private:
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> InventoryAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> ChangeHotSlotAction;
+	
+	// TODO: UI 관련은 공통 컴포넌트로 이전해도 무방해보임
+	UPROPERTY(EditDefaultsOnly, Category="Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UPlayerEquipmentUI> EquipmentUIClass;
+	
+	TObjectPtr<UPlayerEquipmentUI> EquipmentUI;
+
+	uint8 SelectedHotSlot = 0;
+
+	bool IsOpenInventory = false;
+	
+	UFUNCTION()
+	void ToggleInventory();
+	
+	uint8 GetNextSlot(const int8 MoveTo);
+	
+	UFUNCTION()
+	void ChangeHotSlot(const FInputActionValue& Value);
+	
+
+};

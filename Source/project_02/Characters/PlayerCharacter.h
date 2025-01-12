@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class UInventoryComponent;
 class AHookRope;
 class USpringArmComponent;
 class UCameraComponent;
@@ -29,9 +30,12 @@ public:
 	
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
 	TObjectPtr<USpringArmComponent> SpringArm;
-	
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = Survival)
-	TObjectPtr<USurvivalComponent> SurvivalComponent;
+
+	FORCEINLINE TObjectPtr<USurvivalComponent> GetSurvivalComponent() const { return SurvivalComponent; }
+	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
+
+	FORCEINLINE TObjectPtr<AActor> GetTestInteractiveItem() { return TestInteractiveItem; }
+	void SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -41,6 +45,12 @@ protected:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<USurvivalComponent> SurvivalComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<UInventoryComponent> InventoryComponent;
+	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
@@ -62,6 +72,10 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> InteractiveInputAction;
 	
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> UseInputAction;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Data"
 		, meta = (AllowPrivateAccess = true))
 	FDataTableRowHandle AnimationInfo;
@@ -69,11 +83,7 @@ private:
 	// TODO: 추후 HookRope 자체를 공통화해서 상호작용하는 액터 자체를 적용할 예정
 	// 우선은 하드코딩으로 처리
 	UPROPERTY()
-	TObjectPtr<AHookRope> TestInteractiveItem;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Data"
-		, meta = (AllowPrivateAccess = true))
-	TSubclassOf<AHookRope> TestInteractiveItemClass;
+	TObjectPtr<AActor> TestInteractiveItem;
 
 	UFUNCTION()
 	void MoveTo(const FInputActionValue& Value);
@@ -86,4 +96,11 @@ private:
 	
 	UFUNCTION()
 	void OnInteractiveEnd();
+
+	// TODO: 이후 상호작용 관련 컴포넌트로 이전
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
+		, meta = (AllowPrivateAccess = true))
+	float UseInteractiveRange;
+	
+	void FindToUse();
 };
