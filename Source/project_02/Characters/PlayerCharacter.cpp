@@ -29,14 +29,6 @@ void APlayerCharacter::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
-
-	TestInteractiveItem = GetWorld()->SpawnActor<AHookRope>(TestInteractiveItemClass);
-
-	if (TestInteractiveItem)
-	{
-		TestInteractiveItem->AttachToComponent(GetMesh(),
-			FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
-	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -59,23 +51,41 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass)
+{
+	if (TestInteractiveItem)
+	{
+		TestInteractiveItem->Destroy();
+	}
+	
+	if (NewActorClass)
+	{
+		TestInteractiveItem = GetWorld()->SpawnActor<AActor>(NewActorClass);
+		
+		if (TestInteractiveItem)
+		{
+			TestInteractiveItem->AttachToComponent(GetMesh(),
+				FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
+		}
+	}
+}
 
 
 
 void APlayerCharacter::OnInteractiveHolding()
 {
-	if (TestInteractiveItem)
-	{
-		TestInteractiveItem->OnHoldInteractive();
-	}	
+	// if (TestInteractiveItem)
+	// {
+	// 	TestInteractiveItem->OnHoldInteractive();
+	// }	
 }
 
 void APlayerCharacter::OnInteractiveEnd()
 {
-	if (TestInteractiveItem)
-	{
-		TestInteractiveItem->OnEndInteractive();
-	}
+	// if (TestInteractiveItem)
+	// {
+	// 	TestInteractiveItem->OnEndInteractive();
+	// }
 }
 
 void APlayerCharacter::FindToUse()

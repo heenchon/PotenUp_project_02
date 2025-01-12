@@ -31,6 +31,7 @@ struct PROJECT_02_API FItemInfoData : public FTableRowBase
 	FORCEINLINE FString GetDisplayName() const { return DisplayName; }
 	FORCEINLINE EItemType GetItemType() const { return ItemType; }
 	FORCEINLINE TSoftObjectPtr<UTexture2D> GetThumbnail() const { return Thumbnail; }
+	FORCEINLINE TSubclassOf<AActor> GetShowItemActor() const { return ShowItemActor; }
 	FORCEINLINE int GetMaxItemCount() const { return MaxItemCount; }
 	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() const { return MetaData; }
 	
@@ -46,6 +47,9 @@ private:
 
 	// 드롭될 때 나올 아이템 액터 정보
 	// TODO: 액터는 추후 아이템 액터 공통화로 처리한다.
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
+	TSubclassOf<AActor> ShowItemActor;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
 	TSubclassOf<AActor> DroppedItemActor;
 	

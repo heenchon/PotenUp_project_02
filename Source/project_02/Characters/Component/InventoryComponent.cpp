@@ -1,8 +1,10 @@
 ﻿#include "InventoryComponent.h"
 
 #include "EnhancedInputComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/Game/BaseGameInstance.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
@@ -30,7 +32,11 @@ void UInventoryComponent::BeginPlay()
 void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 {
 	const float NewValue = Value.Get<float>();
-	SetHotSlotIndex(GetNextSlot(static_cast<int8>(NewValue)));
+	// UI 관련 변화
+	const uint8 NextIndex = GetNextSlot(static_cast<int8>(NewValue));
+	SetHotSlotIndex(NextIndex);
+	// 실제 액터 반영
+	SetHotSlotItemToPlayer(NextIndex);
 }
 
 uint8 UInventoryComponent::GetNextSlot(const int8 MoveTo)
@@ -60,6 +66,8 @@ void UInventoryComponent::SetHotSlotIndex(const uint8 NewIndex)
 	{
 		if (Player->GetController()->IsA(ABasePlayerController::StaticClass()))
 		{
+			// TODO: 관련 사항은 Controller 차원에서 Delegate를 걸어도 될 것 같은데...
+			// 아직 Delegate 형식에 익숙치 않아서 TODO로 넘겨둠
 			ABasePlayerController* PC =
 				static_cast<ABasePlayerController*>(Player->GetController());
 			
@@ -70,6 +78,30 @@ void UInventoryComponent::SetHotSlotIndex(const uint8 NewIndex)
 		}
 	}
 	SelectedHotSlot = NewIndex;
+}
+
+void UInventoryComponent::SetHotSlotItemToPlayer(const uint8 NewIndex)
+{
+	if (GetOwner()->IsA(APlayerCharacter::StaticClass())) {
+		APlayerCharacter* Player = static_cast<APlayerCharacter*>(GetOwner());
+		ABasePlayerState* PS = static_cast<ABasePlayerState*>(Player->GetPlayerState());
+		const UBaseGameInstance* GameInstance =
+			static_cast<UBaseGameInstance*>(UGameplayStatics::GetGameInstance(GetWorld()));
+
+		if (PS->GetPlayerHotSlotList().IsValidIndex(NewIndex))
+		{
+			const FItemInfoData ItemInfo = GameInstance->GetItemInfoList()[
+					PS->GetPlayerHotSlotList()[NewIndex].GetId()
+				];
+			if (ItemInfo.GetShowItemActor())
+			{
+				Player->SetTestInteractiveItem(ItemInfo.GetShowItemActor());
+			}
+		} else
+		{
+			Player->SetTestInteractiveItem(nullptr);
+		}
+	}
 }
 
 void UInventoryComponent::ToggleInventory()

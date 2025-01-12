@@ -19,6 +19,8 @@ public:
 
 	void SetHotSlotIndex(const uint8 NewIndex);
 
+	void SetHotSlotItemToPlayer(const uint8 NewIndex);
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -44,8 +46,10 @@ private:
 	UFUNCTION()
 	void ToggleInventory();
 	
+	uint8 GetNextSlot(const int8 MoveTo);
+	
 	UFUNCTION()
 	void ChangeHotSlot(const FInputActionValue& Value);
+	
 
-	uint8 GetNextSlot(const int8 MoveTo);
 };
