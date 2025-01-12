@@ -6,12 +6,12 @@
 #include "Blueprint/UserWidget.h"
 #include "InventorySlot.generated.h"
 
+class UBorder;
 struct FItemMetaInfo;
 class UTextBlock;
 class UImage;
-/**
- * 
- */
+
+
 UCLASS()
 class PROJECT_02_API UInventorySlot : public UUserWidget
 {
@@ -19,6 +19,8 @@ class PROJECT_02_API UInventorySlot : public UUserWidget
 	
 public:
 	void SetSlotInfo(const FItemMetaInfo& ItemMetaInfo) const;
+
+	void SetSelected(const bool bIsSelected) const;
 	
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -26,5 +28,8 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> ItemCount;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UBorder> SelectedBorder;
 };
  

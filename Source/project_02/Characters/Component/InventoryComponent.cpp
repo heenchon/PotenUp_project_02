@@ -1,9 +1,12 @@
 ﻿#include "InventoryComponent.h"
 
 #include "EnhancedInputComponent.h"
+#include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Player/BasePlayerController.h"
+#include "project_02/Player/BasePlayerState.h"
 #include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -27,9 +30,47 @@ void UInventoryComponent::BeginPlay()
 void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 {
 	const float NewValue = Value.Get<float>();
-	UE_LOG(LogTemp, Display, TEXT("%f"), NewValue);
+	SetHotSlotIndex(GetNextSlot(static_cast<int8>(NewValue)));
 }
 
+uint8 UInventoryComponent::GetNextSlot(const int8 MoveTo)
+{
+	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
+	{
+		ABasePlayerState* PS = Player->GetPlayerState<ABasePlayerState>();
+		check(PS);
+
+		if (SelectedHotSlot + MoveTo < 0)
+		{
+			return PS->GetHotSlotCount() + (SelectedHotSlot + MoveTo);
+		}
+
+		if (SelectedHotSlot + MoveTo >= PS->GetHotSlotCount())
+		{
+			return SelectedHotSlot + MoveTo - PS->GetHotSlotCount();
+		}
+	}
+
+	return SelectedHotSlot + MoveTo;
+}
+
+void UInventoryComponent::SetHotSlotIndex(const uint8 NewIndex)
+{
+	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
+	{
+		if (Player->GetController()->IsA(ABasePlayerController::StaticClass()))
+		{
+			ABasePlayerController* PC =
+				static_cast<ABasePlayerController*>(Player->GetController());
+			
+			if (UPlayerGameUI* GameUI = Cast<UPlayerGameUI>(PC->GetPlayerUI()))
+			{
+				GameUI->SetHotSlotIndex(SelectedHotSlot, NewIndex);
+			}
+		}
+	}
+	SelectedHotSlot = NewIndex;
+}
 
 void UInventoryComponent::ToggleInventory()
 {

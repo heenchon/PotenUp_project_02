@@ -14,6 +14,8 @@ class PROJECT_02_API UInventoryHotSlot : public UUserWidget
 	
 public:
 	void SetInventoryArray(const uint8 NewCount);
+	
+	void ChangeSelectedHotSlot(const uint8 PrevSlot, const uint8 NextSlot);
 
 protected:
 	virtual void NativePreConstruct() override;

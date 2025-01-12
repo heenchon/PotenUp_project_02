@@ -1,12 +1,17 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "InventorySlot.h"
 
-
-#include "InventorySlot.h"
-
+#include "Components/Border.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Game/BaseGameInstance.h"
+
+void UInventorySlot::SetSelected(const bool bIsSelected) const
+{
+	SelectedBorder->SetVisibility(bIsSelected ?
+		ESlateVisibility::Visible : ESlateVisibility::Hidden);
+}
+
 
 void UInventorySlot::SetSlotInfo(const FItemMetaInfo& ItemMetaInfo) const
 {

@@ -17,6 +17,8 @@ class PROJECT_02_API UInventoryComponent : public UActorComponent
 public:
 	UInventoryComponent();
 
+	void SetHotSlotIndex(const uint8 NewIndex);
+
 protected:
 	virtual void BeginPlay() override;
 	
@@ -35,6 +37,8 @@ private:
 	
 	TObjectPtr<UPlayerEquipmentUI> EquipmentUI;
 
+	uint8 SelectedHotSlot = 0;
+
 	bool IsOpenInventory = false;
 	
 	UFUNCTION()
@@ -42,4 +46,6 @@ private:
 	
 	UFUNCTION()
 	void ChangeHotSlot(const FInputActionValue& Value);
+
+	uint8 GetNextSlot(const int8 MoveTo);
 };
