@@ -54,12 +54,10 @@ void AInteractiveHook::Tick(float DeltaTime)
 
 	if (HookStatus == EHookStatus::Launched)
 	{
-		const FVector Position = GetActorLocation() + 
-			(MoveToPos * DeltaTime * Power * PowerPercent) + 
-			(FVector::UpVector * (-1.f * GravityScale * DeltaTime));
-
-		SetActorLocation(Position);
+		AddActorWorldOffset(MoveToPos * DeltaTime * Power * PowerPercent + 
+                            			FVector::UpVector * (-1.f * GravityScale * DeltaTime));
 	}
+	
 	if (HookStatus == EHookStatus::Pulled)
 	{
 		if (GetDistanceBetweenMoveToAndCurrentLocation() < HookCalcRadius)
