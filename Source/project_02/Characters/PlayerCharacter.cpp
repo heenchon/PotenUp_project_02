@@ -120,7 +120,7 @@ void APlayerCharacter::FindToUse()
 
 	if (UKismetSystemLibrary::SphereTraceSingleForObjects(
 		GetWorld(), StartPosition, EndPosition, 20.f, ObjectTypesArray, false
-		, ActorsToNotTargeting, EDrawDebugTrace::ForOneFrame, HitResult, true))
+		, ActorsToNotTargeting, EDrawDebugTrace::None, HitResult, true))
 	{
 		FindDroppedActor = HitResult.GetActor();
 	}

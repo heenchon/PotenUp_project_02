@@ -82,6 +82,24 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 	return RemainCount > 0 ? RemainCount : 0;
 }
 
+bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
+{
+	if (PlayerInventoryList[Index].GetCurrentCount() - Count < 0)
+	{
+		return false;
+	} else if (PlayerInventoryList[Index].GetCurrentCount() - Count == 0)
+	{
+		const FItemMetaInfo ClearItemMeta;
+		PlayerInventoryList[Index] = ClearItemMeta;
+	} else
+	{
+		PlayerInventoryList[Index].SetCurrentCount(PlayerInventoryList[Index].GetCurrentCount() - Count);
+	}
+	
+	UpdateInventoryHotbar();
+	
+	return true;
+}
 
 uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 {
@@ -123,10 +141,15 @@ uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 	}
 
 	// UI 업데이트
+	UpdateInventoryHotbar();
+	
+	return 0;
+}
+
+void ABasePlayerState::UpdateInventoryHotbar() const
+{
 	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetPlayerController());
 
 	const UPlayerGameUI* GameUI = static_cast<UPlayerGameUI*>(PC->GetPlayerUI());
 	GameUI->GetInventoryHotSlot()->UpdateInventoryArray();
-	
-	return 0;
 }

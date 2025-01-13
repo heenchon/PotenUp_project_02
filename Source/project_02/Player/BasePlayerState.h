@@ -24,6 +24,8 @@ public:
 	
 	uint32 AddItem(const FItemMetaInfo& ItemInfo);
 
+	bool DropItem(const uint16 Index, const uint32 Count);
+
 	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
 
 protected:
@@ -39,4 +41,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 HotSlotCount = 0;
+
+	void UpdateInventoryHotbar() const;
 };
