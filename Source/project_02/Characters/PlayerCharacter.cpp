@@ -8,6 +8,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "project_02/DataTable/ItemInfoData.h"
+#include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
 
@@ -51,20 +52,20 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
-		, this, &ThisClass::AddItemToInventory);
+		, this, &ThisClass::UseItem);
 	}
 }
 
-void APlayerCharacter::AddItemToInventory()
+void APlayerCharacter::UseItem()
 {
-	// TODO: 여기에 조건과 가지고 있는 아이템 (FindDroppedActor)에 대해
-	// 처리하는 로직을 추가해야 한다. 당분간은 임시 로직으로 대체
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
-	
-	FItemMetaInfo NewItem;
-	NewItem.SetId(2);
-	NewItem.SetCurrentCount(3);
-	PS->AddItem(NewItem);
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ATrash::StaticClass()))
+	{
+		ATrash* Trash = static_cast<ATrash*>(FindDroppedActor);
+		
+		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
+		Trash->UpdateItemInfo(RemainValue);
+	}
 }
 
 

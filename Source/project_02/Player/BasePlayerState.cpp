@@ -83,7 +83,7 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 }
 
 
-void ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
+uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 {
 	const FItemInfoData& ItemInfoById = UItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
 	
@@ -119,6 +119,7 @@ void ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 	{
 		// TODO: 이후에 대한 처리 로직은 다른 곳에 이관해야 함
 		UE_LOG(LogTemp, Error, TEXT("인벤토리 초과함"))
+		return RemainResult;
 	}
 
 	// UI 업데이트
@@ -126,4 +127,6 @@ void ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 
 	const UPlayerGameUI* GameUI = static_cast<UPlayerGameUI*>(PC->GetPlayerUI());
 	GameUI->GetInventoryHotSlot()->UpdateInventoryArray();
+	
+	return 0;
 }

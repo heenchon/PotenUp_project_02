@@ -22,7 +22,7 @@ public:
 	FORCEINLINE uint8 GetTotalSlotCount() const  { return HotSlotCount + InventorySlotCount; }
 	FORCEINLINE TArray<FItemMetaInfo> GetPlayerInventoryList() const { return PlayerInventoryList; }
 	
-	void AddItem(const FItemMetaInfo& ItemInfo);
+	uint32 AddItem(const FItemMetaInfo& ItemInfo);
 
 	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
 
