@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "InteractiveHook.generated.h"
 
+class ATrash;
 class USphereComponent;
 
 UENUM()
@@ -59,9 +60,6 @@ private:
 	TObjectPtr<USceneComponent> DefaultRoot;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
-	TObjectPtr<USphereComponent> GrabOverlapBox;
-	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UStaticMeshComponent> HookMesh;
 	
 	UFUNCTION()
@@ -75,4 +73,6 @@ private:
 	);
 
 	double GetDistanceBetweenMoveToAndCurrentLocation(); 
+
+	TArray<TObjectPtr<ATrash>> AttachTrashList;
 };
