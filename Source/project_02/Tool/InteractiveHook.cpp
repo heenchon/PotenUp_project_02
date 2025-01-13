@@ -20,6 +20,11 @@ AInteractiveHook::AInteractiveHook()
 void AInteractiveHook::BeginPlay()
 {
 	Super::BeginPlay();
+	// 현재 HookMesh는 Object Channel이 WorldDynamic이고
+	// 갈고리에 연결할 쓰레기도 WorldDynamic이다.
+	// 그리고 서로 간의 WorldDynamic에 Overlap 속성을 줌으로써 서로 Overlap시
+	// 끌어당기게 처리해뒀다.
+	// TODO: 추후 이 규칙에 대해 정리하기 (알파 ~ 베타 중에서 정리하기)
 	HookMesh->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlapHookGrab);
 }
 
