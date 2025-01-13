@@ -4,12 +4,15 @@
 #include "EnhancedInputComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Component/SurvivalComponent.h"
+#include "Component/InventoryComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "project_02/Player/BasePlayerController.h"
 #include "project_02/Tool/HookRope.h"
 
 APlayerCharacter::APlayerCharacter()
 {
 	SurvivalComponent = CreateDefaultSubobject<USurvivalComponent>("Survival Component");
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArm->SetupAttachment(RootComponent);
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
@@ -25,14 +28,6 @@ void APlayerCharacter::BeginPlay()
 				GetLocalViewingPlayerController()->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
-	}
-
-	TestInteractiveItem = GetWorld()->SpawnActor<AHookRope>(TestInteractiveItemClass);
-
-	if (TestInteractiveItem)
-	{
-		TestInteractiveItem->AttachToComponent(GetMesh(),
-			FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
 	}
 }
 
@@ -52,25 +47,70 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
-																			, this, &ThisClass::OnInteractiveEnd);
+		, this, &ThisClass::OnInteractiveEnd);
 	}
 }
 
-void APlayerCharacter::OnInteractiveHolding()
+void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass)
 {
 	if (TestInteractiveItem)
 	{
-		TestInteractiveItem->OnHoldInteractive();
-	}	
+		TestInteractiveItem->Destroy();
+	}
+	
+	if (NewActorClass)
+	{
+		TestInteractiveItem = GetWorld()->SpawnActor<AActor>(NewActorClass);
+		
+		if (TestInteractiveItem)
+		{
+			TestInteractiveItem->AttachToComponent(GetMesh(),
+				FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
+		}
+	}
+}
+
+
+
+void APlayerCharacter::OnInteractiveHolding()
+{
+	// if (TestInteractiveItem)
+	// {
+	// 	TestInteractiveItem->OnHoldInteractive();
+	// }	
 }
 
 void APlayerCharacter::OnInteractiveEnd()
 {
-	if (TestInteractiveItem)
+	// if (TestInteractiveItem)
+	// {
+	// 	TestInteractiveItem->OnEndInteractive();
+	// }
+}
+
+void APlayerCharacter::FindToUse()
+{
+	const FVector StartPosition = GetActorLocation();
+	
+	const FVector EndPosition = StartPosition + CameraComponent->GetForwardVector() * UseInteractiveRange;
+
+	FHitResult HitResult;
+	FCollisionShape Shape = FCollisionShape::MakeCapsule(40.f, 500.f);
+
+	if (GetWorld()->SweepSingleByChannel(
+		HitResult,
+		StartPosition,
+		EndPosition,
+		FQuat::Identity,
+		// 드롭 가능한 아이템 or 상호작용 기기
+		ECC_GameTraceChannel1,
+		Shape
+	))
 	{
-		TestInteractiveItem->OnEndInteractive();
+		// UE_LOG(LogTemp, Display, TEXT("%s"), *HitResult.GetActor()->GetName());
 	}
 }
+
 
 
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
@@ -94,6 +134,8 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 	FinalValue = FinalValue.GetSafeNormal(1);
 	
 	AddMovementInput(FinalValue);
+
+	FindToUse();
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -106,6 +148,8 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	AddControllerYawInput(VectorValue.X);
 	// Pitch는 앞 뒤가 아닌 위 아래 회전이기 때문에 Y값을 넣어줌
 	AddControllerPitchInput(VectorValue.Y * - 0.5);
+	
+	FindToUse();
 }
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

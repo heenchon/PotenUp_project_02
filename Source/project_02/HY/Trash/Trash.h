@@ -26,6 +26,7 @@ public:
 	FVector WindDirection;
 	float WindStrength = 100.0f;
 
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
