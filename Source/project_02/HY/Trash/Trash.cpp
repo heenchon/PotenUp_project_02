@@ -3,7 +3,7 @@
 
 #include "Trash.h"
 #include "BuoyancyComponent.h"
-#include "../Raft/Raft.h"
+// #include "../Raft/Raft.h"
 
 
 // Sets default values
@@ -34,12 +34,12 @@ void ATrash::BeginPlay()
 {
 	Super::BeginPlay();
 	//TODO: 윈드 매니저 추가 후 cpp 수정
-	if (Raft)
-	{
-		WindDirection=Raft->WindDirection;
-		WindStrength=Raft->WindStrength;
-	}
-	else UE_LOG(LogTemp,Error,TEXT("폐품은 Raft를 찾고있어요.. detail 패널 설정 부탁"));
+	// if (Raft)
+	// {
+	// 	WindDirection=Raft->WindDirection;
+	// 	WindStrength=Raft->WindStrength;
+	// }
+	// else UE_LOG(LogTemp,Error,TEXT("폐품은 Raft를 찾고있어요.. detail 패널 설정 부탁"));
 }
 
 // Called every frame
