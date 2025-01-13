@@ -15,21 +15,23 @@ class PROJECT_02_API ABasePlayerState : public APlayerState
 public:
 	ABasePlayerState();
 
-	void LoadTestPlayerData();
+	void InitializeData();
 	
-	FORCEINLINE uint8 GetHotSlotCount() const  { return HotSlotCount; }
 	FORCEINLINE uint8 GetInventorySlotCount() const  { return InventorySlotCount; }
+	FORCEINLINE uint8 GetHotSlotCount() const  { return HotSlotCount; }
+	FORCEINLINE uint8 GetTotalSlotCount() const  { return HotSlotCount + InventorySlotCount; }
 	FORCEINLINE TArray<FItemMetaInfo> GetPlayerInventoryList() const { return PlayerInventoryList; }
-	FORCEINLINE TArray<FItemMetaInfo> GetPlayerHotSlotList() const { return PlayerHotSlotList; }
-
+	
 	void AddItem(const FItemMetaInfo& ItemInfo);
+
+	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
+
+protected:
+	virtual void BeginPlay() override;
 	
 private:
 	UPROPERTY()
 	TArray<FItemMetaInfo> PlayerInventoryList;
-	
-	UPROPERTY()
-	TArray<FItemMetaInfo> PlayerHotSlotList;
 
 	// TODO: 아래와 같은 설정은 추후 Data Asset으로 이전해보기
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))

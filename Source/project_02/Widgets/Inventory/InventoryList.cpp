@@ -36,7 +36,7 @@ void UInventoryList::NativeConstruct()
 		
 		SetInventoryArray(PS->GetInventorySlotCount());
 		
-		for (int i = 0; i < PS->GetInventorySlotCount(); i++)
+		for (int i = PS->GetHotSlotCount(); i < PS->GetTotalSlotCount(); i++)
 		{
 			if (PS->GetPlayerInventoryList().IsValidIndex(i))
 			{

@@ -63,10 +63,10 @@ void UInventoryHotSlot::NativeConstruct()
 				CurrentItemSlot->SetSelected(true);
 			}
 			
-			if (PS->GetPlayerHotSlotList().IsValidIndex(i))
+			if (PS->GetPlayerInventoryList().IsValidIndex(i))
 			{
 				const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
-				CurrentItemSlot->SetSlotInfo(PS->GetPlayerHotSlotList()[i]);
+				CurrentItemSlot->SetSlotInfo(PS->GetPlayerInventoryList()[i]);
 			}
 		}
 	}
@@ -78,10 +78,7 @@ void UInventoryHotSlot::UpdateInventoryArray()
 	
 	for (int i = 0; i < PS->GetHotSlotCount(); i++)
 	{
-		if (PS->GetPlayerHotSlotList().IsValidIndex(i))
-		{
-			const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
-			CurrentItemSlot->SetSlotInfo(PS->GetPlayerHotSlotList()[i]);
-		}
+		const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
+		CurrentItemSlot->SetSlotInfo(PS->GetPlayerInventoryList()[i]);
 	}
 }

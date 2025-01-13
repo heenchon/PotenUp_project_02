@@ -26,8 +26,11 @@ void UInventorySlot::SetSlotInfo(const FItemMetaInfo& ItemMetaInfo) const
 	ItemThumbnail.Get()->SetBrushFromTexture(
 		GameInstance->GetItemInfoList()[ItemMetaInfo.GetId()].GetThumbnail().Get());
 	
-	if (ItemMetaInfo.GetCurrentCount() != 1)
+	if (ItemMetaInfo.GetCurrentCount() > 1)
 	{
 		ItemCount->SetText(FText::AsNumber(ItemMetaInfo.GetCurrentCount()));
+	} else
+	{
+		ItemCount->SetText(FText::GetEmpty());
 	}
 }

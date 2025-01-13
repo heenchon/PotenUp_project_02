@@ -16,10 +16,12 @@ class PROJECT_02_API UInventoryComponent : public UActorComponent
 
 public:
 	UInventoryComponent();
+
+	FORCEINLINE uint8 GetSelectedHotSlotIndex() const { return SelectedHotSlot; }
 	
 	void SetHotSlotIndex(const uint8 NewIndex);
 
-	void SetHotSlotItemToPlayer(const uint8 NewIndex);
+	void SetHotSlotItemToPlayer(const uint8 PrevIndex, const uint8 NewIndex);
 
 protected:
 	virtual void BeginPlay() override;

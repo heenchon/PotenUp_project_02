@@ -17,7 +17,7 @@ void ABasePlayerController::BeginPlay()
 	if (PlayUIClass)
 	{
 		ABasePlayerState* PS = GetPlayerState<ABasePlayerState>();
-		PS->LoadTestPlayerData();
+		PS->InitializeData();
 		
 		PlayUI = CreateWidget(this, PlayUIClass);
 		PlayUI->AddToViewport();

@@ -8,11 +8,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "project_02/DataTable/ItemInfoData.h"
-#include "project_02/Player/BasePlayerController.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
-#include "project_02/Widgets/HUD/PlayerGameUI.h"
-#include "project_02/Widgets/Inventory/InventoryHotSlot.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -67,12 +64,7 @@ void APlayerCharacter::AddItemToInventory()
 	FItemMetaInfo NewItem;
 	NewItem.SetId(2);
 	NewItem.SetCurrentCount(3);
-	
 	PS->AddItem(NewItem);
-	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetController());
-
-	UPlayerGameUI* GameUI = static_cast<UPlayerGameUI*>(PC->GetPlayerUI());
-	GameUI->GetInventoryHotSlot()->UpdateInventoryArray();
 }
 
 

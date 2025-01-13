@@ -74,7 +74,7 @@ struct PROJECT_02_API FItemMetaInfo
 	FORCEINLINE void SetId(const int NewValue) { Id = NewValue; }
 	FORCEINLINE void SetCurrentCount(const int NewValue) { CurrentCount = NewValue; }
 	
-	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() { return MetaData; }
+	FORCEINLINE void SetMetaData(const TMap<EMetaDataKey, FString>& NewMeta) { MetaData = NewMeta; }
 
 	bool operator == (const FItemMetaInfo& CompareItem) const
 	{
