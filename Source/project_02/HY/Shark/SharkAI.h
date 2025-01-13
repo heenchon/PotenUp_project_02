@@ -7,6 +7,8 @@
 #include "ESharkState.h"
 #include "SharkAI.generated.h"
 
+class APlayerCharacter;
+
 UCLASS()
 class PROJECT_02_API ASharkAI : public AActor
 {
@@ -22,7 +24,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AController> AIController;
 	
-	AActor* Player;
+	class APlayerCharacter* Player;
 	AActor* Raft;
 	
 	//타겟 상태
@@ -37,21 +39,25 @@ public:
 
 	//상어 속성
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkBasicSpeed = 400.0f;
+	float SharkBasicSpeed = 700.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkAttackSpeed = 700.0f;
+	float SharkAttackSpeed = 1200.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkAttackDuration = 5.0f;
 
-	//타겟 도달 거리 범위
+	//Idle 상태 움직임
+	FVector IdleLocation;
+	FVector ControlPoint;
+
+	//타겟 도달 감지 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float DetectionDistance = 500.0f;
 
-	//타겟 도망 거리 범위
+	//도망 거리 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float MaxDist = 4000.0f;
 	float MinDist = 2000.0f;
-	FVector RunLocation = FVector::ZeroVector;
+	FVector RunLocation;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -69,8 +75,10 @@ public:
 	void AttackPlayer(float DeltaTime);
 	void AttackRaft(float DeltaTime);
 	void Runaway(float DeltaTime);
-
-	FVector RandomLocation(FVector originLoc, float maxDist, float minDist);
+	
+	FVector NewRunawayLocation(FVector originLoc, float maxDist, float minDist);
+	void NewRandomCurveLocation();
+	
 
 //상민띠가 준 Enum to String 기능...
 public:
