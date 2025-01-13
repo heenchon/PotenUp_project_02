@@ -84,10 +84,20 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 
 bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 {
+	// -1은 강제로 다 버리기
+	if (Count == -1)
+	{
+		const FItemMetaInfo ClearItemMeta;
+		PlayerInventoryList[Index] = ClearItemMeta;
+		UpdateInventoryHotbar();
+		return true;
+	}
+	
 	if (PlayerInventoryList[Index].GetCurrentCount() - Count < 0)
 	{
 		return false;
-	} else if (PlayerInventoryList[Index].GetCurrentCount() - Count == 0)
+	}
+	else if (PlayerInventoryList[Index].GetCurrentCount() - Count == 0)
 	{
 		const FItemMetaInfo ClearItemMeta;
 		PlayerInventoryList[Index] = ClearItemMeta;

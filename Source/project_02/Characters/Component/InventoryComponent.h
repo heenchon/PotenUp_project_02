@@ -35,6 +35,10 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> ChangeHotSlotAction;
 	
+	UPROPERTY(EditAnywhere, Category = "Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> ItemDropAction;
+	
 	// TODO: UI 관련은 공통 컴포넌트로 이전해도 무방해보임
 	UPROPERTY(EditDefaultsOnly, Category="Options|UI", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UPlayerEquipmentUI> EquipmentUIClass;
@@ -53,5 +57,6 @@ private:
 	UFUNCTION()
 	void ChangeHotSlot(const FInputActionValue& Value);
 	
-
+	UFUNCTION()
+	void DropItem();
 };

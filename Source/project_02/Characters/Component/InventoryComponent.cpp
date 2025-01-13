@@ -25,9 +25,23 @@ void UInventoryComponent::BeginPlay()
 			, this, &ThisClass::ToggleInventory);
 			EnhancedInputComponent->BindAction(ChangeHotSlotAction, ETriggerEvent::Triggered
 			, this, &ThisClass::ChangeHotSlot);
+			EnhancedInputComponent->BindAction(ItemDropAction, ETriggerEvent::Triggered
+			, this, &ThisClass::DropItem);
 		}
 	}
 	SetHotSlotItemToPlayer(-1, SelectedHotSlot);
+}
+
+void UInventoryComponent::DropItem()
+{
+	if (GetOwner()->IsA(APlayerCharacter::StaticClass()))
+	{
+		const APlayerCharacter* Player = static_cast<APlayerCharacter*>(GetOwner());
+		ABasePlayerState* PS = static_cast<ABasePlayerState*>(
+			Player->GetPlayerState());
+
+		PS->DropItem(SelectedHotSlot, -1);
+	}
 }
 
 void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
