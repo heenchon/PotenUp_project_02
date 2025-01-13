@@ -21,6 +21,12 @@ ATrash::ATrash()
 	
 	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
 	Buoyancy->AddCustomPontoon(100,"center");
+
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	StaticMesh->SetCollisionObjectType(ECC_PhysicsBody);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+	StaticMesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
+	StaticMesh->BodyInstance.bLockRotation = true;
 }
 
 // Called when the game starts or when spawned
@@ -40,6 +46,6 @@ void ATrash::BeginPlay()
 void ATrash::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength);
+	// SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength);
 }
 

@@ -4,18 +4,18 @@
 
 #include "CoreMinimal.h"
 #include "Components/StaticMeshComponent.h"
-#include "RafaTop.generated.h"
+#include "RaftTop.generated.h"
 
 /**
  * 
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_02_API URafaTop : public UStaticMeshComponent
+class PROJECT_02_API URaftTop : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
 public:
-	URafaTop();
+	URaftTop();
 	
 	UPROPERTY(EditAnywhere, Category = "Move")
 	FVector WindDirection = {1,0,0};
