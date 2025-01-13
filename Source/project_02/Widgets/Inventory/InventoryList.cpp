@@ -40,7 +40,8 @@ void UInventoryList::NativeConstruct()
 		{
 			if (PS->GetPlayerInventoryList().IsValidIndex(i))
 			{
-				const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
+				// 실제 인벤토리와 다르게 인벤토리 UI는 핫슬롯을 제외한 만큼의 인벤토리다.
+				const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i - PS->GetHotSlotCount()));
 				CurrentItemSlot->SetSlotInfo(PS->GetPlayerInventoryList()[i]);
 			}
 		}
