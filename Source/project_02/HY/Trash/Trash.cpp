@@ -3,7 +3,7 @@
 
 #include "Trash.h"
 #include "BuoyancyComponent.h"
-#include "../Raft/Raft.h"
+// #include "../Raft/Raft.h"
 
 
 // Sets default values
@@ -21,6 +21,12 @@ ATrash::ATrash()
 	
 	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
 	Buoyancy->AddCustomPontoon(100,"center");
+
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	StaticMesh->SetCollisionObjectType(ECC_PhysicsBody);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+	StaticMesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
+	StaticMesh->BodyInstance.bLockRotation = true;
 }
 
 // Called when the game starts or when spawned
@@ -28,18 +34,18 @@ void ATrash::BeginPlay()
 {
 	Super::BeginPlay();
 	//TODO: 윈드 매니저 추가 후 cpp 수정
-	if (Raft)
-	{
-		WindDirection=Raft->WindDirection;
-		WindStrength=Raft->WindStrength;
-	}
-	else UE_LOG(LogTemp,Error,TEXT("폐품은 Raft를 찾고있어요.. detail 패널 설정 부탁"));
+	// if (Raft)
+	// {
+	// 	WindDirection=Raft->WindDirection;
+	// 	WindStrength=Raft->WindStrength;
+	// }
+	// else UE_LOG(LogTemp,Error,TEXT("폐품은 Raft를 찾고있어요.. detail 패널 설정 부탁"));
 }
 
 // Called every frame
 void ATrash::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength);
+	// SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength);
 }
 

@@ -1,16 +1,15 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "RafaTop.h"
+#include "RaftTop.h"
 
-URafaTop::URafaTop()
+URaftTop::URaftTop()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 }
 
-void URafaTop::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void URaftTop::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	UE_LOG(LogTemp, Warning, TEXT("컴포넌트 틱"));
 	SetWorldLocation(GetComponentLocation()+WindDirection*DeltaTime*WindStrength*SailStrength);
 }

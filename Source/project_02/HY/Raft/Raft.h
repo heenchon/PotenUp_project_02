@@ -27,8 +27,8 @@ public:
 
 	//TODO: 윈드 매니저 추가 후 cpp 수정
 	UPROPERTY(EditAnywhere, Category = "Move")
-	float WindStrength = 150.0f;
-	float SailStrength = 1.0f;
+	float WindStrength = 50.0f;
+	float SailStrength = 1.5f;
 
 protected:
 	// Called when the game starts or when spawned

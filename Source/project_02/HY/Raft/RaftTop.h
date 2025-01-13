@@ -4,27 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "Components/StaticMeshComponent.h"
-#include "RafaTop.generated.h"
+#include "RaftTop.generated.h"
 
 /**
  * 
  */
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PROJECT_02_API URafaTop : public UStaticMeshComponent
+class PROJECT_02_API URaftTop : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
 public:
-	URafaTop();
+	URaftTop();
 	
 	UPROPERTY(EditAnywhere, Category = "Move")
 	FVector WindDirection = {1,0,0};
 
 	//TODO: 윈드 매니저 추가 후 cpp 수정
 	UPROPERTY(EditAnywhere, Category = "Move")
-	float WindStrength = 150.0f;
+	float WindStrength = 50.0f;
 	UPROPERTY(EditAnywhere, Category = "Move")
-	float SailStrength = 1.0f;
+	float SailStrength = 1.5f;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
 

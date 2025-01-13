@@ -23,6 +23,11 @@ ARaft::ARaft()
 	Buoyancy->AddCustomPontoon(100,"two");
 	Buoyancy->AddCustomPontoon(100,"three");
 	Buoyancy->AddCustomPontoon(100,"four");
+
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+	StaticMesh->SetCollisionObjectType(ECC_PhysicsBody);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
+	StaticMesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
 }
 
 // Called when the game starts or when spawned
