@@ -29,9 +29,11 @@ void ASharkAI::BeginPlay()
 	// Raft = UGameplayStatics::GetActorOfClass(GetWorld(),TSubclassOf<ARaft>());
 	// if (Raft) UE_LOG(LogTemp,Warning,TEXT("%s"),*Raft->GetName());
 
-	NewRandomCurveLocation();
-	CurrentState = ESharkState::Idle;
+	//TODO: 임시로 플레이어로 고정
 	Target = Player;
+	TargetLocation = NewIdleLocation();
+	NextState = ESharkState::Idle;
+	CurrentState = ESharkState::Turning;
 }
 
 // Called every frame
@@ -48,6 +50,9 @@ void ASharkAI::Tick(float DeltaTime)
 	case ESharkState::MoveToTarget:
 		MoveToTarget(DeltaTime);
 		break;
+	case ESharkState::Turning:
+		Turning(DeltaTime);
+		break;
 	case ESharkState::AttackPlayer:
 		AttackPlayer(DeltaTime);
 		break;
@@ -61,7 +66,7 @@ void ASharkAI::Tick(float DeltaTime)
 
 void ASharkAI::ChangeState(ESharkState newState)
 {
-	UE_LOG(LogTemp,Warning,TEXT("상어 상태 변경"));
+	// UE_LOG(LogTemp,Warning,TEXT("상어 상태 변경"));
 	CurrentState = newState;
 }
 
@@ -70,49 +75,51 @@ void ASharkAI::Idle(float DeltaTime)
 	// UE_LOG(LogTemp,Warning,TEXT("%s"), *NewLocation.ToString());
 	CurTimeforIdle += DeltaTime;
 	float alpha = FMath::Clamp(CurTimeforIdle / IdleMoveDuration, 0.0f, 1.0f);
-	float curveValue = IdleCurve->GetFloatValue(alpha);
 	
-	FVector NewLocation = FMath::Lerp(StartLocation, IdleLocation, alpha);
+	FVector NewLocation = FMath::Lerp(StartLocation, TargetLocation, alpha);
 	SetActorLocation(NewLocation);
 
-	// NewLocation.X += curveValue*1000;
-	// NewLocation.Y += curveValue*1000;
-	
+	//idle 상태일 때 주기적으로 새로운 위치로 이동
 	if (CurTimeforIdle > IdleMoveDuration)
 	{
-		NewRandomCurveLocation();
 		CurTimeforIdle = 0.0f;
+		TargetLocation = NewIdleLocation();
+		NextState = ESharkState::Idle;
+		ChangeState(ESharkState::Turning);
 	}
-	
+
+	//플레이어가 물에 있으면 바로 공격
 	if (PlayerIsWater)
 	{
-		Target = Player;
-		ChangeState(ESharkState::MoveToTarget);
+		TargetLocation = Player->GetActorLocation();
+		NextState = ESharkState::MoveToTarget;
+		ChangeState(ESharkState::Turning);
 	}
+	//공격 주기가 되었으면 공격
 	else
 	{
 		CurTimeforAttack += DeltaTime;
 		if (CurTimeforAttack > SharkAttackDuration)
 		{
-			Target = Raft;
 			CurTimeforAttack = 0.0f;
-			ChangeState(ESharkState::MoveToTarget);
+			//TODO: 임시로 플레이어로 고정
+			TargetLocation = Player->GetActorLocation();
+			NextState = ESharkState::MoveToTarget;
+			ChangeState(ESharkState::Turning);
 		}
 	}
 }
 
 void ASharkAI::MoveToTarget(float DeltaTime)
 {
-	//TODO: 임시로 플레이어로 고정
-	Target = Player;
 	// UE_LOG(LogTemp,Warning,TEXT("%s"), *(Target->GetActorLocation().ToString()));
 	
-	FVector dir = Target->GetActorLocation()-GetActorLocation();
+	FVector dir = TargetLocation-GetActorLocation();
 	dir.Normalize();
 	SetActorLocation(dir*DeltaTime*SharkAttackSpeed + this->GetActorLocation());
 	if (FVector::Dist(GetActorLocation(),Target->GetActorLocation()) < DetectionDistance)
 	{
-		// UE_LOG(LogTemp,Warning,TEXT("타겟에 도착!"));
+		// UE_LOG(LogTemp,Warning,TEXT("타겟에 도착! Attack으로 변경"));
 		if (Target == Player) ChangeState(ESharkState::AttackPlayer);
 		else ChangeState(ESharkState::AttackRaft);
 	}
@@ -123,9 +130,10 @@ void ASharkAI::AttackPlayer(float DeltaTime)
 	// UE_LOG(LogTemp,Warning, TEXT("플레이어 공격"))
 	UGameplayStatics::ApplyDamage(Player, 20.f,
 		nullptr, this, UDamageType::StaticClass());
-	RunLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
+	TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
+	NextState = ESharkState::RunAway;
+	ChangeState(ESharkState::Turning);
 	// UE_LOG(LogTemp,Warning, TEXT("도망갈 좌표: %s"),*RunLocation.ToString());
-	ChangeState(ESharkState::RunAway);
 }
 
 void ASharkAI::AttackRaft(float DeltaTime)
@@ -137,15 +145,16 @@ void ASharkAI::AttackRaft(float DeltaTime)
 
 void ASharkAI::Runaway(float DeltaTime)
 {
-	FVector dir = RunLocation-GetActorLocation();
+	FVector dir = TargetLocation-GetActorLocation();
 	dir.Normalize();
 	SetActorLocation(dir*SharkAttackSpeed*DeltaTime + GetActorLocation());
 	
-	if (FVector::Dist(GetActorLocation(),RunLocation) < 10.0)
+	if (FVector::Dist(GetActorLocation(),TargetLocation) < 10.0)
 	{
-		// UE_LOG(LogTemp,Warning,TEXT("도망완료"));
-		NewRandomCurveLocation();
-		ChangeState(ESharkState::Idle);
+		// UE_LOG(LogTemp,Warning,TEXT("도망완료 idle로 변경"));
+		TargetLocation = NewIdleLocation();
+		NextState = ESharkState::Idle;
+		ChangeState(ESharkState::Turning);
 	}
 }
 
@@ -155,22 +164,41 @@ FVector ASharkAI::NewRunawayLocation(FVector originLoc, float maxDist, float min
 	FVector direction = FVector(FMath::Cos(FMath::DegreesToRadians(angle)), FMath::Sin(FMath::DegreesToRadians(angle)), -0.5f);
 	
 	float randDist = FMath::RandRange(minDist, maxDist);
-	FVector RandomLocation = originLoc +direction * randDist;
-	RandomLocation.Z = FMath::Min(originLoc.Z, -1800.f); //바닥 뚫지 않게 제한
+	FVector randomLoc = originLoc +direction * randDist;
+	randomLoc.Z = FMath::Min(originLoc.Z, -1800.f); //바닥 뚫지 않게 제한
 	
-	return RandomLocation;
+	return randomLoc;
 }
 
-void ASharkAI::NewRandomCurveLocation()
+FVector ASharkAI::NewIdleLocation()
 {
 	StartLocation = GetActorLocation();
 	float angle = FMath::RandRange(0.0f, 360.0f);
 	FVector direction = FVector(FMath::Cos(FMath::DegreesToRadians(angle)), FMath::Sin(FMath::DegreesToRadians(angle)), 0.0f);
-	// UE_LOG(LogTemp, Warning, TEXT("새 방향 %s"), *direction.ToString());
 	
-	IdleLocation = direction*1000.0f+Player->GetActorLocation();
-	IdleLocation.Z = FMath::RandRange(-1000.0f,-100.0f);
+	FVector randomLoc = direction*1000.0f+Player->GetActorLocation();
+	randomLoc.Z = FMath::RandRange(-1000.0f,-100.0f); //높이 물속으로 제한
 	
-	// UE_LOG(LogTemp, Warning, TEXT("새 idle 위치: %s"), *IdleLocation.ToString());
+	// UE_LOG(LogTemp, Warning, TEXT("새 idle 위치: %s"), *TargetLocation.ToString());
+	return randomLoc;
+}
+
+void ASharkAI::Turning(float DeltaTime)
+{
+	CurTimeforIdle += DeltaTime;
+	FVector dir = (TargetLocation-GetActorLocation()).GetSafeNormal();
+	FRotator rot = dir.Rotation();
+	
+	float rotSpeed = 1.0f;
+	FRotator smoothRot = FMath::RInterpTo(GetActorRotation(), rot, CurTimeforIdle, rotSpeed);
+	// UE_LOG(LogTemp, Warning, TEXT("Turning, %f"), CurTimeforIdle);
+	
+	SetActorRotation(smoothRot);
+	if (this->GetActorRotation().Equals(rot,5.0f))
+	{
+		// UE_LOG(LogTemp, Warning, TEXT("턴 완료"));
+		CurTimeforIdle = 0.0f;
+		ChangeState(NextState);
+	}
 }
 

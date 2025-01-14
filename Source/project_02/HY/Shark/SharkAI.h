@@ -35,15 +35,17 @@ public:
 	
 	UPROPERTY()
 	ESharkState CurrentState;
+	ESharkState NextState;
 	float CurTimeforAttack;
 	float CurTimeforIdle;
+	float CurTimeforTurn;
 
 
 	//상어 속성
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkBasicSpeed = 1000.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkAttackSpeed = 1800.0f;
+	float SharkAttackSpeed = 1500.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkAttackDuration = 10.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -51,10 +53,7 @@ public:
 
 	//Idle 상태 움직임
 	FVector StartLocation;
-	FVector IdleLocation;
-	FVector ControlPoint;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	UCurveFloat* IdleCurve;
+	FVector TargetLocation;
 
 	//타겟 도달 감지 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -64,7 +63,6 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float MaxDist = 4000.0f;
 	float MinDist = 2000.0f;
-	FVector RunLocation;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -82,11 +80,11 @@ public:
 	void AttackPlayer(float DeltaTime);
 	void AttackRaft(float DeltaTime);
 	void Runaway(float DeltaTime);
+	void Turning(float DeltaTime);
 	
 	FVector NewRunawayLocation(FVector originLoc, float maxDist, float minDist);
-	void NewRandomCurveLocation();
+	FVector NewIdleLocation();
 	
-
 //상민띠가 준 Enum to String 기능...
 public:
 	template <typename EnumType>
