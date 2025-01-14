@@ -36,6 +36,8 @@ public:
 
 	FORCEINLINE TObjectPtr<AActor> GetTestInteractiveItem() { return TestInteractiveItem; }
 	void SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass);
+
+	void SetFindActor(const AActor* NewActor);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -97,10 +99,20 @@ private:
 	UFUNCTION()
 	void OnInteractiveEnd();
 
+	UFUNCTION()
+	void UseItem();
+	
 	// TODO: 이후 상호작용 관련 컴포넌트로 이전
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
 		, meta = (AllowPrivateAccess = true))
 	float UseInteractiveRange;
 	
 	void FindToUse();
+	
+	bool IsBlockAction() const;
+
+	// TODO: Inventory 보다 더 적절한 곳이 있어 보여 우선
+	// PlayerCharacter로 처리
+	UPROPERTY()
+	TObjectPtr<AActor> FindDroppedActor;
 };

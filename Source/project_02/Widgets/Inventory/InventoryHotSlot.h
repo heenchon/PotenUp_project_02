@@ -13,6 +13,9 @@ class PROJECT_02_API UInventoryHotSlot : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	// TODO: 테스트를 위한 코드로 추후 제거할 예정
+	void UpdateInventoryArray();
+	
 	void SetInventoryArray(const uint8 NewCount);
 	
 	void ChangeSelectedHotSlot(const uint8 PrevSlot, const uint8 NextSlot);

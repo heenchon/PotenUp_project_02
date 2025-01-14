@@ -69,11 +69,17 @@ struct PROJECT_02_API FItemMetaInfo
 	
 	FORCEINLINE int GetId() const { return Id; }
 	FORCEINLINE int GetCurrentCount() const { return CurrentCount; }
+	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() const { return MetaData; }
 	
 	FORCEINLINE void SetId(const int NewValue) { Id = NewValue; }
 	FORCEINLINE void SetCurrentCount(const int NewValue) { CurrentCount = NewValue; }
 	
-	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() { return MetaData; }
+	FORCEINLINE void SetMetaData(const TMap<EMetaDataKey, FString>& NewMeta) { MetaData = NewMeta; }
+
+	bool operator == (const FItemMetaInfo& CompareItem) const
+	{
+		return CompareItem.GetId() == GetId();
+	}
 	
 private:
 	// 0인 경우 아이템이 안들어가게 처리해야함.

@@ -25,7 +25,22 @@ void UInventoryComponent::BeginPlay()
 			, this, &ThisClass::ToggleInventory);
 			EnhancedInputComponent->BindAction(ChangeHotSlotAction, ETriggerEvent::Triggered
 			, this, &ThisClass::ChangeHotSlot);
+			EnhancedInputComponent->BindAction(ItemDropAction, ETriggerEvent::Triggered
+			, this, &ThisClass::DropItem);
 		}
+	}
+	SetHotSlotItemToPlayer(-1, SelectedHotSlot);
+}
+
+void UInventoryComponent::DropItem()
+{
+	if (GetOwner()->IsA(APlayerCharacter::StaticClass()))
+	{
+		const APlayerCharacter* Player = static_cast<APlayerCharacter*>(GetOwner());
+		ABasePlayerState* PS = static_cast<ABasePlayerState*>(
+			Player->GetPlayerState());
+
+		PS->DropItem(SelectedHotSlot, -1);
 	}
 }
 
@@ -33,17 +48,19 @@ void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 {
 	const float NewValue = Value.Get<float>();
 	// UI 관련 변화
+	const uint8 PrevIndex = SelectedHotSlot;
 	const uint8 NextIndex = GetNextSlot(static_cast<int8>(NewValue));
-	SetHotSlotIndex(NextIndex);
+	
 	// 실제 액터 반영
-	SetHotSlotItemToPlayer(NextIndex);
+	SetHotSlotItemToPlayer(PrevIndex, NextIndex);
+	SetHotSlotIndex(NextIndex);
 }
 
 uint8 UInventoryComponent::GetNextSlot(const int8 MoveTo)
 {
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
-		ABasePlayerState* PS = Player->GetPlayerState<ABasePlayerState>();
+		const ABasePlayerState* PS = Player->GetPlayerState<ABasePlayerState>();
 		check(PS);
 
 		if (SelectedHotSlot + MoveTo < 0)
@@ -80,7 +97,7 @@ void UInventoryComponent::SetHotSlotIndex(const uint8 NewIndex)
 	SelectedHotSlot = NewIndex;
 }
 
-void UInventoryComponent::SetHotSlotItemToPlayer(const uint8 NewIndex)
+void UInventoryComponent::SetHotSlotItemToPlayer(const uint8 PrevIndex, const uint8 NewIndex)
 {
 	if (GetOwner()->IsA(APlayerCharacter::StaticClass())) {
 		APlayerCharacter* Player = static_cast<APlayerCharacter*>(GetOwner());
@@ -88,15 +105,13 @@ void UInventoryComponent::SetHotSlotItemToPlayer(const uint8 NewIndex)
 		const UBaseGameInstance* GameInstance =
 			static_cast<UBaseGameInstance*>(UGameplayStatics::GetGameInstance(GetWorld()));
 
-		if (PS->GetPlayerHotSlotList().IsValidIndex(NewIndex))
+		if (PrevIndex != NewIndex)
 		{
 			const FItemInfoData ItemInfo = GameInstance->GetItemInfoList()[
-					PS->GetPlayerHotSlotList()[NewIndex].GetId()
+					PS->GetPlayerInventoryList()[NewIndex].GetId()
 				];
-			if (ItemInfo.GetShowItemActor())
-			{
-				Player->SetTestInteractiveItem(ItemInfo.GetShowItemActor());
-			}
+			
+			Player->SetTestInteractiveItem(ItemInfo.GetShowItemActor() ? ItemInfo.GetShowItemActor() : nullptr);
 		} else
 		{
 			Player->SetTestInteractiveItem(nullptr);
@@ -123,10 +138,13 @@ void UInventoryComponent::ToggleInventory()
 		if (IsOpenInventory)
 		{
 			EquipmentUI->RemoveFromParent();
+			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
 		} else
 		{
 			EquipmentUI->AddToViewport();
+			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
 		}
+		
 
 		// 현재 인벤토리 상태 설정
 		IsOpenInventory = !IsOpenInventory;

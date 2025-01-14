@@ -17,6 +17,8 @@ public:
 	void SetHealthPercent(const uint8 Current, const uint8 Max);
 	void SetHungerPercent(const uint8 Current, const uint8 Max);
 	void SetThirstPercent(const uint8 Current, const uint8 Max);
+
+	FORCEINLINE TObjectPtr<UInventoryHotSlot> GetInventoryHotSlot() const { return InventoryHotSlot; }
 	
 private:
 	UPROPERTY(meta = (BindWidget))
