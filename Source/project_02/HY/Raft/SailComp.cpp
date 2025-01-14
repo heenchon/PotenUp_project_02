@@ -2,7 +2,7 @@
 
 
 #include "SailComp.h"
-#include "../RaftGameState.h"
+#include "Raft.h"
 
 USailComp::USailComp()
 {
@@ -13,12 +13,12 @@ USailComp::USailComp()
 void USailComp::BeginPlay()
 {
 	Super::BeginPlay();
-	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
-	if (RaftGameState)
-	{
-		WindDirection = RaftGameState->WindDirection;
-		WindStrength = RaftGameState->WindStrength;
-	}
+	Raft = Cast<ARaft>(GetOwner());
+	// UE_LOG(LogTemp, Warning, TEXT("래프트 가져왔나요? %s"), *(Raft->GetName()));
+
+	//TODO: 윈드 매니저 추가 후 cpp 수정
+	WindDirection = Raft->WindDirection;
+	WindStrength = Raft->WindStrength;
 	// UE_LOG(LogTemp,Warning,TEXT("돛의 Min: %f"), MinSailStrength);
 }
 
@@ -33,7 +33,7 @@ void USailComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void USailComp::ChangeStrength(float myStrength)
 {
-	RaftGameState->SailStrength = myStrength;
+	Raft->SailStrength = myStrength;
 }
 
 float USailComp::CompareDirection(FVector3d myDir, FVector3d windDir)

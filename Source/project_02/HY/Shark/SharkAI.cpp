@@ -4,6 +4,7 @@
 #include "SharkAI.h"
 #include "Kismet/GameplayStatics.h"
 #include "SharkAIController.h"
+#include "../../Characters/PlayerCharacter.h"
 #include "Channels/MovieSceneInterpolation.h"
 
 // Sets default values
@@ -22,7 +23,7 @@ ASharkAI::ASharkAI()
 void ASharkAI::BeginPlay()
 {
 	Super::BeginPlay();
-	Player = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	
 	//TODO: GetActorOfClass(Raft)
 	// Raft = UGameplayStatics::GetActorOfClass(GetWorld(),TSubclassOf<ARaft>());

@@ -22,14 +22,13 @@ public:
 	UPROPERTY()
 	UBuoyancyComponent* Buoyancy;
 
-	UPROPERTY()
-	class ARaftGameState* RaftGameState;
-	
 	UPROPERTY(EditAnywhere, Category = "Move")
-	FVector WindDirection;
+	FVector WindDirection = {1,0,0};
+
+	//TODO: 윈드 매니저 추가 후 cpp 수정
 	UPROPERTY(EditAnywhere, Category = "Move")
-	float WindStrength;
-	float SailStrength;
+	float WindStrength = 50.0f;
+	float SailStrength = 1.5f;
 
 protected:
 	// Called when the game starts or when spawned

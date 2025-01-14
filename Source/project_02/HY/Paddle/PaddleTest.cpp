@@ -1,7 +1,7 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 #include "PaddleTest.h"
-#include "../RaftGameState.h"
+#include "project_02/HY/Raft/Raft.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -21,7 +21,6 @@ void APaddleTest::BeginPlay()
 		Player = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
 		// UE_LOG(LogTemp,Warning,TEXT("플레이어는? %s"),*Player->GetName());
 	}
-	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
 }
 
 // Called every frame
@@ -40,11 +39,10 @@ int APaddleTest::PaddlingStart()
 	// UE_LOG(LogTemp, Warning, TEXT("플레이어 방향: %s"), *PlayerForwardVector.ToString());
 
 	//원본 바람 방향 백업
-	WindOriginDir = RaftGameState->WindDirection;
+	WindOriginDir = Raft->WindDirection;
 
 	//기존 바람 방향에 노 방향을 더한 새 방향
-	RaftGameState->WindDirection = PlayerForwardVector + WindOriginDir;
-	
+	Raft->WindDirection = PlayerForwardVector + WindOriginDir;
 	// UE_LOG(LogTemp, Warning, TEXT("최종 이동 방향: %s"),*(Raft->WindDirection .ToString()));
 	
 	return 0;
@@ -53,8 +51,9 @@ int APaddleTest::PaddlingStart()
 int APaddleTest::PaddlingEnd()
 {
 	// UE_LOG(LogTemp, Warning, TEXT("stop"));
+
 	//바람 방향 되돌리기
-	RaftGameState->WindDirection = WindOriginDir;
+	Raft->WindDirection = WindOriginDir;
 
 	return 0;
 }
