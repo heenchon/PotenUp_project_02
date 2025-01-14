@@ -108,6 +108,8 @@ private:
 	float UseInteractiveRange;
 	
 	void FindToUse();
+	
+	bool IsBlockAction() const;
 
 	// TODO: Inventory 보다 더 적절한 곳이 있어 보여 우선
 	// PlayerCharacter로 처리

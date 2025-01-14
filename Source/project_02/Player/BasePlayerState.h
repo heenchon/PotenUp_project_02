@@ -28,6 +28,8 @@ public:
 
 	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
 
+	void SwapItemInInventory(const uint16 Prev, const uint16 Next);
+
 protected:
 	virtual void BeginPlay() override;
 	

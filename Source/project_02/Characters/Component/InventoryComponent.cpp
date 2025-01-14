@@ -138,10 +138,13 @@ void UInventoryComponent::ToggleInventory()
 		if (IsOpenInventory)
 		{
 			EquipmentUI->RemoveFromParent();
+			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
 		} else
 		{
 			EquipmentUI->AddToViewport();
+			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
 		}
+		
 
 		// 현재 인벤토리 상태 설정
 		IsOpenInventory = !IsOpenInventory;

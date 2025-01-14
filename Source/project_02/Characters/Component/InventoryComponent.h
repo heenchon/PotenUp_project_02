@@ -18,6 +18,9 @@ public:
 	UInventoryComponent();
 
 	FORCEINLINE uint8 GetSelectedHotSlotIndex() const { return SelectedHotSlot; }
+
+	FORCEINLINE bool GetIsOpenInventory() const { return IsOpenInventory; }
+	FORCEINLINE TObjectPtr<UPlayerEquipmentUI> GetInventoryUI() const { return EquipmentUI; }
 	
 	void SetHotSlotIndex(const uint8 NewIndex);
 

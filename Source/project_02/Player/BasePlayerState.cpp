@@ -2,10 +2,14 @@
 
 #include "BasePlayerController.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/Characters/Component/InventoryComponent.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Helper/ItemHelper.h"
+#include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/Inventory/InventoryHotSlot.h"
+#include "project_02/Widgets/Inventory/InventoryList.h"
 
 ABasePlayerState::ABasePlayerState()
 {
@@ -29,6 +33,14 @@ void ABasePlayerState::InitializeData()
 void ABasePlayerState::BeginPlay()
 {
 }
+
+void ABasePlayerState::SwapItemInInventory(const uint16 Prev, const uint16 Next)
+{
+	const FItemMetaInfo Temp = PlayerInventoryList[Prev];
+	PlayerInventoryList[Prev] = PlayerInventoryList[Next];
+	PlayerInventoryList[Next] = Temp;
+}
+
 
 uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo)
 {

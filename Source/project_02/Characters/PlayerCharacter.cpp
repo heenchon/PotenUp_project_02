@@ -90,6 +90,7 @@ void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActo
 
 void APlayerCharacter::OnInteractiveHolding()
 {
+	if (IsBlockAction()) return;
 	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
@@ -98,6 +99,7 @@ void APlayerCharacter::OnInteractiveHolding()
 
 void APlayerCharacter::OnInteractiveEnd()
 {
+	if (IsBlockAction()) return;
 	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnEndInteractive();
@@ -106,6 +108,8 @@ void APlayerCharacter::OnInteractiveEnd()
 
 void APlayerCharacter::FindToUse()
 {
+	if (IsBlockAction()) return;
+	
 	const FVector StartPosition = SpringArm->GetComponentLocation();
 	
 	const FVector EndPosition = StartPosition + CameraComponent->GetForwardVector() * UseInteractiveRange;
@@ -153,7 +157,9 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
 {
-	if (SurvivalComponent->GetIsDied()) return;
+	// TODO: 이 부분들에 대해서 UI 관련 회전 Lock을 거는 공통 변수를
+	// 하나 만드는 것도 좋아보인다. 다만 그렇게 하면 공통 관리가 심해질 수 있어 보임
+	if (IsBlockAction()) return;
 	
 	const FVector VectorValue = Value.Get<FVector>();
 
@@ -170,4 +176,10 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	UE_LOG(LogTemp, Display, TEXT("Player Damaged Value: %f"), DamageAmount);
 	SurvivalComponent->AddDamage(static_cast<uint8>(DamageAmount));
 	return DamageAmount;
+}
+
+// 특정 상황에서만 사용해야 함.
+bool APlayerCharacter::IsBlockAction() const
+{
+	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
 }
