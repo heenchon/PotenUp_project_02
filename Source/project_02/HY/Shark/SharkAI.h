@@ -15,7 +15,7 @@ class PROJECT_02_API ASharkAI : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
+	// Sets default values for this actor's propertiesgit
 	ASharkAI();
 
 	UPROPERTY(EditAnywhere)
@@ -35,19 +35,26 @@ public:
 	
 	UPROPERTY()
 	ESharkState CurrentState;
-	float CurTime;
+	float CurTimeforAttack;
+	float CurTimeforIdle;
+
 
 	//상어 속성
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkBasicSpeed = 700.0f;
+	float SharkBasicSpeed = 1000.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkAttackSpeed = 1200.0f;
+	float SharkAttackSpeed = 1800.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkAttackDuration = 5.0f;
+	float SharkAttackDuration = 10.0f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float IdleMoveDuration = 5.0f;
 
 	//Idle 상태 움직임
+	FVector StartLocation;
 	FVector IdleLocation;
 	FVector ControlPoint;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UCurveFloat* IdleCurve;
 
 	//타겟 도달 감지 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)

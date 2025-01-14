@@ -14,6 +14,7 @@ ASharkAI::ASharkAI()
 	PrimaryActorTick.bCanEverTick = true;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	RootComponent = StaticMesh;
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	AIController = ASharkAIController::StaticClass();
 }
@@ -60,20 +61,27 @@ void ASharkAI::Tick(float DeltaTime)
 
 void ASharkAI::ChangeState(ESharkState newState)
 {
+	UE_LOG(LogTemp,Warning,TEXT("상어 상태 변경"));
 	CurrentState = newState;
 }
 
 void ASharkAI::Idle(float DeltaTime)
 {
-	
-	FVector NewLocation = FMath::CubicInterp(GetActorLocation(),ControlPoint,IdleLocation,FVector::ZeroVector,DeltaTime);
-	SetActorLocation(NewLocation);
-	
 	// UE_LOG(LogTemp,Warning,TEXT("%s"), *NewLocation.ToString());
+	CurTimeforIdle += DeltaTime;
+	float alpha = FMath::Clamp(CurTimeforIdle / IdleMoveDuration, 0.0f, 1.0f);
+	float curveValue = IdleCurve->GetFloatValue(alpha);
 	
-	if (FVector::Dist(GetActorLocation(),IdleLocation)< 10.0)
+	FVector NewLocation = FMath::Lerp(StartLocation, IdleLocation, alpha);
+	SetActorLocation(NewLocation);
+
+	// NewLocation.X += curveValue*1000;
+	// NewLocation.Y += curveValue*1000;
+	
+	if (CurTimeforIdle > IdleMoveDuration)
 	{
 		NewRandomCurveLocation();
+		CurTimeforIdle = 0.0f;
 	}
 	
 	if (PlayerIsWater)
@@ -83,11 +91,11 @@ void ASharkAI::Idle(float DeltaTime)
 	}
 	else
 	{
-		CurTime += DeltaTime;
-		if (CurTime > SharkAttackDuration)
+		CurTimeforAttack += DeltaTime;
+		if (CurTimeforAttack > SharkAttackDuration)
 		{
 			Target = Raft;
-			CurTime = 0.0f;
+			CurTimeforAttack = 0.0f;
 			ChangeState(ESharkState::MoveToTarget);
 		}
 	}
@@ -151,15 +159,18 @@ FVector ASharkAI::NewRunawayLocation(FVector originLoc, float maxDist, float min
 	RandomLocation.Z = FMath::Min(originLoc.Z, -1800.f); //바닥 뚫지 않게 제한
 	
 	return RandomLocation;
-	
 }
 
 void ASharkAI::NewRandomCurveLocation()
 {
-	FVector playerLoc = Player->GetActorLocation();
-	IdleLocation = playerLoc +FMath::VRand() * 100.0f;
-	IdleLocation.Z = FMath::RandRange(-1000.0f, -100.0f); //바다 속으로 제한
-	ControlPoint = (GetActorLocation() + IdleLocation) / 2.0f + FVector(0, 0, 200.0f);
-	UE_LOG(LogTemp,Warning,TEXT("랜덤 IDLE 위치: %s, 제어점 %s"), *IdleLocation.ToString(), *ControlPoint.ToString());
+	StartLocation = GetActorLocation();
+	float angle = FMath::RandRange(0.0f, 360.0f);
+	FVector direction = FVector(FMath::Cos(FMath::DegreesToRadians(angle)), FMath::Sin(FMath::DegreesToRadians(angle)), 0.0f);
+	// UE_LOG(LogTemp, Warning, TEXT("새 방향 %s"), *direction.ToString());
+	
+	IdleLocation = direction*1000.0f+Player->GetActorLocation();
+	IdleLocation.Z = FMath::RandRange(-1000.0f,-100.0f);
+	
+	// UE_LOG(LogTemp, Warning, TEXT("새 idle 위치: %s"), *IdleLocation.ToString());
 }
 
