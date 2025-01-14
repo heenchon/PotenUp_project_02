@@ -3,29 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "Trash.generated.h"
+#include "AIController.h"
+#include "SharkAIController.generated.h"
 
 UCLASS()
-class PROJECT_02_API ATrash : public AActor
+class PROJECT_02_API ASharkAIController : public AAIController
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	ATrash();
-
-	UPROPERTY(EditAnywhere)
-	UStaticMeshComponent* StaticMesh;
-	
-	class UBuoyancyComponent* Buoyancy;
-
-	//TODO: 윈드 매니저 추가 후 cpp 수정
-	UPROPERTY(EditAnywhere)
-	class ARaft* Raft;
-	FVector WindDirection;
-	float WindStrength = 100.0f;
-
+	ASharkAIController();
 
 protected:
 	// Called when the game starts or when spawned

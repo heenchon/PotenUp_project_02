@@ -11,7 +11,7 @@ public class project_02 : ModuleRules
 		PublicDependencyModuleNames.AddRange(new string[]
 		{
 			"Core", "CoreUObject", "Engine", "InputCore", "EnhancedInput",
-			"UMG", "Slate", "SlateCore", "Buoyancy", "Water", "CableComponent"
+			"UMG", "Slate", "SlateCore", "Buoyancy", "Water", "CableComponent", "AIModule", "NavigationSystem"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
