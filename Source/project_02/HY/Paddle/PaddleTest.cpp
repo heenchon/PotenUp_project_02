@@ -2,6 +2,7 @@
 
 #include "PaddleTest.h"
 #include "../RaftGameState.h"
+#include "../../Characters/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -18,7 +19,7 @@ void APaddleTest::BeginPlay()
 	Super::BeginPlay();
 	if (!Player)
 	{
-		Player = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
+		Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(),0));
 		// UE_LOG(LogTemp,Warning,TEXT("플레이어는? %s"),*Player->GetName());
 	}
 	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
@@ -42,6 +43,7 @@ int APaddleTest::PaddlingStart()
 	//원본 바람 방향 백업
 	WindOriginDir = RaftGameState->WindDirection;
 
+	//TODO: 플레이어가 타고 있는 배를 감지하여, 그 배의 WindDirection을 수정해야 함.
 	//기존 바람 방향에 노 방향을 더한 새 방향
 	RaftGameState->WindDirection = PlayerForwardVector + WindOriginDir;
 	

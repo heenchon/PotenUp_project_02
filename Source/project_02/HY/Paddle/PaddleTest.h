@@ -21,7 +21,7 @@ public:
 	class ARaftGameState* RaftGameState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	AActor* Player;
+	class APlayerCharacter* Player;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	float PaddleForce = 1.0f;

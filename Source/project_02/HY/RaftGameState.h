@@ -19,8 +19,8 @@ public:
 	FVector WindDirection = FVector(1, 0, 0);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wind")
 	float WindStrength = 60.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wind")
-	float SailStrength = 1.5f;
+	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wind")
+	// float SailStrength = 1.5f;
 
 	UFUNCTION(BlueprintCallable, Category = "Wind")
 	void SetWind(FVector newDir, float newStrength);

@@ -115,4 +115,10 @@ private:
 	// PlayerCharacter로 처리
 	UPROPERTY()
 	TObjectPtr<AActor> FindDroppedActor;
+
+//희연
+public:
+	class ARaft* Raft;
+	UFUNCTION()
+	ARaft* GetRaft();
 };

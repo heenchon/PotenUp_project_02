@@ -3,11 +3,13 @@
 
 #include "SailComp.h"
 #include "../RaftGameState.h"
+#include "../Raft/Raft.h"
 
 USailComp::USailComp()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	MinSailStrength = 1.0f / MaxSailStrength;
+	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void USailComp::BeginPlay()
@@ -19,6 +21,7 @@ void USailComp::BeginPlay()
 		WindDirection = RaftGameState->WindDirection;
 		WindStrength = RaftGameState->WindStrength;
 	}
+	Raft = Cast<ARaft>(GetOwner());
 	// UE_LOG(LogTemp,Warning,TEXT("돛의 Min: %f"), MinSailStrength);
 }
 
@@ -33,7 +36,7 @@ void USailComp::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void USailComp::ChangeStrength(float myStrength)
 {
-	RaftGameState->SailStrength = myStrength;
+	Raft->SailStrength = myStrength;
 }
 
 float USailComp::CompareDirection(FVector3d myDir, FVector3d windDir)

@@ -11,6 +11,7 @@
 #include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
+#include "project_02/HY/Raft/Raft.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -182,4 +183,14 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 bool APlayerCharacter::IsBlockAction() const
 {
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
+}
+
+//희연
+ARaft* APlayerCharacter::GetRaft()
+{
+	FVector start = GetActorLocation();
+	FVector end = start - FVector(0, 0, 50.0f);
+	
+	
+	return Raft;
 }

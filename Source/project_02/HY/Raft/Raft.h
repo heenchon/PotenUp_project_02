@@ -19,7 +19,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UBuoyancyComponent* Buoyancy;
 
 	UPROPERTY()
@@ -29,7 +29,7 @@ public:
 	FVector WindDirection;
 	UPROPERTY(EditAnywhere, Category = "Move")
 	float WindStrength;
-	float SailStrength;
+	float SailStrength=1;
 
 protected:
 	// Called when the game starts or when spawned
