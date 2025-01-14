@@ -13,7 +13,6 @@ USurvivalComponent::USurvivalComponent()
 	
 }
 
-
 void USurvivalComponent::BeginPlay()
 {
 	Super::BeginPlay();

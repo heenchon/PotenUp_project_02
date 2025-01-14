@@ -15,12 +15,20 @@ class PROJECT_02_API ABasePlayerState : public APlayerState
 public:
 	ABasePlayerState();
 
-	void LoadTestPlayerData();
+	void InitializeData();
 	
-	FORCEINLINE uint8 GetHotSlotCount() const  { return HotSlotCount; }
 	FORCEINLINE uint8 GetInventorySlotCount() const  { return InventorySlotCount; }
+	FORCEINLINE uint8 GetHotSlotCount() const  { return HotSlotCount; }
+	FORCEINLINE uint8 GetTotalSlotCount() const  { return HotSlotCount + InventorySlotCount; }
 	FORCEINLINE TArray<FItemMetaInfo> GetPlayerInventoryList() const { return PlayerInventoryList; }
-	FORCEINLINE TArray<FItemMetaInfo> GetPlayerHotSlotList() const { return PlayerHotSlotList; }
+	
+	uint32 AddItem(const FItemMetaInfo& ItemInfo);
+
+	bool DropItem(const uint16 Index, const uint32 Count);
+
+	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
+
+	void SwapItemInInventory(const uint16 Prev, const uint16 Next);
 
 protected:
 	virtual void BeginPlay() override;
@@ -28,9 +36,6 @@ protected:
 private:
 	UPROPERTY()
 	TArray<FItemMetaInfo> PlayerInventoryList;
-	
-	UPROPERTY()
-	TArray<FItemMetaInfo> PlayerHotSlotList;
 
 	// TODO: 아래와 같은 설정은 추후 Data Asset으로 이전해보기
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
@@ -38,4 +43,6 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 HotSlotCount = 0;
+
+	void UpdateInventoryHotbar() const;
 };

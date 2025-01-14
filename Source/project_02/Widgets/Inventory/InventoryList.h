@@ -16,7 +16,7 @@ class PROJECT_02_API UInventoryList : public UUserWidget
 
 public:
 	void SetInventoryArray(const uint8 NewCount);
-
+	
 protected:
 	virtual void NativePreConstruct() override;
 

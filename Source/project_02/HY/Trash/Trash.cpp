@@ -1,12 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Trash.h"
+﻿#include "Trash.h"
 #include "BuoyancyComponent.h"
+#include "project_02/Helper/ItemHelper.h"
+#include "project_02/DataTable/ItemInfoData.h"
 // #include "../Raft/Raft.h"
 
 
-// Sets default values
 ATrash::ATrash()
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -29,10 +27,17 @@ ATrash::ATrash()
 	StaticMesh->BodyInstance.bLockRotation = true;
 }
 
-// Called when the game starts or when spawned
 void ATrash::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	const FItemInfoData ItemData = UItemHelper::GetItemInfoById(GetWorld(), ItemId);
+	
+	ItemMetaInfo.SetId(ItemId);
+	// TODO: 해당 하드코딩은 추후 랜덤 값 or 지정 값으로 변경 가능성 있음
+	ItemMetaInfo.SetCurrentCount(1);
+	ItemMetaInfo.SetMetaData(ItemData.GetMetaData());
+	
 	//TODO: 윈드 매니저 추가 후 cpp 수정
 	// if (Raft)
 	// {
@@ -42,10 +47,20 @@ void ATrash::BeginPlay()
 	// else UE_LOG(LogTemp,Error,TEXT("폐품은 Raft를 찾고있어요.. detail 패널 설정 부탁"));
 }
 
-// Called every frame
 void ATrash::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	// SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength);
+}
+
+void ATrash::UpdateItemInfo(const uint32 RemainCount)
+{
+	if (RemainCount == 0)
+	{
+		Destroy();
+	} else
+	{
+		ItemMetaInfo.SetCurrentCount(RemainCount);
+	}
 }
 

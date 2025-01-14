@@ -55,19 +55,27 @@ void UInventoryHotSlot::NativeConstruct()
 		
 		for (int i = 0; i < PS->GetHotSlotCount(); i++)
 		{
+			UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
 			// TODO: 게임 시작 시 처음에는 0으로 시작한다는 하드코딩
 			// 추후 코드 이전할 필요가 있음.
 			if (i == 0)
 			{
-				const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
 				CurrentItemSlot->SetSelected(true);
 			}
 			
-			if (PS->GetPlayerHotSlotList().IsValidIndex(i))
-			{
-				const UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
-				CurrentItemSlot->SetSlotInfo(PS->GetPlayerHotSlotList()[i]);
-			}
+			CurrentItemSlot->SetSlotInfo(PS->GetPlayerInventoryList()[i]);
+			CurrentItemSlot->SetIndex(i);
 		}
+	}
+}
+
+void UInventoryHotSlot::UpdateInventoryArray()
+{
+	const ABasePlayerState* PS = Cast<ABasePlayerState>(GetOwningPlayerState());
+	
+	for (int i = 0; i < PS->GetHotSlotCount(); i++)
+	{
+		UInventorySlot* CurrentItemSlot = Cast<UInventorySlot>(ItemGridList->GetChildAt(i));
+		CurrentItemSlot->SetSlotInfo(PS->GetPlayerInventoryList()[i]);
 	}
 }
