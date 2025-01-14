@@ -6,6 +6,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "RaftTop.generated.h"
 
+class ARaftGameState;
 /**
  * 
  */
@@ -14,17 +15,21 @@ class PROJECT_02_API URaftTop : public UStaticMeshComponent
 {
 	GENERATED_BODY()
 
+protected:
+	virtual void BeginPlay() override;
+	
 public:
 	URaftTop();
+
+	UPROPERTY(EditAnywhere)
+	class ARaftGameState* RaftGameState;
 	
 	UPROPERTY(EditAnywhere, Category = "Move")
-	FVector WindDirection = {1,0,0};
-
-	//TODO: 윈드 매니저 추가 후 cpp 수정
+	FVector WindDirection;
 	UPROPERTY(EditAnywhere, Category = "Move")
-	float WindStrength = 50.0f;
+	float WindStrength;
 	UPROPERTY(EditAnywhere, Category = "Move")
-	float SailStrength = 1.5f;
+	float SailStrength;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
 

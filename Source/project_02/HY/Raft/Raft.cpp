@@ -2,6 +2,7 @@
 
 
 #include "Raft.h"
+#include "../RaftGameState.h"
 
 // Sets default values
 ARaft::ARaft()
@@ -34,6 +35,13 @@ ARaft::ARaft()
 void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
+	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
+	if (RaftGameState)
+	{
+		WindDirection = RaftGameState->WindDirection;
+		WindStrength = RaftGameState->WindStrength;
+		SailStrength = RaftGameState->SailStrength;
+	}
 }
 
 // Called every frame
