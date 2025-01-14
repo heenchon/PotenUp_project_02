@@ -23,8 +23,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
 	TSubclassOf<AController> AIController;
-	
-	class APlayerCharacter* Player;
+
+	UPROPERTY()
+	APawn* Player;
+	UPROPERTY()
 	AActor* Raft;
 	
 	//타겟 상태
