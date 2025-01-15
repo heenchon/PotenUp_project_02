@@ -2,63 +2,96 @@
 
 #include "PaddleTest.h"
 #include "../RaftGameState.h"
-#include "../../Characters/PlayerCharacter.h"
+#include "../Raft/Raft.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
-// Sets default values
 APaddleTest::APaddleTest()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
 void APaddleTest::BeginPlay()
 {
 	Super::BeginPlay();
 	if (!Player)
 	{
-		Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(),0));
+		Player = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
 		// UE_LOG(LogTemp,Warning,TEXT("플레이어는? %s"),*Player->GetName());
 	}
 	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
+	if (RaftGameState)
+	{
+		WindOriginDir = RaftGameState->WindDirection;
+	}
+	
 }
 
-// Called every frame
 void APaddleTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 }
 
-int APaddleTest::PaddlingStart()
+void APaddleTest::PaddlingStart()
 {
-	// UE_LOG(LogTemp, Error, TEXT("Paddling..."));
-
-	//Yaw값만을 반영하는 플레이어 정면
-	FRotator PlayerRotator = Player->GetActorRotation();
-	FVector PlayerForwardVector = FRotator(0.0f, PlayerRotator.Yaw,0.0f).Vector();
-	// UE_LOG(LogTemp, Warning, TEXT("플레이어 방향: %s"), *PlayerForwardVector.ToString());
-
-	//원본 바람 방향 백업
-	WindOriginDir = RaftGameState->WindDirection;
-
-	//TODO: 플레이어가 타고 있는 배를 감지하여, 그 배의 WindDirection을 수정해야 함.
-	//기존 바람 방향에 노 방향을 더한 새 방향
-	RaftGameState->WindDirection = PlayerForwardVector + WindOriginDir;
+	if (!bIsPaddling)
+	{
+		if (!GetPlayerRaft()) return;
 	
-	// UE_LOG(LogTemp, Warning, TEXT("최종 이동 방향: %s"),*(Raft->WindDirection .ToString()));
+		UE_LOG(LogTemp, Warning, TEXT("Paddling..."));
 	
-	return 0;
+		//Yaw값만을 반영하는 플레이어 정면
+		FRotator PlayerRotator = Player->GetActorRotation();
+		FVector PlayerForwardVector = FRotator(0.0f, PlayerRotator.Yaw,0.0f).Vector();
+	
+		WindOriginDir = RaftGameState->WindDirection; //원본 바람 방향 백업
+		WindOriginStrength = RaftGameState->WindStrength; //원본 바람 힘 백업
+		Raft->WindDirection = PlayerForwardVector + WindOriginDir; //기존 바람 방향에 노 방향을 더한 새 방향
+		Raft->WindStrength *= PaddleForce;
+	
+		// UE_LOG(LogTemp, Warning, TEXT("플레이어 방향: %s"), *PlayerForwardVector.ToString());
+		// UE_LOG(LogTemp, Warning, TEXT("최종 이동 방향: %s"),*(Raft->WindDirection .ToString()));
+	
+		bIsPaddling= true;
+	}
 }
 
-int APaddleTest::PaddlingEnd()
+void APaddleTest::PaddlingEnd()
 {
-	// UE_LOG(LogTemp, Warning, TEXT("stop"));
-	//바람 방향 되돌리기
-	RaftGameState->WindDirection = WindOriginDir;
+	UE_LOG(LogTemp, Warning, TEXT("paddling stop"));
+	Raft->WindDirection = WindOriginDir; //바람 방향 되돌리기
+	Raft->WindStrength = WindOriginStrength; //바람 힘 되돌리기
 
-	return 0;
+	bIsPaddling= false;
+}
+
+bool APaddleTest::GetPlayerRaft()
+{
+	FVector start = Player->GetActorLocation();
+	FVector end = start - FVector(0.f,0.f,300.0f);
+
+	FHitResult hit;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(Player);
+
+	bool bHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params);
+	DrawDebugLine(GetWorld(), start, end, bHit ? FColor::Red:FColor::Green, false,0,0,2.0f);
+	
+	if (bHit)
+	{
+		// FVector hitLoc = hit.ImpactPoint;
+		// DrawDebugPoint(GetWorld(), hitLoc, 20, FColor::Red, false, 0.0f, 2.0f);
+		ARaft* hitRaft = Cast<ARaft>(hit.GetActor());
+		if (hitRaft)
+		{
+			Raft = hitRaft;
+			// UE_LOG(LogTemp, Warning, TEXT("배를 타고 있네요."));
+			return true;
+		}
+	}
+	UE_LOG(LogTemp,Warning,TEXT("배를 안 타고 있어요. 노는 작동하지 않아요."));
+	return false;
 }
 
 

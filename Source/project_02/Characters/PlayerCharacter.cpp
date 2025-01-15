@@ -11,7 +11,7 @@
 #include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
-#include "project_02/HY/Raft/Raft.h"
+#include "project_02/HY/Paddle/PaddleTest.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -95,7 +95,11 @@ void APlayerCharacter::OnInteractiveHolding()
 	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
-	}	
+	}
+	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	{
+		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingStart();
+	}
 }
 
 void APlayerCharacter::OnInteractiveEnd()
@@ -104,6 +108,10 @@ void APlayerCharacter::OnInteractiveEnd()
 	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnEndInteractive();
+	}
+	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	{
+		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingEnd();
 	}
 }
 
@@ -183,14 +191,4 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 bool APlayerCharacter::IsBlockAction() const
 {
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
-}
-
-//희연
-ARaft* APlayerCharacter::GetRaft()
-{
-	FVector start = GetActorLocation();
-	FVector end = start - FVector(0, 0, 50.0f);
-	
-	
-	return Raft;
 }

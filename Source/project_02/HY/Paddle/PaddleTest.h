@@ -21,14 +21,18 @@ public:
 	class ARaftGameState* RaftGameState;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	class APlayerCharacter* Player;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	float PaddleForce = 1.0f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	float PaddleDuration = 1.0f;
+	class ARaft* Raft;
 
-	FLatentActionInfo LatentInfo;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	class APawn* Player;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	bool bIsPaddling = false;
+	/** 노를 젓는 힘이 강해져요. */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	float PaddleForce = 1.5f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite);
+	float PaddleDuration = 1.5f;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -36,14 +40,19 @@ protected:
 
 private:
 	FVector WindOriginDir;
+	float WindOriginStrength;
+	FTimerHandle PaddleTimerHandle;
 	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	
-	UFUNCTION(BlueprintCallable)
-	int PaddlingStart();
+	UFUNCTION()
+	void PaddlingStart();
+
+	UFUNCTION()
+	void PaddlingEnd();
 
 	UFUNCTION(BlueprintCallable)
-	int PaddlingEnd();
+	bool GetPlayerRaft();
 };
