@@ -5,6 +5,8 @@
 #include "Camera/CameraComponent.h"
 #include "Component/SurvivalComponent.h"
 #include "Component/InventoryComponent.h"
+#include "Component/SwimmingComponent.h"
+#include "Components/BoxComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "project_02/DataTable/ItemInfoData.h"
@@ -18,8 +20,14 @@ APlayerCharacter::APlayerCharacter()
 {
 	SurvivalComponent = CreateDefaultSubobject<USurvivalComponent>("Survival Component");
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
+	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>("Swimming Component");
+	
+	CheckSwimOverlapBox = CreateDefaultSubobject<UBoxComponent>("Check Swim Overlap Box");
+	CheckSwimOverlapBox->SetupAttachment(RootComponent);
+	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArm->SetupAttachment(RootComponent);
+	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraComponent->SetupAttachment(SpringArm);
 }
@@ -94,7 +102,6 @@ void APlayerCharacter::OnInteractivePressed()
 		Sail->RotateInit(GetControlRotation().Yaw);
 	}
 }
-
 
 void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass)
 {
@@ -175,25 +182,37 @@ void APlayerCharacter::FindToUse()
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 {
 	if (SurvivalComponent->GetIsDied()) return;
-	
+
 	const FVector VectorValue = Value.Get<FVector>();
-	// 바라보는 방향에 상관없이 회전이 Yaw 쪽으로만 이동해야 하기 때문에 Yaw를 가져옴
-	// 수영처럼 바라보는 방향이 Z축으로도 필요하다면 로직이 달라질 수 있음
-	const FRotator Rotator = FRotator(0, GetController()->GetControlRotation().Yaw, 0);
-	
-	const FVector ForwardDirection = FRotationMatrix(Rotator).GetUnitAxis(EAxis::X)
-	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
-	* VectorValue.X;
-	
-	const FVector RightDirection = FRotationMatrix(Rotator).GetUnitAxis(EAxis::Y)
-	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
-	* VectorValue.Y;
+	FRotator MoveToRotator;
+	if (SwimmingComponent->GetIsSwimMode())
+	{
+		MoveToRotator = GetController()->GetControlRotation();
+		
+		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+		const FVector ForwardDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::X) * VectorValue.X;
 
-	FVector FinalValue = FVector(ForwardDirection + RightDirection);
-	FinalValue = FinalValue.GetSafeNormal(1);
-	
-	AddMovementInput(FinalValue);
+		const FVector FinalValue = ForwardDirection.GetSafeNormal(1);
 
+		AddMovementInput(FinalValue);
+	} else
+	{
+		// 바라보는 방향에 상관없이 회전이 Yaw 쪽으로만 이동해야 하기 때문에 Yaw를 가져옴
+		// 수영처럼 바라보는 방향이 Z축으로도 필요하다면 로직이 달라질 수 있음
+		MoveToRotator = FRotator(0, GetController()->GetControlRotation().Yaw, 0);
+		
+	    // 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+		const FVector ForwardDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::X) * VectorValue.X;
+		
+		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+	    const FVector RightDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::Y) * VectorValue.Y;
+
+	    FVector FinalValue = FVector(ForwardDirection + RightDirection);
+	    FinalValue = FinalValue.GetSafeNormal(1);
+
+	    AddMovementInput(FinalValue);
+	}
+	
 	FindToUse();
 }
 

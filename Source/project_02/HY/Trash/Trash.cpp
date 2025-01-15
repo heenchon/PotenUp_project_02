@@ -31,7 +31,7 @@ void ATrash::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	const FItemInfoData ItemData = UItemHelper::GetItemInfoById(GetWorld(), ItemId);
+	const FItemInfoData ItemData = FItemHelper::GetItemInfoById(GetWorld(), ItemId);
 	
 	ItemMetaInfo.SetId(ItemId);
 	// TODO: 해당 하드코딩은 추후 랜덤 값 or 지정 값으로 변경 가능성 있음

@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class UBoxComponent;
+class USwimmingComponent;
 class UInventoryComponent;
 class AHookRope;
 class USpringArmComponent;
@@ -33,11 +35,10 @@ public:
 
 	FORCEINLINE TObjectPtr<USurvivalComponent> GetSurvivalComponent() const { return SurvivalComponent; }
 	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
+	FORCEINLINE TObjectPtr<UBoxComponent> GetCheckSwimOverlapBox() const { return CheckSwimOverlapBox; }
 
 	FORCEINLINE TObjectPtr<AActor> GetTestInteractiveItem() { return TestInteractiveItem; }
 	void SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass);
-
-	void SetFindActor(const AActor* NewActor);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -48,10 +49,16 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<UBoxComponent> CheckSwimOverlapBox;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<USurvivalComponent> SurvivalComponent;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<UInventoryComponent> InventoryComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<USwimmingComponent> SwimmingComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input
 		, meta = (AllowPrivateAccess = true))

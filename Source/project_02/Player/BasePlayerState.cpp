@@ -44,7 +44,7 @@ void ABasePlayerState::SwapItemInInventory(const uint16 Prev, const uint16 Next)
 
 uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo)
 {
-	const FItemInfoData& ItemInfoById = UItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
+	const FItemInfoData& ItemInfoById = FItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
 
 	// CurrentItemCount는 우선은 총 합으로 가지고 있는 아이템 수를 의미한다.
 	const uint16 CurrentItemCount = PlayerInventoryList[Index].GetCurrentCount() +
@@ -125,7 +125,7 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 
 uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 {
-	const FItemInfoData& ItemInfoById = UItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
+	const FItemInfoData& ItemInfoById = FItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
 	
 	// 핫바에서 먼저 검색함.
 	bool bHasInventory = false;
