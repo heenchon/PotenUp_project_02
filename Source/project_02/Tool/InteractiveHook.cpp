@@ -54,34 +54,43 @@ void AInteractiveHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (HookStatus == EHookStatus::Launched)
+	switch (HookStatus)
 	{
-		AddActorWorldOffset(MoveToPos * DeltaTime * Power * PowerPercent + 
-                            			FVector::UpVector * (-1.f * GravityScale * DeltaTime));
-	}
-	
-	if (HookStatus == EHookStatus::Pulled)
-	{
-		if (GetDistanceBetweenMoveToAndCurrentLocation() < HookCalcRadius)
+		case EHookStatus::Launched:
 		{
-			for (ATrash* TrashItem : AttachTrashList)
-			{
-				// TODO: Delegate로 이전하는 방향성을 고려해보기
-				if (ABasePlayerState* PS = Cast<ABasePlayerState>(UGameplayStatics::GetPlayerState(GetWorld(), 0)))
-				{
-					PS->AddItem(TrashItem->GetItemMetaInfo());
-					TrashItem->Destroy();
-				}
-			}
-			
-			Destroy();
+			AddActorWorldOffset(MoveToPos * DeltaTime * Power * PowerPercent + 
+										FVector::UpVector * (-1.f * GravityScale * DeltaTime));
+			break;
 		}
+		case EHookStatus::Pulled:
+		{
+			if (GetDistanceBetweenMoveToAndCurrentLocation() < HookCalcRadius)
+			{
+				for (ATrash* TrashItem : AttachTrashList)
+				{
+					// TODO: Delegate로 이전하는 방향성을 고려해보기
+					if (ABasePlayerState* PS = Cast<ABasePlayerState>(UGameplayStatics::GetPlayerState(GetWorld(), 0)))
+					{
+						PS->AddItem(TrashItem->GetItemMetaInfo());
+						TrashItem->Destroy();
+					}
+				}
+			
+				Destroy();
+			}
 
-		FVector MoveTo = (MoveToPos - GetActorLocation())
-			.GetSafeNormal();
-		MoveTo.Z = 0;
+			FVector MoveTo = (MoveToPos - GetActorLocation())
+				.GetSafeNormal();
+			MoveTo.Z = 0;
 		
-		AddActorWorldOffset(MoveTo * DeltaTime * HookPullSpeed);
+			AddActorWorldOffset(MoveTo * DeltaTime * HookPullSpeed);
+			
+			break;
+		}
+		default:
+		{
+			break;
+		}
 	}
 }
 
