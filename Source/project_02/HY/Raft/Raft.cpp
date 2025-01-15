@@ -13,17 +13,22 @@ ARaft::ARaft()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RaftMesh"));
 	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
 	
-	// RaftMesh를 루트 컴포넌트로 설정
 	RootComponent = StaticMesh;
+	StaticMesh->SetSimulatePhysics(true);
+	StaticMesh->BodyInstance.bLockZRotation = true;
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Water/Caustics/Meshes/CausticsPreviewBase.CausticsPreviewBase'"));
 
 	if (DefaultMesh.Succeeded()) StaticMesh->SetStaticMesh(DefaultMesh.Object);
-
+	
 	Buoyancy->AddCustomPontoon(100,"one");
 	Buoyancy->AddCustomPontoon(100,"two");
 	Buoyancy->AddCustomPontoon(100,"three");
 	Buoyancy->AddCustomPontoon(100,"four");
+	Buoyancy->BuoyancyData.Pontoons[0].RelativeLocation = {50.0f,50.0f,0.0f};
+	Buoyancy->BuoyancyData.Pontoons[1].RelativeLocation = {-50.0f,50.0f,0};
+	Buoyancy->BuoyancyData.Pontoons[2].RelativeLocation = {50.0f,-50.0f,0};
+	Buoyancy->BuoyancyData.Pontoons[3].RelativeLocation = {-50.0f,-50.0f,0};
 
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	StaticMesh->SetCollisionObjectType(ECC_PhysicsBody);
@@ -40,7 +45,6 @@ void ARaft::BeginPlay()
 	{
 		WindDirection = RaftGameState->WindDirection;
 		WindStrength = RaftGameState->WindStrength;
-		SailStrength = RaftGameState->SailStrength;
 	}
 }
 

@@ -19,9 +19,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	float SailAngle;
 	UPROPERTY(EditAnywhere)
-	float MaxSailStrength = 3.0f;
+	float MaxSailStrength = 2.0f;
 	UPROPERTY(EditAnywhere)
-	float MinSailStrength = 1.0f;
+	float MinSailStrength;
 
 protected:
 	virtual void BeginPlay() override;
@@ -31,7 +31,10 @@ private:
 	class ARaftGameState* RaftGameState;
 	FVector3d WindDirection;
 	float WindStrength;
-
+	
+	UPROPERTY(EditAnywhere)
+	class ARaft* Raft;
+	
 	FVector MyDirection;
 	
 public:
