@@ -24,6 +24,7 @@ ASail::ASail()
 
 	Arrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Arrow"));
 	Arrow->SetupAttachment(Root);
+	Arrow->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	
 	ConstructorHelpers::FObjectFinder<UStaticMesh> arrow(TEXT("/Script/Engine.StaticMesh'/Engine/EditorResources/FieldNodes/_Resources/SM_FieldArrow.SM_FieldArrow'"));
 	if (arrow.Succeeded()) Arrow->SetStaticMesh(arrow.Object);
@@ -46,7 +47,7 @@ void ASail::BeginPlay()
 	APlayerCharacter* player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
 	PlayerController = player->GetController();
 	//TODO: 후에 에셋 바꾸면 필요없어질 내용.
-	SailToggle();
+	SetActorScale3D(FVector(0.2, 2.0, 1.0));
 }
 
 // Called every frame
@@ -79,13 +80,13 @@ void ASail::SailToggle()
 	{
 		bSailOn = false;
 		//TODO: 임시로 애니메이션 대신 스케일 조정
-		SetActorScale3D(FVector(0.5, 2.5, 1.0));
+		SetActorScale3D(FVector(0.2, 2.0, 1.0));
 		Raft->SailStrength = 1.0f;
 	}
 	else
 	{
 		bSailOn = true;
-		SetActorScale3D(FVector(0.5, 2.5, 3.0));
+		SetActorScale3D(FVector(0.2, 2.0, 3.0));
 	}
 	// UE_LOG(LogTemp,Warning,TEXT("bSailOn %d"),bSailOn);
 }

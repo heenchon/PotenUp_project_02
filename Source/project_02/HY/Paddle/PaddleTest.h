@@ -30,7 +30,7 @@ public:
 	bool bIsPaddling = false;
 	/** 노를 젓는 힘이 강해져요. */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	float PaddleForce = 1.5f;
+	float PaddleForce = 4.0f;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	float PaddleDuration = 1.5f;
 	
