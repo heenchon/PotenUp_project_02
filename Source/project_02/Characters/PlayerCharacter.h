@@ -129,4 +129,6 @@ private:
 	// PlayerCharacter로 처리
 	UPROPERTY()
 	TObjectPtr<AActor> FindDroppedActor;
+
+	bool IsInteracting;
 };

@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerGameUI.generated.h"
 
+class UImage;
 class UTextBlock;
 class UOverlay;
 class UInventoryHotSlot;
@@ -20,7 +21,8 @@ public:
 	void SetHungerPercent(const uint8 Current, const uint8 Max);
 	void SetThirstPercent(const uint8 Current, const uint8 Max);
 
-	void SetInteractiveUIStatus(AActor* Target);
+	void SetInteractiveUIStatus(const AActor* Target);
+	void SetProgressPercent(const float Percent);
 
 	FORCEINLINE TObjectPtr<UInventoryHotSlot> GetInventoryHotSlot() const { return InventoryHotSlot; }
 	
@@ -43,4 +45,7 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> InteractiveUITitle;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> HookProgressBar;
 };
