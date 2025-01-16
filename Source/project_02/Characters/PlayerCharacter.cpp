@@ -12,6 +12,7 @@
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
 #include "project_02/HY/Paddle/PaddleTest.h"
+#include "project_02/HY/Raft/Sail.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -59,6 +60,11 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::UseItem()
 {
+	// if (FindDroppedActor)
+	// {
+	// 	UE_LOG(LogTemp, Display, TEXT("Using Item: %s"), *FindDroppedActor->GetName());
+	// }
+	
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ATrash::StaticClass()))
 	{
@@ -66,6 +72,13 @@ void APlayerCharacter::UseItem()
 		
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
+	}
+	//희연
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	{
+		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		
+		Sail->SailToggle();
 	}
 }
 
@@ -96,9 +109,15 @@ void APlayerCharacter::OnInteractiveHolding()
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
 	}
+	//희연
 	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
 	{
 		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingStart();
+	}
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	{
+		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		Sail->RotateSail();
 	}
 }
 
@@ -109,6 +128,7 @@ void APlayerCharacter::OnInteractiveEnd()
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnEndInteractive();
 	}
+	//희연
 	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
 	{
 		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingEnd();
