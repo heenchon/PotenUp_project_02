@@ -61,7 +61,7 @@ private:
 	float FloatingValueInWater = 50;
 	
 	/* 물 위에서 점프하는 힘의 값 */
-	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true, ClampMin = 0, ClampMax = 100))
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	float DivingJumpPower = 800;
 
 	UFUNCTION()
