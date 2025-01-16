@@ -30,9 +30,6 @@ APlayerCharacter::APlayerCharacter()
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraComponent->SetupAttachment(SpringArm);
-
-	// 테스트용 수영 속도 (fly지만 수영이다)
-	GetCharacterMovement()->MaxFlySpeed = 250;
 }
 
 void APlayerCharacter::BeginPlay()
@@ -59,7 +56,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::Look);
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Triggered
-		, this, &ThisClass::Jump);
+		, this, &ThisClass::GoToUp);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
@@ -199,7 +196,7 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 		
 		// 이동하는 방향에 대한 처리로 "올라가려는" 높이 방향이 수위 높이 좌표에 내 몸 높이의 일정 Percent 만큼
 		// (몸의 지름을 Capsule을 기준으로 한다)에 따라서 더 올라갈지 유지할지를 결정해준다.
-		FinalValue.Z = SwimmingComponent->CanMoveToUpInSwimming(FinalValue) ? 0 : FinalValue.Z;
+		FinalValue.Z = SwimmingComponent->IsOwnerNearWaterLevel(FinalValue) ? 0 : FinalValue.Z;
 		AddMovementInput(FinalValue);
 	} else
 	{
@@ -235,6 +232,28 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	
 	FindToUse();
 }
+
+void APlayerCharacter::GoToUp(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("테스트: %d"), SwimmingComponent->GetIsSwimMode());
+	if (SwimmingComponent->GetIsSwimMode())
+	{
+		// 보통 Normal Vector를 Params로 넣는데 지금은 올라가는 경우기에 하드코딩으로 값을 넣는다.
+		if (SwimmingComponent->IsOwnerNearWaterLevel(GetActorUpVector()))
+		{
+			UE_LOG(LogTemp, Display, TEXT("하이 브로"))
+			SwimmingComponent->PlayDiving();
+		} else
+		{
+			UE_LOG(LogTemp, Display, TEXT("바이 브로"))
+			AddMovementInput(GetActorUpVector());
+		}
+	} else
+	{
+		Jump();
+	}
+}
+
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {

@@ -99,6 +99,9 @@ private:
 
 	UFUNCTION()
 	void Look(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void GoToUp(const FInputActionValue& Value);
 
 	UFUNCTION()
 	void OnInteractiveHolding();
