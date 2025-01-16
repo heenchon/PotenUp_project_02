@@ -32,8 +32,8 @@ public:
 	//타겟 상태
 	UPROPERTY(EditAnywhere)
 	AActor* Target;
-	UPROPERTY(EditAnywhere)
-	bool PlayerIsWater;
+	UPROPERTY()
+	class USwimmingComponent* SwimComponent;
 	
 	UPROPERTY()
 	ESharkState CurrentState;
@@ -49,7 +49,7 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkAttackSpeed = 1500.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float SharkAttackDuration = 10.0f;
+	float SharkAttackDuration = 15.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float IdleMoveDuration = 5.0f;
 
@@ -59,7 +59,7 @@ public:
 
 	//타겟 도달 감지 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float DetectionDistance = 500.0f;
+	float DetectionDistance = 400.0f;
 
 	//도망 거리 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)

@@ -4,7 +4,8 @@
 #include "SharkAI.h"
 #include "Kismet/GameplayStatics.h"
 #include "SharkAIController.h"
-#include "Channels/MovieSceneInterpolation.h"
+#include "project_02/Helper/EnumHelper.h"
+#include "project_02/Characters/Component/SwimmingComponent.h"
 
 // Sets default values
 ASharkAI::ASharkAI()
@@ -23,11 +24,8 @@ void ASharkAI::BeginPlay()
 {
 	Super::BeginPlay();
 	Player = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	SwimComponent = Player->FindComponentByClass<USwimmingComponent>();
 	
-	//TODO: GetActorOfClass(Raft)
-	// Raft = UGameplayStatics::GetActorOfClass(GetWorld(),TSubclassOf<ARaft>());
-	// if (Raft) UE_LOG(LogTemp,Warning,TEXT("%s"),*Raft->GetName());
-
 	//TODO: 임시로 플레이어로 고정
 	Target = Player;
 	TargetLocation = NewIdleLocation();
@@ -39,7 +37,8 @@ void ASharkAI::BeginPlay()
 void ASharkAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// UE_LOG(LogTemp, Display, TEXT("%s"),GetClassEnumKeyAsString(ESharkState::Idle));
+	
+	// UE_LOG(LogTemp, Display, TEXT("%s"), *FEnumHelper::GetClassEnumKeyAsString(CurrentState));
 	
 	switch (CurrentState)
 	{
@@ -87,36 +86,36 @@ void ASharkAI::Idle(float DeltaTime)
 		ChangeState(ESharkState::Turning);
 	}
 
-	//플레이어가 물에 있으면 바로 공격
-	if (PlayerIsWater)
+	//플레이어가 물에 있으면 더 짧은 간격으로 공격
+	if (SwimComponent->GetIsSwimMode())
 	{
-		TargetLocation = Player->GetActorLocation();
-		NextState = ESharkState::MoveToTarget;
-		ChangeState(ESharkState::Turning);
+		Target = Player;
+		CurTimeforAttack += DeltaTime*2;
 	}
-	//공격 주기가 되었으면 공격
 	else
 	{
 		CurTimeforAttack += DeltaTime;
-		if (CurTimeforAttack > SharkAttackDuration)
-		{
-			CurTimeforAttack = 0.0f;
-			//TODO: 임시로 플레이어로 고정
-			TargetLocation = Player->GetActorLocation();
-			NextState = ESharkState::MoveToTarget;
-			ChangeState(ESharkState::Turning);
-		}
+	}
+	
+	if (CurTimeforAttack > SharkAttackDuration)
+	{
+		CurTimeforAttack = 0.0f;
+		//TODO: 임시로 플레이어로 고정
+		TargetLocation = Player->GetActorLocation();
+		NextState = ESharkState::MoveToTarget;
+		ChangeState(ESharkState::Turning);
 	}
 }
 
 void ASharkAI::MoveToTarget(float DeltaTime)
 {
 	// UE_LOG(LogTemp,Warning,TEXT("%s"), *(Target->GetActorLocation().ToString()));
-	
-	FVector dir = TargetLocation-GetActorLocation();
+
+	FVector curLoc = GetActorLocation();
+	FVector dir = Target->GetActorLocation()-curLoc;
 	dir.Normalize();
-	SetActorLocation(dir*DeltaTime*SharkAttackSpeed + this->GetActorLocation());
-	if (FVector::Dist(GetActorLocation(),Target->GetActorLocation()) < DetectionDistance)
+	SetActorLocation(dir*DeltaTime*SharkAttackSpeed + curLoc);
+	if (FVector::Dist(curLoc,Target->GetActorLocation()) < DetectionDistance)
 	{
 		// UE_LOG(LogTemp,Warning,TEXT("타겟에 도착! Attack으로 변경"));
 		if (Target == Player) ChangeState(ESharkState::AttackPlayer);
