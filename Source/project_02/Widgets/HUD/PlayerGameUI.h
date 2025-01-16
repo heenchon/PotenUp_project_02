@@ -4,6 +4,8 @@
 #include "Blueprint/UserWidget.h"
 #include "PlayerGameUI.generated.h"
 
+class UTextBlock;
+class UOverlay;
 class UInventoryHotSlot;
 class UStatusProgressBar;
 
@@ -17,6 +19,8 @@ public:
 	void SetHealthPercent(const uint8 Current, const uint8 Max);
 	void SetHungerPercent(const uint8 Current, const uint8 Max);
 	void SetThirstPercent(const uint8 Current, const uint8 Max);
+
+	void SetInteractiveUIStatus(AActor* Target);
 
 	FORCEINLINE TObjectPtr<UInventoryHotSlot> GetInventoryHotSlot() const { return InventoryHotSlot; }
 	
@@ -32,4 +36,11 @@ private:
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UInventoryHotSlot> InventoryHotSlot;
+
+	// TODO: Interactive관련 모듈화 처리 하는 것을 고려해볼 것
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UOverlay> InteractiveUI;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> InteractiveUITitle;
 };

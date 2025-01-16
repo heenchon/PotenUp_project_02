@@ -7,7 +7,7 @@
 #include "Component/InventoryComponent.h"
 #include "Component/SwimmingComponent.h"
 #include "Components/BoxComponent.h"
-#include "GameFramework/CharacterMovementComponent.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "project_02/HY/Trash/Trash.h"
@@ -15,6 +15,7 @@
 #include "project_02/Tool/HookRope.h"
 #include "project_02/HY/Paddle/PaddleTest.h"
 #include "project_02/HY/Raft/Sail.h"
+#include "project_02/Player/BasePlayerController.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -125,19 +126,24 @@ void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActo
 void APlayerCharacter::OnInteractiveHolding()
 {
 	if (IsBlockAction()) return;
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
-	{
-		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
-	}
-	//희연
-	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
-	{
-		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingStart();
-	}
+
+	// TODO: 우선순위에 대한 로직 추가 필요
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
 		Sail->RotateSail();
+		return;
+	}
+	
+	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	{
+		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingStart();
+		return;
+	}
+	
+	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	{
+		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
 	}
 }
 
@@ -171,12 +177,20 @@ void APlayerCharacter::FindToUse()
 	TArray<AActor*> ActorsToNotTargeting;
 	ActorsToNotTargeting.Add(this);
 
+	
 	if (UKismetSystemLibrary::SphereTraceSingleForObjects(
 		GetWorld(), StartPosition, EndPosition, 20.f, ObjectTypesArray, false
 		, ActorsToNotTargeting, EDrawDebugTrace::None, HitResult, true))
 	{
 		FindDroppedActor = HitResult.GetActor();
+	} else
+	{
+		FindDroppedActor = nullptr;
 	}
+	
+	ABasePlayerController* PC = Cast<ABasePlayerController>(GetController());
+	check(PC)
+	PC->GetPlayerUI()->SetInteractiveUIStatus(FindDroppedActor);
 }
 
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
