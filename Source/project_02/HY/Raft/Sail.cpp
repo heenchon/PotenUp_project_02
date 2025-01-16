@@ -4,6 +4,7 @@
 #include "Sail.h"
 #include "../RaftGameState.h"
 #include "../Raft/Raft.h"
+#include "Components/ArrowComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Characters/PlayerCharacter.h"
 
@@ -20,6 +21,12 @@ ASail::ASail()
 	SailMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	SailMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
 	SailMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1,ECR_Overlap);
+
+	Arrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Arrow"));
+	Arrow->SetupAttachment(Root);
+	
+	ConstructorHelpers::FObjectFinder<UStaticMesh> arrow(TEXT("/Script/Engine.StaticMesh'/Engine/EditorResources/FieldNodes/_Resources/SM_FieldArrow.SM_FieldArrow'"));
+	if (arrow.Succeeded()) Arrow->SetStaticMesh(arrow.Object);
 	
 	MinSailStrength = 1.0f / MaxSailStrength;
 }
@@ -37,8 +44,8 @@ void ASail::BeginPlay()
 	}
 	
 	APlayerCharacter* player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
-	// UE_LOG(LogTemp,Warning,TEXT("%s"),*player->GetName());
 	PlayerController = player->GetController();
+	//TODO: 후에 에셋 바꾸면 필요없어질 내용.
 	SailToggle();
 }
 
@@ -46,9 +53,9 @@ void ASail::BeginPlay()
 void ASail::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	MyDirection = this->GetActorRotation().Vector();
 	if (bSailOn)
 	{
+		MyDirection = this->GetActorRotation().Vector();
 		ChangeStrength(CompareDirection(MyDirection, WindDirection));
 	}
 	// UE_LOG(LogTemp, Warning, TEXT("포워드 벡터: %s"), *MyDirection.ToString());
@@ -87,13 +94,16 @@ void ASail::RotateSail()
 {
 	if (bSailOn)
 	{
-		// UE_LOG(LogTemp, Warning, TEXT("%f"),(PlayerCharacter->GetController()->GetControlRotation().Yaw));
-		UE_LOG(LogTemp, Warning, TEXT("%f"),(PlayerController->GetControlRotation().Yaw));
-
-		FRotator curRot = GetActorRotation();
-		// double newYaw= curRot.Yaw + PlayerController->GetControlRotation().Yaw*0.01f;
-		// SetActorRotation(FRotator(curRot.Pitch, newYaw, curRot.Roll));
+		float yawDiff =  FMath::UnwindDegrees(PlayerController->GetControlRotation().Yaw-PlayerYawOrigin);
+		SetActorRotation(FRotator(0,SailYawOrigin+yawDiff*RotationMultiplier,0));
 	}
+}
+
+void ASail::RotateInit(float yawValue)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("%f"),yawValue);
+	PlayerYawOrigin = yawValue;
+	SailYawOrigin = GetActorRotation().Yaw;
 }
 
 void ASail::SetRaft(ARaft* raft)

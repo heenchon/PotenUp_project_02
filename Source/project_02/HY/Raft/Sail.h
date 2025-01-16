@@ -18,11 +18,14 @@ public:
 	class USceneComponent* Root;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UStaticMeshComponent* SailMesh;
+	//TODO: 에셋 찾으면 제거
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UStaticMeshComponent* Arrow;
 
 	UPROPERTY(EditAnywhere)
-	float MaxSailStrength = 4.0f;
+	float MaxSailStrength = 6.0f;
 	UPROPERTY(EditAnywhere)
-	double RotateAddValue = 0.4f;
+	double RotationMultiplier = 2.0;
 
 protected:
 	// Called when the game starts or when spawned
@@ -38,6 +41,8 @@ private:
 	class ARaft* Raft;
 	UPROPERTY(EditAnywhere)
 	class AController* PlayerController;
+	float PlayerYawOrigin;
+	float SailYawOrigin;
 	
 	float MinSailStrength;
 	FVector MyDirection;
@@ -50,5 +55,6 @@ public:
 	float CompareDirection(FVector3d myDir, FVector3d windDir);
 	void SailToggle();
 	void RotateSail();
+	void RotateInit(float yawValue);
 	void SetRaft(ARaft* raft);
 };

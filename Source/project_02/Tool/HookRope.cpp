@@ -89,7 +89,6 @@ void AHookRope::OnEndInteractive()
 	{
 		Cable->SetVisibility(true);
 		Cable->SetAttachEndToComponent(ControlledHook->GetHookMesh(), "Start");
-		
 		ControlledHook->StartLaunch(Player->GetControlRotation().Vector().GetSafeNormal(1) + Player->GetActorForwardVector(), Power);
 	}
 	

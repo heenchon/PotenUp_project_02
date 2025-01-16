@@ -55,6 +55,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		, this, &ThisClass::OnInteractiveEnd);
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::UseItem);
+		//희연
+		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
+		, this, &ThisClass::OnInteractivePressed);
 	}
 }
 
@@ -79,6 +82,16 @@ void APlayerCharacter::UseItem()
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
 		
 		Sail->SailToggle();
+	}
+}
+
+//희연: 마우스 눌렀을 때 감지
+void APlayerCharacter::OnInteractivePressed()
+{
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	{
+		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		Sail->RotateInit(GetControlRotation().Yaw);
 	}
 }
 
