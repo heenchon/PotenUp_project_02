@@ -5,9 +5,11 @@
 #include "Camera/CameraComponent.h"
 #include "Component/SurvivalComponent.h"
 #include "Component/InventoryComponent.h"
+#include "Component/SwimmingComponent.h"
+#include "Components/BoxComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
@@ -18,8 +20,14 @@ APlayerCharacter::APlayerCharacter()
 {
 	SurvivalComponent = CreateDefaultSubobject<USurvivalComponent>("Survival Component");
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
+	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>("Swimming Component");
+	
+	ChestBox = CreateDefaultSubobject<UBoxComponent>("Chest Box");
+	ChestBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "ChestSocket");
+	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArm->SetupAttachment(RootComponent);
+	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraComponent->SetupAttachment(SpringArm);
 }
@@ -48,7 +56,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::Look);
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Triggered
-		, this, &ThisClass::Jump);
+		, this, &ThisClass::GoToUp);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
@@ -94,7 +102,6 @@ void APlayerCharacter::OnInteractivePressed()
 		Sail->RotateInit(GetControlRotation().Yaw);
 	}
 }
-
 
 void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass)
 {
@@ -175,25 +182,38 @@ void APlayerCharacter::FindToUse()
 void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 {
 	if (SurvivalComponent->GetIsDied()) return;
-	
+
 	const FVector VectorValue = Value.Get<FVector>();
-	// 바라보는 방향에 상관없이 회전이 Yaw 쪽으로만 이동해야 하기 때문에 Yaw를 가져옴
-	// 수영처럼 바라보는 방향이 Z축으로도 필요하다면 로직이 달라질 수 있음
-	const FRotator Rotator = FRotator(0, GetController()->GetControlRotation().Yaw, 0);
-	
-	const FVector ForwardDirection = FRotationMatrix(Rotator).GetUnitAxis(EAxis::X)
-	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
-	* VectorValue.X;
-	
-	const FVector RightDirection = FRotationMatrix(Rotator).GetUnitAxis(EAxis::Y)
-	// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
-	* VectorValue.Y;
+	FRotator MoveToRotator;
+	if (SwimmingComponent->GetIsSwimMode())
+	{
+		MoveToRotator = GetController()->GetControlRotation();
+		
+		const FVector ForwardDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::X) * VectorValue.X;
 
-	FVector FinalValue = FVector(ForwardDirection + RightDirection);
-	FinalValue = FinalValue.GetSafeNormal(1);
-	
-	AddMovementInput(FinalValue);
+		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+		FVector FinalValue = ForwardDirection.GetSafeNormal(1);
+		
+		// 이동하는 방향에 대한 처리로 "올라가려는" 높이 방향이 수위 높이 좌표에 내 몸 높이의 일정 Percent 만큼
+		// (몸의 지름을 Capsule을 기준으로 한다)에 따라서 더 올라갈지 유지할지를 결정해준다.
+		FinalValue.Z = SwimmingComponent->IsOwnerNearWaterLevel(FinalValue) ? 0 : FinalValue.Z;
+		AddMovementInput(FinalValue);
+	} else
+	{
+		// 바라보는 방향에 상관없이 회전이 Yaw 쪽으로만 이동해야 하기 때문에 Yaw를 가져옴
+		// 수영처럼 바라보는 방향이 Z축으로도 필요하다면 로직이 달라질 수 있음
+		MoveToRotator = FRotator(0, GetController()->GetControlRotation().Yaw, 0);
+		
+		const FVector ForwardDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::X) * VectorValue.X;
+	    const FVector RightDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::Y) * VectorValue.Y;
 
+	    FVector FinalValue = FVector(ForwardDirection + RightDirection);
+		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+	    FinalValue = FinalValue.GetSafeNormal(1);
+
+	    AddMovementInput(FinalValue);
+	}
+	
 	FindToUse();
 }
 
@@ -212,6 +232,28 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	
 	FindToUse();
 }
+
+void APlayerCharacter::GoToUp(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("테스트: %d"), SwimmingComponent->GetIsSwimMode());
+	if (SwimmingComponent->GetIsSwimMode())
+	{
+		// 보통 Normal Vector를 Params로 넣는데 지금은 올라가는 경우기에 하드코딩으로 값을 넣는다.
+		if (SwimmingComponent->IsOwnerNearWaterLevel(GetActorUpVector()))
+		{
+			UE_LOG(LogTemp, Display, TEXT("하이 브로"))
+			SwimmingComponent->PlayDiving();
+		} else
+		{
+			UE_LOG(LogTemp, Display, TEXT("바이 브로"))
+			AddMovementInput(GetActorUpVector());
+		}
+	} else
+	{
+		Jump();
+	}
+}
+
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
