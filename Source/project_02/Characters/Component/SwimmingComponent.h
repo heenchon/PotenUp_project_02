@@ -17,6 +17,10 @@ public:
 	USwimmingComponent();
 	
 	FORCEINLINE bool GetIsSwimMode() const { return IsSwimMode; }
+	FORCEINLINE int32 GetWaterLevel() const { return WaterLevel; }
+	FORCEINLINE float GetFloatingValueInWaterPercent() const { return FloatingValueInWater / 100; }
+
+	bool CanMoveToUpInSwimming(const FVector MoveToVector) const;
 	
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsSwimMode_BP() const { return IsSwimMode; }
@@ -25,12 +29,21 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	// 물 속에 들어갈 때 그 물의 높이
+	// 보통 물 속은 한번 들어가면 평평한 그 높이가 유지되는 방식이기 때문에
+	// 한번만 저장함. (만약 쫄리면 올라올 때 쯤 계속 line-trace해서 구해도 됨)
+	int32 WaterLevel;
+	
 	UPROPERTY()
 	TObjectPtr<APlayerCharacter> Owner;
 	
 	/* 현재 수영 상태인지 여부 */
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 IsSwimMode:1 = false;
+
+	/* 물 위에서 내 Capsule 높이의 어느정도 만큼 떠 있을 시 설정하는 Percent 값 */
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true, ClampMin = 0, ClampMax = 100))
+	float FloatingValueInWater = 50;
 
 	UFUNCTION()
 	void OnCheckOverlapInWater(UPrimitiveComponent* OverlappedComponent,

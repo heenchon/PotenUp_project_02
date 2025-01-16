@@ -7,9 +7,9 @@
 #include "Component/InventoryComponent.h"
 #include "Component/SwimmingComponent.h"
 #include "Components/BoxComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-#include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/Tool/HookRope.h"
@@ -22,14 +22,17 @@ APlayerCharacter::APlayerCharacter()
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>("Swimming Component");
 	
-	CheckSwimOverlapBox = CreateDefaultSubobject<UBoxComponent>("Check Swim Overlap Box");
-	CheckSwimOverlapBox->SetupAttachment(RootComponent);
+	ChestBox = CreateDefaultSubobject<UBoxComponent>("Chest Box");
+	ChestBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "ChestSocket");
 	
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>("Spring Arm");
 	SpringArm->SetupAttachment(RootComponent);
 	
 	CameraComponent = CreateDefaultSubobject<UCameraComponent>("Camera");
 	CameraComponent->SetupAttachment(SpringArm);
+
+	// 테스트용 수영 속도 (fly지만 수영이다)
+	GetCharacterMovement()->MaxFlySpeed = 250;
 }
 
 void APlayerCharacter::BeginPlay()
@@ -189,11 +192,14 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 	{
 		MoveToRotator = GetController()->GetControlRotation();
 		
-		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
 		const FVector ForwardDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::X) * VectorValue.X;
 
-		const FVector FinalValue = ForwardDirection.GetSafeNormal(1);
-
+		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
+		FVector FinalValue = ForwardDirection.GetSafeNormal(1);
+		
+		// 이동하는 방향에 대한 처리로 "올라가려는" 높이 방향이 수위 높이 좌표에 내 몸 높이의 일정 Percent 만큼
+		// (몸의 지름을 Capsule을 기준으로 한다)에 따라서 더 올라갈지 유지할지를 결정해준다.
+		FinalValue.Z = SwimmingComponent->CanMoveToUpInSwimming(FinalValue) ? 0 : FinalValue.Z;
 		AddMovementInput(FinalValue);
 	} else
 	{
@@ -201,13 +207,11 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 		// 수영처럼 바라보는 방향이 Z축으로도 필요하다면 로직이 달라질 수 있음
 		MoveToRotator = FRotator(0, GetController()->GetControlRotation().Yaw, 0);
 		
-	    // 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
 		const FVector ForwardDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::X) * VectorValue.X;
-		
-		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
 	    const FVector RightDirection = FRotationMatrix(MoveToRotator).GetUnitAxis(EAxis::Y) * VectorValue.Y;
 
 	    FVector FinalValue = FVector(ForwardDirection + RightDirection);
+		// 방향과 대각선으로 이동 시 더 빠르게 이동하는 것을 방지하기 위해 추가 수식으로 이동 속도를 줄임
 	    FinalValue = FinalValue.GetSafeNormal(1);
 
 	    AddMovementInput(FinalValue);

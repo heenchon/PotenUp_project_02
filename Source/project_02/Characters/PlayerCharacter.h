@@ -35,7 +35,7 @@ public:
 
 	FORCEINLINE TObjectPtr<USurvivalComponent> GetSurvivalComponent() const { return SurvivalComponent; }
 	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
-	FORCEINLINE TObjectPtr<UBoxComponent> GetCheckSwimOverlapBox() const { return CheckSwimOverlapBox; }
+	FORCEINLINE TObjectPtr<UBoxComponent> GetChestBox() const { return ChestBox; }
 
 	FORCEINLINE TObjectPtr<AActor> GetTestInteractiveItem() { return TestInteractiveItem; }
 	void SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass);
@@ -49,7 +49,7 @@ protected:
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
-	TObjectPtr<UBoxComponent> CheckSwimOverlapBox;
+	TObjectPtr<UBoxComponent> ChestBox;
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<USurvivalComponent> SurvivalComponent;
