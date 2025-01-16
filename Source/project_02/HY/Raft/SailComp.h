@@ -16,19 +16,20 @@ class PROJECT_02_API USailComp : public UStaticMeshComponent
 	
 public:
 	USailComp();
+
 	UPROPERTY(EditAnywhere)
-	float SailAngle;
+	float MaxSailStrength = 4.0f;
 	UPROPERTY(EditAnywhere)
-	float MaxSailStrength = 2.0f;
-	UPROPERTY(EditAnywhere)
-	float MinSailStrength;
+	double RotateAddValue = 0.4f;
 
 protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	class ARaftGameState* RaftGameState;
+	UPROPERTY()
+	float MinSailStrength;
 	FVector3d WindDirection;
 	float WindStrength;
 	
@@ -36,9 +37,12 @@ private:
 	class ARaft* Raft;
 	
 	FVector MyDirection;
+	bool bSailOn = false;
 	
 public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,FActorComponentTickFunction* ThisTickFunction) override;
 	void ChangeStrength(float myStrength);
 	float CompareDirection(FVector3d myDir, FVector3d windDir);
+	void SailToggle();
+	void RotateSail();
 };

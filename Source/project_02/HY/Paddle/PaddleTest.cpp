@@ -31,6 +31,7 @@ void APaddleTest::BeginPlay()
 void APaddleTest::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	GetPlayerRaft();
 }
 
 void APaddleTest::PaddlingStart()
@@ -80,8 +81,9 @@ bool APaddleTest::GetPlayerRaft()
 	
 	if (bHit)
 	{
-		// FVector hitLoc = hit.ImpactPoint;
-		// DrawDebugPoint(GetWorld(), hitLoc, 20, FColor::Red, false, 0.0f, 2.0f);
+		FVector hitLoc = hit.ImpactPoint;
+		DrawDebugPoint(GetWorld(), hitLoc, 20, FColor::Red, false, 0.0f, 2.0f);
+
 		ARaft* hitRaft = Cast<ARaft>(hit.GetActor());
 		if (hitRaft)
 		{

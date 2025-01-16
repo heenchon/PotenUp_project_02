@@ -3,6 +3,7 @@
 
 #include "Raft.h"
 #include "../RaftGameState.h"
+#include "Sail.h"
 
 // Sets default values
 ARaft::ARaft()
@@ -46,6 +47,7 @@ void ARaft::BeginPlay()
 		WindDirection = RaftGameState->WindDirection;
 		WindStrength = RaftGameState->WindStrength;
 	}
+	SpawnSailActor();
 }
 
 // Called every frame
@@ -53,4 +55,13 @@ void ARaft::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength*SailStrength);
+}
+
+void ARaft::SpawnSailActor()
+{
+	if (ASail* sail = GetWorld()->SpawnActor<ASail>(ASail::StaticClass()))
+	{
+		sail->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+		sail->SetRaft(this);
+	}
 }

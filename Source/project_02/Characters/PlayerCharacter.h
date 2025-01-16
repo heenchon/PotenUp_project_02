@@ -101,6 +101,10 @@ private:
 
 	UFUNCTION()
 	void UseItem();
+
+	//희연: 마우스 눌렀을 때 감지
+	UFUNCTION()
+	void OnInteractivePressed();
 	
 	// TODO: 이후 상호작용 관련 컴포넌트로 이전
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
