@@ -29,7 +29,7 @@ void AInteractiveHook::BeginPlay()
 }
 
 double AInteractiveHook::GetDistanceBetweenMoveToAndCurrentLocation()
-{
+{     
 	return UKismetMathLibrary::Distance2D({GetActorLocation().X, GetActorLocation().Y}, {MoveToPos.X, MoveToPos.Y});
 }
 

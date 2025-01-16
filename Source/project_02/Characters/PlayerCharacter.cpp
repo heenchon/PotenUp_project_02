@@ -235,17 +235,14 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::GoToUp(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Display, TEXT("테스트: %d"), SwimmingComponent->GetIsSwimMode());
 	if (SwimmingComponent->GetIsSwimMode())
 	{
 		// 보통 Normal Vector를 Params로 넣는데 지금은 올라가는 경우기에 하드코딩으로 값을 넣는다.
 		if (SwimmingComponent->IsOwnerNearWaterLevel(GetActorUpVector()))
 		{
-			UE_LOG(LogTemp, Display, TEXT("하이 브로"))
 			SwimmingComponent->PlayDiving();
 		} else
 		{
-			UE_LOG(LogTemp, Display, TEXT("바이 브로"))
 			AddMovementInput(GetActorUpVector());
 		}
 	} else
