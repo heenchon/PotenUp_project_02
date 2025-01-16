@@ -88,10 +88,7 @@ void UInventoryComponent::SetHotSlotIndex(const uint8 NewIndex)
 			ABasePlayerController* PC =
 				static_cast<ABasePlayerController*>(Player->GetController());
 			
-			if (UPlayerGameUI* GameUI = Cast<UPlayerGameUI>(PC->GetPlayerUI()))
-			{
-				GameUI->SetHotSlotIndex(SelectedHotSlot, NewIndex);
-			}
+			PC->GetPlayerUI()->SetHotSlotIndex(SelectedHotSlot, NewIndex);
 		}
 	}
 	SelectedHotSlot = NewIndex;

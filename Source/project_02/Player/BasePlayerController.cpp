@@ -11,6 +11,8 @@
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Characters/Component/SurvivalComponent.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
+#include "project_02/Widgets/HUD/PlayerRespawnUI.h"
 
 void ABasePlayerController::BeginPlay()
 {
@@ -19,7 +21,7 @@ void ABasePlayerController::BeginPlay()
 		ABasePlayerState* PS = GetPlayerState<ABasePlayerState>();
 		PS->InitializeData();
 		
-		PlayUI = CreateWidget(this, PlayUIClass);
+		PlayUI = CreateWidget<UPlayerGameUI>(this, PlayUIClass);
 		PlayUI->AddToViewport();
 	}
 }
@@ -28,7 +30,7 @@ void ABasePlayerController::OnDied()
 {
 	if (PlayerRespawnUIClass)
 	{
-		PlayerRespawnUI = CreateWidget(this, PlayerRespawnUIClass);
+		PlayerRespawnUI = CreateWidget<UPlayerRespawnUI>(this, PlayerRespawnUIClass);
 		PlayerRespawnUI->AddToViewport();
 		SetShowMouseCursor(true);
 	}

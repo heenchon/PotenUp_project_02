@@ -172,6 +172,5 @@ void ABasePlayerState::UpdateInventoryHotbar() const
 {
 	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetPlayerController());
 
-	const UPlayerGameUI* GameUI = static_cast<UPlayerGameUI*>(PC->GetPlayerUI());
-	GameUI->GetInventoryHotSlot()->UpdateInventoryArray();
+	PC->GetPlayerUI()->GetInventoryHotSlot()->UpdateInventoryArray();
 }
