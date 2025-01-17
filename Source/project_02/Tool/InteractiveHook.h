@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "InteractiveHook.generated.h"
 
+class UBoxComponent;
 class ATrash;
 class USphereComponent;
 
@@ -54,6 +55,7 @@ private:
 	EHookStatus HookStatus = EHookStatus::Idle;
 	
 	FVector MoveToPos;
+	
 	uint8 Power;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
@@ -61,6 +63,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UStaticMeshComponent> HookMesh;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBoxComponent> BoxCollision;
 	
 	UFUNCTION()
 	void OnOverlapHookGrab(

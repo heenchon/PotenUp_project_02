@@ -21,7 +21,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
-	UPROPERTY()
+	UPROPERTY(EditDefaultsOnly)
 	class UBuoyancyComponent* Buoyancy;
 
 	//TODO: 윈드 매니저 추가 후 cpp 수정
@@ -31,6 +31,7 @@ public:
 	FVector WindDirection;
 	float WindStrength = 100.0f;
 
+	bool IsStop = false;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

@@ -1,4 +1,6 @@
 ﻿#include "InteractiveHook.h"
+
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "project_02/HY/Trash/Trash.h"
@@ -14,6 +16,9 @@ AInteractiveHook::AInteractiveHook()
 	
 	HookMesh = CreateDefaultSubobject<UStaticMeshComponent>("Hook Mesh");
 	HookMesh->SetupAttachment(RootComponent);
+
+	BoxCollision = CreateDefaultSubobject<UBoxComponent>("Box Collision");
+	BoxCollision->SetupAttachment(HookMesh);
 }
 
 // Called when the game starts or when spawned
@@ -25,7 +30,7 @@ void AInteractiveHook::BeginPlay()
 	// 그리고 서로 간의 WorldDynamic에 Overlap 속성을 줌으로써 서로 Overlap시
 	// 끌어당기게 처리해뒀다.
 	// TODO: 추후 이 규칙에 대해 정리하기 (알파 ~ 베타 중에서 정리하기)
-	HookMesh->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlapHookGrab);
+	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlapHookGrab);
 }
 
 double AInteractiveHook::GetDistanceBetweenMoveToAndCurrentLocation()
@@ -105,8 +110,12 @@ void AInteractiveHook::OnOverlapHookGrab(
 	UE_LOG(LogTemp, Display, TEXT("Test: %s"), *OtherActor->GetName())
 	if (OtherActor == this) return;
 
-	HookStatus = EHookStatus::Fixed;
-	MoveToPos = FVector::ZeroVector;
+	if (!OtherActor->IsA(ATrash::StaticClass())
+		&& HookStatus == EHookStatus::Launched)
+	{
+		HookStatus = EHookStatus::Fixed;
+		MoveToPos = FVector::ZeroVector;
+	}
 
 	if (ATrash* NewTrash = Cast<ATrash>(OtherActor))
 	{
@@ -114,7 +123,9 @@ void AInteractiveHook::OnOverlapHookGrab(
 		NewTrash->StaticMesh->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 		NewTrash->SetActorLocation(GetActorLocation());
 		NewTrash->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, "");
-		
+		// TODO: 갈고리가 중간에 없어지는 경우에 대한 예외처리가 없음
+		// 갈고리 중간에 없어지면 IsStop을 false로 다시 변경해두기
+		NewTrash->IsStop = true;
 		AttachTrashList.Add(NewTrash);
 	}
 }

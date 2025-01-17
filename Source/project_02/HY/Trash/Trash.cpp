@@ -1,7 +1,9 @@
 ﻿#include "Trash.h"
 #include "BuoyancyComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "project_02/Helper/ItemHelper.h"
 #include "project_02/DataTable/ItemInfoData.h"
+#include "project_02/HY/RaftGameState.h"
 // #include "../Raft/Raft.h"
 
 
@@ -37,20 +39,19 @@ void ATrash::BeginPlay()
 	// TODO: 해당 하드코딩은 추후 랜덤 값 or 지정 값으로 변경 가능성 있음
 	ItemMetaInfo.SetCurrentCount(1);
 	ItemMetaInfo.SetMetaData(ItemData.GetMetaData());
-	
-	//TODO: 윈드 매니저 추가 후 cpp 수정
-	// if (Raft)
-	// {
-	// 	WindDirection=Raft->WindDirection;
-	// 	WindStrength=Raft->WindStrength;
-	// }
-	// else UE_LOG(LogTemp,Error,TEXT("폐품은 Raft를 찾고있어요.. detail 패널 설정 부탁"));
 }
 
 void ATrash::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength);
+	if (const ARaftGameState* GS = Cast<ARaftGameState>(UGameplayStatics::GetGameState(GetWorld())))
+	{
+		// TODO: -2는 바람의 반대 방향으로 보내기 위한 하드코딩
+		if (!IsStop)
+		{
+			SetActorLocation(GetActorLocation() + GS->WindDirection * DeltaTime * GS->WindStrength * -2);
+		}
+	}
 }
 
 void ATrash::UpdateItemInfo(const uint32 RemainCount)
