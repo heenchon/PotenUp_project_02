@@ -59,12 +59,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		, this, &ThisClass::Look);
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::GoToUp);
+		
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
 		, this, &ThisClass::OnInteractivePressed);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
+		
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::UseItem);
 	}
@@ -122,21 +124,23 @@ void APlayerCharacter::OnInteractivePressed()
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
 		Sail->RotateInit(GetControlRotation().Yaw);
+		IsInteracting = true;
 	}
 }
 
 void APlayerCharacter::OnInteractiveHolding()
 {
 	if (IsBlockAction()) return;
-
+	
 	// TODO: 우선순위에 대한 로직 추가 필요
 	// 여기서부터 아래까지는 보통 상호작용에 대한 처리이기 때문에 우선순위가 매우 높다.
 	// 상호작용에 대해서는 HoldEnd에 대해서도 처리하지 않는 것이 원칙. 추후 컴포넌트화 필요
-	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	if (IsInteracting)
 	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
-		Sail->RotateSail();
-		IsInteracting = true;
+		if (ASail* Sail = Cast<ASail>(FindDroppedActor))
+		{
+			Sail->RotateSail();
+		}
 		return;
 	}
 	
@@ -189,7 +193,6 @@ void APlayerCharacter::FindToUse()
 	
 	TArray<AActor*> ActorsToNotTargeting;
 	ActorsToNotTargeting.Add(this);
-
 	
 	if (UKismetSystemLibrary::SphereTraceSingleForObjects(
 		GetWorld(), StartPosition, EndPosition, 20.f, ObjectTypesArray, false

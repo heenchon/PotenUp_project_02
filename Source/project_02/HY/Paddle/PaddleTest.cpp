@@ -51,8 +51,11 @@ void APaddleTest::PaddlingStart()
 void APaddleTest::PaddlingEnd()
 {
 	UE_LOG(LogTemp, Warning, TEXT("paddling stop"));
-	Raft->WindDirection = WindOriginDir; //바람 방향 되돌리기
-	Raft->WindStrength = WindOriginStrength; //바람 힘 되돌리기
+	if (IsValid(Raft))
+	{
+		Raft->WindDirection = WindOriginDir; //바람 방향 되돌리기
+		Raft->WindStrength = WindOriginStrength; //바람 힘 되돌리기
+	}
 
 	bIsPaddling= false;
 }
