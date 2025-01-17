@@ -39,6 +39,30 @@ void ABasePlayerState::SwapItemInInventory(const uint16 Prev, const uint16 Next)
 	const FItemMetaInfo Temp = PlayerInventoryList[Prev];
 	PlayerInventoryList[Prev] = PlayerInventoryList[Next];
 	PlayerInventoryList[Next] = Temp;
+	
+	SetPlayerHandItemByPS(Prev);
+	SetPlayerHandItemByPS(Next);
+}
+
+// TODO: 해당 함수는 리팩토링이 필요하다. 위치에 맞는 역할은 아니다.
+// PlayerController로 옮길 생각 해야함.
+void ABasePlayerState::SetPlayerHandItemByPS(const uint16 NewIndex)
+{
+	// 핫슬롯을 넘은 경우는 처리할 필요 없다.
+	if (NewIndex > GetHotSlotCount())
+	{
+		return;
+	}
+	
+	const FItemInfoData& ItemInfoById = FItemHelper::GetItemInfoById(GetWorld(), PlayerInventoryList[NewIndex].GetId());
+	
+	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetPawn()))
+	{
+		if (Player->GetInventoryComponent()->GetSelectedHotSlotIndex() == NewIndex)
+		{
+			Player->SetViewItemOnHand(ItemInfoById.GetShowItemActor());
+		}
+	}
 }
 
 
@@ -62,16 +86,9 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 	}
 	PlayerInventoryList[Index].SetCurrentCount(NextSetMainItemCount);
 	
-	// TODO: 이거는 추후 Pawn이 아니라 Player Controller에서 가져오게 해야함
 	// 내가 인벤토리에 넣었을 때 핫슬롯인 경우 그리고 내가 현재 선택하고 있는
 	// 핫슬롯인 경우에 액터가 소환되게 처리함.
-	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetPawn()))
-	{
-		if (Player->GetInventoryComponent()->GetSelectedHotSlotIndex() == Index)
-		{
-			Player->SetViewItemOnHand(ItemInfoById.GetShowItemActor());
-		}
-	}
+	SetPlayerHandItemByPS(Index);
 
 	// 최대 값 만큼 넣어도 남는 경우가 존재한다.
 	int32 RemainCount = CurrentItemCount - ItemInfoById.GetMaxItemCount();

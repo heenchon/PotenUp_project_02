@@ -29,6 +29,8 @@ public:
 
 	void SwapItemInInventory(const uint16 Prev, const uint16 Next);
 
+	void SetPlayerHandItemByPS(const uint16 NewIndex);
+
 protected:
 	virtual void BeginPlay() override;
 	

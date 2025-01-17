@@ -80,7 +80,10 @@ bool UInventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEv
 	{
 		return false;
 	}
-	
+
+	// TODO: 여기서 부터 아래 내용들은 전부 Delegate로 처리하게 해야한다.
+	// 실제 로직은 PC에서 AddDynamic으로 연동 처리
+	// UI 자체에 비지니스 로직이 들어가면 안된다.
 	UInventorySlot* PrevInvSlot = static_cast<UInventorySlot*>(DropOperation->GetOriginWidget());
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetOwningPlayerPawn()->GetPlayerState());
 	
