@@ -18,7 +18,14 @@ enum class EItemType : uint32
 UENUM()
 enum class EMetaDataKey : uint32
 {
-	Test, // 별 의미 없는 테스트용 데이터다. 상황에 따라 유연하게 쓸 수 있다.
+	None,
+	Durability,
+};
+
+UENUM()
+enum class EOptionDataKey : uint32
+{
+	None,
 	Damage,
 };
 
@@ -34,6 +41,7 @@ struct PROJECT_02_API FItemInfoData : public FTableRowBase
 	FORCEINLINE TSubclassOf<AActor> GetShowItemActor() const { return ShowItemActor; }
 	FORCEINLINE int GetMaxItemCount() const { return MaxItemCount; }
 	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() const { return MetaData; }
+	FORCEINLINE TMap<EMetaDataKey, FString> GetOptionData() const { return MetaData; }
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
@@ -59,6 +67,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
 	TMap<EMetaDataKey, FString> MetaData;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));
+	TMap<EOptionDataKey, FString> OptionData;
 };
 
 // 실제 플레이어가 저장할 정보 값

@@ -75,7 +75,8 @@ bool USwimmingComponent::IsOwnerNearWaterLevel(const FVector& MoveToVector) cons
 
 void USwimmingComponent::OnDivingPlayCallback(float Output)
 {
-	const FVector MoveTo = Owner->GetActorForwardVector() + FVector(0, 0, Output * DivingJumpPower);
+	const FVector MoveTo = Owner->GetActorForwardVector() * DivingMoveForwardPower
+		+ FVector(0, 0, Output * DivingJumpPower);
 	Owner->GetCharacterMovement()->Launch(MoveTo);
 }
 

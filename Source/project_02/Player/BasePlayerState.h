@@ -4,7 +4,6 @@
 #include "GameFramework/PlayerState.h"
 #include "BasePlayerState.generated.h"
 
-
 struct FItemMetaInfo;
 
 UCLASS()
@@ -29,6 +28,8 @@ public:
 	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
 
 	void SwapItemInInventory(const uint16 Prev, const uint16 Next);
+
+	void SetPlayerHandItemByPS(const uint16 NewIndex);
 
 protected:
 	virtual void BeginPlay() override;

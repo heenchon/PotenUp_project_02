@@ -40,7 +40,6 @@ void UPlayerGameUI::SetInteractiveUIStatus(const AActor* Target)
 
 void UPlayerGameUI::SetProgressPercent(const float Percent)
 {
-	UE_LOG(LogTemp, Display, TEXT("하이 브로두: %f"), Percent);
 	HookProgressBar->GetDynamicMaterial()->SetScalarParameterValue("Percent", Percent);
 }
 

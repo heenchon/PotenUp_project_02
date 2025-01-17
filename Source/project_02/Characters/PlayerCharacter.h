@@ -38,7 +38,7 @@ public:
 	FORCEINLINE TObjectPtr<UBoxComponent> GetChestBox() const { return ChestBox; }
 
 	FORCEINLINE TObjectPtr<AActor> GetTestInteractiveItem() { return TestInteractiveItem; }
-	void SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass);
+	void SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass);
 	
 protected:
 	virtual void BeginPlay() override;

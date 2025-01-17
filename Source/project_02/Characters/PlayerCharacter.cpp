@@ -54,31 +54,28 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered
-																			, this, &ThisClass::MoveTo);
+		, this, &ThisClass::MoveTo);
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::Look);
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::GoToUp);
+		
+		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
+		, this, &ThisClass::OnInteractivePressed);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
+		
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::UseItem);
-		//희연
-		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
-		, this, &ThisClass::OnInteractivePressed);
 	}
 }
 
 void APlayerCharacter::UseItem()
 {
-	// if (FindDroppedActor)
-	// {
-	// 	UE_LOG(LogTemp, Display, TEXT("Using Item: %s"), *FindDroppedActor->GetName());
-	// }
-	
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
+	
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ATrash::StaticClass()))
 	{
 		ATrash* Trash = static_cast<ATrash*>(FindDroppedActor);
@@ -86,26 +83,22 @@ void APlayerCharacter::UseItem()
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
 	}
-	//희연
+	
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
 		
 		Sail->SailToggle();
 	}
+
+	// UI 후처리
+	ABasePlayerController* PC = Cast<ABasePlayerController>(GetController());
+	check(PC)
+	PC->GetPlayerUI()->SetInteractiveUIStatus(FindDroppedActor);
 }
 
-//희연: 마우스 눌렀을 때 감지
-void APlayerCharacter::OnInteractivePressed()
-{
-	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
-	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
-		Sail->RotateInit(GetControlRotation().Yaw);
-	}
-}
-
-void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass)
+// 특정 아이템을 손에 들거나 내려놓게 하는 함수
+void APlayerCharacter::SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass)
 {
 	if (TestInteractiveItem)
 	{
@@ -125,18 +118,29 @@ void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActo
 	}
 }
 
-void APlayerCharacter::OnInteractiveHolding()
+void APlayerCharacter::OnInteractivePressed()
 {
-	if (IsBlockAction()) return;
-
-	// TODO: 우선순위에 대한 로직 추가 필요
-	// 여기서부터 아래까지는 보통 상호작용에 대한 처리이기 때문에 우선순위가 매우 높다.
-	// 상호작용에 대해서는 HoldEnd에 대해서도 처리하지 않는 것이 원칙. 추후 컴포넌트화 필요
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
-		Sail->RotateSail();
+		Sail->RotateInit(GetControlRotation().Yaw);
 		IsInteracting = true;
+	}
+}
+
+void APlayerCharacter::OnInteractiveHolding()
+{
+	if (IsBlockAction()) return;
+	
+	// TODO: 우선순위에 대한 로직 추가 필요
+	// 여기서부터 아래까지는 보통 상호작용에 대한 처리이기 때문에 우선순위가 매우 높다.
+	// 상호작용에 대해서는 HoldEnd에 대해서도 처리하지 않는 것이 원칙. 추후 컴포넌트화 필요
+	if (IsInteracting)
+	{
+		if (ASail* Sail = Cast<ASail>(FindDroppedActor))
+		{
+			Sail->RotateSail();
+		}
 		return;
 	}
 	
@@ -189,7 +193,6 @@ void APlayerCharacter::FindToUse()
 	
 	TArray<AActor*> ActorsToNotTargeting;
 	ActorsToNotTargeting.Add(this);
-
 	
 	if (UKismetSystemLibrary::SphereTraceSingleForObjects(
 		GetWorld(), StartPosition, EndPosition, 20.f, ObjectTypesArray, false
@@ -281,7 +284,6 @@ void APlayerCharacter::GoToUp(const FInputActionValue& Value)
 		Jump();
 	}
 }
-
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
