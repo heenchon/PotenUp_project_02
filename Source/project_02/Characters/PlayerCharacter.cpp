@@ -88,6 +88,11 @@ void APlayerCharacter::UseItem()
 		
 		Sail->SailToggle();
 	}
+
+	// UI 후처리
+	ABasePlayerController* PC = Cast<ABasePlayerController>(GetController());
+	check(PC)
+	PC->GetPlayerUI()->SetInteractiveUIStatus(FindDroppedActor);
 }
 
 // 특정 아이템을 손에 들거나 내려놓게 하는 함수
