@@ -73,6 +73,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::UseItem()
 {
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
+	
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ATrash::StaticClass()))
 	{
 		ATrash* Trash = static_cast<ATrash*>(FindDroppedActor);
@@ -80,6 +81,7 @@ void APlayerCharacter::UseItem()
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
 	}
+	
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
@@ -88,7 +90,8 @@ void APlayerCharacter::UseItem()
 	}
 }
 
-void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActorClass)
+// 특정 아이템을 손에 들거나 내려놓게 하는 함수
+void APlayerCharacter::SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass)
 {
 	if (TestInteractiveItem)
 	{

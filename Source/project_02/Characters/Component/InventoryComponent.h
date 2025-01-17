@@ -48,6 +48,8 @@ private:
 	
 	TObjectPtr<UPlayerEquipmentUI> EquipmentUI;
 
+	// TODO: 이런 정보는 PlayerController로 이전하는 것도 방법으로 보인다.
+	// UI 관리는 사실 이 컴포넌트보다는 PC에서 해주는 게 맞다.
 	uint8 SelectedHotSlot = 0;
 
 	bool IsOpenInventory = false;

@@ -4,7 +4,6 @@
 #include "GameFramework/PlayerState.h"
 #include "BasePlayerState.generated.h"
 
-
 struct FItemMetaInfo;
 
 UCLASS()

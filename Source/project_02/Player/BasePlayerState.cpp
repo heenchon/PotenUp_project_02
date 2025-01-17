@@ -61,6 +61,17 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 		PlayerInventoryList[Index].SetMetaData(ItemInfo.GetMetaData());
 	}
 	PlayerInventoryList[Index].SetCurrentCount(NextSetMainItemCount);
+	
+	// TODO: 이거는 추후 Pawn이 아니라 Player Controller에서 가져오게 해야함
+	// 내가 인벤토리에 넣었을 때 핫슬롯인 경우 그리고 내가 현재 선택하고 있는
+	// 핫슬롯인 경우에 액터가 소환되게 처리함.
+	if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetPawn()))
+	{
+		if (Player->GetInventoryComponent()->GetSelectedHotSlotIndex() == Index)
+		{
+			Player->SetViewItemOnHand(ItemInfoById.GetShowItemActor());
+		}
+	}
 
 	// 최대 값 만큼 넣어도 남는 경우가 존재한다.
 	int32 RemainCount = CurrentItemCount - ItemInfoById.GetMaxItemCount();
