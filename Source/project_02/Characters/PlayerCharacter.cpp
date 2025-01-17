@@ -54,30 +54,24 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		UEnhancedInputComponent>(PlayerInputComponent))
 	{
 		EnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Triggered
-																			, this, &ThisClass::MoveTo);
+		, this, &ThisClass::MoveTo);
 		EnhancedInputComponent->BindAction(LookInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::Look);
 		EnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::GoToUp);
+		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
+		, this, &ThisClass::OnInteractivePressed);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::UseItem);
-		//희연
-		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
-		, this, &ThisClass::OnInteractivePressed);
 	}
 }
 
 void APlayerCharacter::UseItem()
 {
-	// if (FindDroppedActor)
-	// {
-	// 	UE_LOG(LogTemp, Display, TEXT("Using Item: %s"), *FindDroppedActor->GetName());
-	// }
-	
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ATrash::StaticClass()))
 	{
@@ -86,22 +80,11 @@ void APlayerCharacter::UseItem()
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
 	}
-	//희연
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
 		
 		Sail->SailToggle();
-	}
-}
-
-//희연: 마우스 눌렀을 때 감지
-void APlayerCharacter::OnInteractivePressed()
-{
-	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
-	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
-		Sail->RotateInit(GetControlRotation().Yaw);
 	}
 }
 
@@ -122,6 +105,15 @@ void APlayerCharacter::SetTestInteractiveItem(const TSubclassOf<AActor>& NewActo
 				FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
 			TestInteractiveItem->SetOwner(this);
 		}
+	}
+}
+
+void APlayerCharacter::OnInteractivePressed()
+{
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	{
+		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		Sail->RotateInit(GetControlRotation().Yaw);
 	}
 }
 
@@ -281,7 +273,6 @@ void APlayerCharacter::GoToUp(const FInputActionValue& Value)
 		Jump();
 	}
 }
-
 
 float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {

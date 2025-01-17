@@ -1,15 +1,11 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#include "PaddleTest.h"
+﻿#include "PaddleTest.h"
 #include "../RaftGameState.h"
 #include "../Raft/Raft.h"
-#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
 APaddleTest::APaddleTest()
 {
-	PrimaryActorTick.bCanEverTick = true;
 }
 
 void APaddleTest::BeginPlay()
@@ -26,12 +22,6 @@ void APaddleTest::BeginPlay()
 		WindOriginDir = RaftGameState->WindDirection;
 	}
 	
-}
-
-void APaddleTest::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-	GetPlayerRaft();
 }
 
 void APaddleTest::PaddlingStart()
