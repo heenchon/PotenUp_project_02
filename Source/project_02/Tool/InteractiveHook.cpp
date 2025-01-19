@@ -29,7 +29,6 @@ void AInteractiveHook::BeginPlay()
 	// 갈고리에 연결할 쓰레기도 WorldDynamic이다.
 	// 그리고 서로 간의 WorldDynamic에 Overlap 속성을 줌으로써 서로 Overlap시
 	// 끌어당기게 처리해뒀다.
-	// TODO: 추후 이 규칙에 대해 정리하기 (알파 ~ 베타 중에서 정리하기)
 	BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlapHookGrab);
 }
 
@@ -107,8 +106,8 @@ void AInteractiveHook::OnOverlapHookGrab(
 		bool bFromSweep, 
 		const FHitResult &SweepResult)
 {
-	UE_LOG(LogTemp, Display, TEXT("Test: %s"), *OtherActor->GetName())
-	if (OtherActor == this) return;
+	// 공격용은 아니기 때문에 Pawn 타입이면 그냥 전부 무시한다.
+	if (OtherActor == this || OtherActor->IsA(APawn::StaticClass())) return;
 
 	if (!OtherActor->IsA(ATrash::StaticClass())
 		&& HookStatus == EHookStatus::Launched)
