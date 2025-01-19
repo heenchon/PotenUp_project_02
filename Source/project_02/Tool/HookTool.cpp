@@ -1,33 +1,36 @@
-﻿#include "HookRope.h"
+﻿#include "HookTool.h"
 
-#include "project_02/Tool/InteractiveHook.h"
 #include "CableComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "project_02/Tool/InteractiveHook.h"
+
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 
-AHookRope::AHookRope()
+AHookTool::AHookTool()
 {
 	DefaultRoot = CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot");
 	SetRootComponent(DefaultRoot);
 	
 	Cable = CreateDefaultSubobject<UCableComponent>("Cable");
 	Cable->SetupAttachment(RootComponent);
+
+	Cable->EndLocation = FVector::ZeroVector;
+	Cable->AttachEndToSocketName = "Hook Mesh";
 	
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>("Body Mesh");
 	BodyMesh->SetupAttachment(RootComponent);
 }
 
-void AHookRope::BeginPlay()
+void AHookTool::BeginPlay()
 {
 	Super::BeginPlay();
 	Cable->SetVisibility(false);
 }
 
-
-void AHookRope::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void AHookTool::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
@@ -40,15 +43,9 @@ void AHookRope::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	}
 }
 
-
-void AHookRope::OnHoldInteractive()
+void AHookTool::OnInteractiveHold()
 {
-	if (Status == EInteractiveToolStatus::Completed)
-	{
-		return;
-	}
-
-	Status = EInteractiveToolStatus::Interacting;
+	Super::OnInteractiveHold();
 
 	if (IsValid(ControlledHook))
 	{
@@ -56,7 +53,7 @@ void AHookRope::OnHoldInteractive()
 		{
 			if (ControlledHook->PullHook(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation()))
 			{
-				Status = EInteractiveToolStatus::Completed;
+				ChangeStatus(EInteractiveStatus::Completed);
 				Cable->SetVisibility(false);
 			}
 		}
@@ -74,13 +71,9 @@ void AHookRope::OnHoldInteractive()
 	}
 }
 
-void AHookRope::OnEndInteractive()
+void AHookTool::EndInteractive()
 {
-	if (Status == EInteractiveToolStatus::Completed)
-	{
-		Status = EInteractiveToolStatus::Idle;
-		return;
-	}
+	Super::EndInteractive();
 	
 	if (IsValid(ControlledHook))
 	{
@@ -110,8 +103,6 @@ void AHookRope::OnEndInteractive()
 		check(PC)
 		
 		PC->GetPlayerUI()->SetProgressPercent(0);
-
-		Status = EInteractiveToolStatus::Idle;	
 	}
 }
 

@@ -37,7 +37,7 @@ public:
 	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetChestBox() const { return ChestBox; }
 
-	FORCEINLINE TObjectPtr<AActor> GetTestInteractiveItem() { return TestInteractiveItem; }
+	FORCEINLINE TObjectPtr<AActor> GetMainHandTool() { return MainHandTool; }
 	void SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass);
 	
 protected:
@@ -92,7 +92,7 @@ private:
 	// TODO: 추후 HookRope 자체를 공통화해서 상호작용하는 액터 자체를 적용할 예정
 	// 우선은 하드코딩으로 처리
 	UPROPERTY()
-	TObjectPtr<AActor> TestInteractiveItem;
+	TObjectPtr<AActor> MainHandTool;
 
 	UFUNCTION()
 	void MoveTo(const FInputActionValue& Value);

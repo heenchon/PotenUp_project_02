@@ -114,26 +114,35 @@ void APlayerCharacter::UseItem()
 // 특정 아이템을 손에 들거나 내려놓게 하는 함수
 void APlayerCharacter::SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass)
 {
-	if (TestInteractiveItem)
+	if (MainHandTool)
 	{
-		TestInteractiveItem->Destroy();
+		MainHandTool->Destroy();
 	}
 	
 	if (NewActorClass)
 	{
-		TestInteractiveItem = GetWorld()->SpawnActor<AActor>(NewActorClass);
+		MainHandTool = GetWorld()->SpawnActor<AActor>(NewActorClass);
 		
-		if (TestInteractiveItem)
+		if (MainHandTool)
 		{
-			TestInteractiveItem->AttachToComponent(GetMesh(),
+			MainHandTool->AttachToComponent(GetMesh(),
 				FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
-			TestInteractiveItem->SetOwner(this);
+			MainHandTool->SetOwner(this);
 		}
 	}
 }
 
 void APlayerCharacter::OnInteractivePressed()
 {
+	// 이 방식으로 통일
+	if (IsValid(MainHandTool) && MainHandTool.IsA(AInteractiveItem::StaticClass()))
+	{
+		UE_LOG(LogTemp, Display, TEXT("Test Result: %s"), *MainHandTool->GetName());
+		AInteractiveItem* InteractiveItem = static_cast<AInteractiveItem*>(MainHandTool);
+		InteractiveItem->StartInteractive();
+	}
+
+	// TODO: 레거시 코드
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
@@ -146,6 +155,7 @@ void APlayerCharacter::OnInteractivePressed()
 	}
 }
 
+// TODO: 레거시 코드로 제거 필요
 void APlayerCharacter::OnInteractiveHolding()
 {
 	if (IsBlockAction()) return;
@@ -163,14 +173,14 @@ void APlayerCharacter::OnInteractiveHolding()
 	}
 	
 	// 손에든 아이템을 실행시키는 방식임
-	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
 	{
-		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingStart();
+		static_cast<APaddleTest*>(MainHandTool)->PaddlingStart();
 	}
 	
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(AHookRope::StaticClass()))
 	{
-		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
+		static_cast<AHookRope*>(MainHandTool)->OnHoldInteractive();
 	}
 	
 }
@@ -186,14 +196,14 @@ void APlayerCharacter::OnInteractiveEnd()
 	
 	IsInteracting = false;
 	
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(AHookRope::StaticClass()))
 	{
-		static_cast<AHookRope*>(TestInteractiveItem)->OnEndInteractive();
+		static_cast<AHookRope*>(MainHandTool)->OnEndInteractive();
 	}
 
-	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
 	{
-		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingEnd();
+		static_cast<APaddleTest*>(MainHandTool)->PaddlingEnd();
 	}
 }
 

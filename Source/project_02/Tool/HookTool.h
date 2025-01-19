@@ -1,46 +1,30 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "HookRope.generated.h"
+#include "InteractiveItem.h"
+#include "HookTool.generated.h"
 
-class UInputAction;
 class AInteractiveHook;
-class AHook;
 class UCableComponent;
-class USphereComponent;
-class UBuoyancyComponent;
-
-UENUM()
-enum class EInteractiveToolStatus : uint8
-{
-	Idle,
-	Interacting,
-	Completed,
-};
 
 UCLASS()
-class PROJECT_02_API AHookRope : public AActor
+class PROJECT_02_API AHookTool : public AInteractiveItem
 {
 	GENERATED_BODY()
 
 public:
-	AHookRope();
+	AHookTool();
 
-	UFUNCTION()
-	void OnHoldInteractive();
-	
-	UFUNCTION()
-	void OnEndInteractive();
-	
+	virtual void OnInteractiveHold() override;
+
+	virtual void EndInteractive() override;
+
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-
-private:
-	EInteractiveToolStatus Status = EInteractiveToolStatus::Idle;
 	
+private:
 	TObjectPtr<AInteractiveHook> ControlledHook;
 
 	uint8 Power = 0;
