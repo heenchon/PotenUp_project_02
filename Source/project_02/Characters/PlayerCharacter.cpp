@@ -17,6 +17,7 @@
 #include "project_02/HY/Raft/Raft.h"
 #include "project_02/HY/Raft/Sail.h"
 #include "project_02/Player/BasePlayerController.h"
+#include "project_02/HY/Items/Usable_Item.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -126,6 +127,10 @@ void APlayerCharacter::OnInteractivePressed()
 		Sail->RotateInit(GetControlRotation().Yaw);
 		IsInteracting = true;
 	}
+	if (TestInteractiveItem && TestInteractiveItem.IsA(AUsable_Item::StaticClass()))
+	{
+		static_cast<AUsable_Item*>(TestInteractiveItem)->Use();
+	}
 }
 
 void APlayerCharacter::OnInteractiveHolding()
@@ -154,6 +159,7 @@ void APlayerCharacter::OnInteractiveHolding()
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
 	}
+	
 }
 
 void APlayerCharacter::OnInteractiveEnd()

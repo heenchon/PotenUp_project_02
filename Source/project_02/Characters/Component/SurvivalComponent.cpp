@@ -52,11 +52,23 @@ void USurvivalComponent::DecreaseHunger(const uint8 NewValue)
 	OnChangedHunger();	
 }
 
+void USurvivalComponent::IncreaseHunger(const uint8 NewValue)
+{
+	HungerInfo.Key = UKismetMathLibrary::Max(HungerInfo.Key - NewValue, 100);
+	OnChangedHunger();	
+}
+
 void USurvivalComponent::DecreaseThirst(const uint8 NewValue)
 {
 	if (IsDied) return;
 	ThirstInfo.Key = UKismetMathLibrary::Max(ThirstInfo.Key - NewValue, 0);
 	OnChangedThirst();	
+}
+
+void USurvivalComponent::IncreaseThirst(const uint8 NewValue)
+{
+	ThirstInfo.Key = UKismetMathLibrary::Max(ThirstInfo.Key + NewValue, 100);
+	OnChangedThirst();
 }
 
 // TODO: 옵저버 패턴을 이용해 Health가 변경될 때 마다 실행시켜도 무방할 것 같음

@@ -24,7 +24,11 @@ public:
 	UFUNCTION()
 	void DecreaseHunger(const uint8 NewValue);
 	UFUNCTION()
+	void IncreaseHunger(const uint8 NewValue);
+	UFUNCTION()
 	void DecreaseThirst(const uint8 NewValue);
+	UFUNCTION()
+	void IncreaseThirst(const uint8 NewValue);
 	
 	void InitialSurvivalData();
 	
