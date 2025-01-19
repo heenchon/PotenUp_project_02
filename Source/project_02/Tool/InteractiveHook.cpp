@@ -114,6 +114,33 @@ void AInteractiveHook::OnOverlapHookGrab(
 	{
 		HookStatus = EHookStatus::Fixed;
 		MoveToPos = FVector::ZeroVector;
+
+		
+		const FVector StartLocation = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
+		FVector EndLocation = StartLocation;
+		EndLocation.Z -= 5000;
+
+		TArray<AActor*> IgnoreActorList;
+		IgnoreActorList.Add(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+
+		FHitResult HitResult;
+		// 사용한 플레이어 기준으로 아래를 바라보고 아래의 액터를 기준으로 위치를 고정하는 로직을 실행한다.
+		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),
+			StartLocation,
+			EndLocation,
+			TraceTypeQuery1,
+			false,
+			IgnoreActorList,
+			EDrawDebugTrace::ForDuration,
+			HitResult,
+			true,
+			FLinearColor::Red,
+			FLinearColor::Green,
+			10
+		))
+		{
+			AttachToActor(HitResult.GetActor(), FAttachmentTransformRules::KeepWorldTransform);
+		}
 	}
 
 	if (ATrash* NewTrash = Cast<ATrash>(OtherActor))
@@ -121,6 +148,13 @@ void AInteractiveHook::OnOverlapHookGrab(
 		NewTrash->StaticMesh->SetSimulatePhysics(false);
 		NewTrash->StaticMesh->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 		NewTrash->SetActorLocation(GetActorLocation());
+
+		// 있는 만큼 Yaw 값을 돌려서 여러개가 있음을 표시
+		FRotator NewRotator = FRotator::ZeroRotator;
+		// TODO: 임시 로직으로 많은 것을 부착할 때 더 고도화 해보기
+		NewRotator.Yaw += AttachTrashList.Num() * 10;
+		NewTrash->SetActorRotation(NewRotator);
+		
 		NewTrash->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform, "");
 		// TODO: 갈고리가 중간에 없어지는 경우에 대한 예외처리가 없음
 		// 갈고리 중간에 없어지면 IsStop을 false로 다시 변경해두기
