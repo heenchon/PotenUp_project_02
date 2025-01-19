@@ -17,7 +17,7 @@ public:
 
 	virtual void OnInteractiveHold() override;
 
-	virtual void EndInteractive() override;
+	virtual bool EndInteractive() override;
 
 protected:
 	virtual void BeginPlay() override;

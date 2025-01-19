@@ -73,9 +73,12 @@ void AHookTool::OnInteractiveHold()
 	}
 }
 
-void AHookTool::EndInteractive()
+bool AHookTool::EndInteractive()
 {
-	Super::EndInteractive();
+	if (!Super::EndInteractive())
+	{
+		return false;
+	}
 	
 	if (IsValid(ControlledHook))
 	{
@@ -83,7 +86,7 @@ void AHookTool::EndInteractive()
 		{
 			ControlledHook->SetHookStatus(EHookStatus::Fixed);
 		}
-		return;
+		return true;
 	}
 	
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
@@ -106,4 +109,6 @@ void AHookTool::EndInteractive()
 		
 		PC->GetPlayerUI()->SetProgressPercent(0);
 	}
+
+	return true;
 }

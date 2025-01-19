@@ -31,14 +31,15 @@ void AInteractiveItem::OnInteractiveHold()
 {
 }
 
-void AInteractiveItem::EndInteractive()
+bool AInteractiveItem::EndInteractive()
 {
 	// 이미 종료된 시점에서는 굳이 무언가를 처리할 필요가 없다.
 	if (Status == EInteractiveStatus::Completed)
 	{
 		Status = EInteractiveStatus::Idle;
-		return;
+		return false;
 	}
 	
 	Status = EInteractiveStatus::Idle;
+	return true;
 }

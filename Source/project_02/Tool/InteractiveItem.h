@@ -24,7 +24,7 @@ public:
 	
 	virtual void OnInteractiveHold();
 	
-	virtual void EndInteractive();
+	virtual bool EndInteractive();
 
 	FORCEINLINE void ChangeStatus(const EInteractiveStatus NewStatus) { Status = NewStatus; }
 
