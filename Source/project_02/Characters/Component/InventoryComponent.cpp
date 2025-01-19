@@ -25,6 +25,8 @@ void UInventoryComponent::BeginPlay()
 			, this, &ThisClass::ToggleInventory);
 			EnhancedInputComponent->BindAction(ChangeHotSlotAction, ETriggerEvent::Triggered
 			, this, &ThisClass::ChangeHotSlot);
+			EnhancedInputComponent->BindAction(SetHotSlotAction, ETriggerEvent::Triggered
+			, this, &ThisClass::SetHotSlot);
 			EnhancedInputComponent->BindAction(ItemDropAction, ETriggerEvent::Triggered
 			, this, &ThisClass::DropItem);
 		}
@@ -54,6 +56,18 @@ void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 	// 실제 액터 반영
 	SetHotSlotItemToPlayer(PrevIndex, NextIndex);
 	SetHotSlotIndex(NextIndex);
+}
+
+void UInventoryComponent::SetHotSlot(const FInputActionValue& Value)
+{
+	// 기본 주입 값에 0을 넣어주면 동작하지 않는 문제로 0번 칸이 1부터 시작
+	const float NewValue = Value.Get<float>() - 1;
+	// UI 관련 변화
+	const uint8 PrevIndex = SelectedHotSlot;
+	
+	// 실제 액터 반영
+	SetHotSlotItemToPlayer(PrevIndex, NewValue);
+	SetHotSlotIndex(NewValue);
 }
 
 uint8 UInventoryComponent::GetNextSlot(const int8 MoveTo)
