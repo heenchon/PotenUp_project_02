@@ -11,6 +11,8 @@
 
 AHookTool::AHookTool()
 {
+	PrimaryActorTick.bCanEverTick = true;
+	
 	DefaultRoot = CreateDefaultSubobject<USceneComponent>("DefaultSceneRoot");
 	SetRootComponent(DefaultRoot);
 	
@@ -105,5 +107,3 @@ void AHookTool::EndInteractive()
 		PC->GetPlayerUI()->SetProgressPercent(0);
 	}
 }
-
-

@@ -12,7 +12,6 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
-#include "project_02/Tool/HookRope.h"
 #include "project_02/HY/Paddle/PaddleTest.h"
 #include "project_02/HY/Raft/Raft.h"
 #include "project_02/HY/Raft/Sail.h"
@@ -135,10 +134,8 @@ void APlayerCharacter::SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClas
 void APlayerCharacter::OnInteractivePressed()
 {
 	// 이 방식으로 통일
-	if (IsValid(MainHandTool) && MainHandTool.IsA(AInteractiveItem::StaticClass()))
+	if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
 	{
-		UE_LOG(LogTemp, Display, TEXT("Test Result: %s"), *MainHandTool->GetName());
-		AInteractiveItem* InteractiveItem = static_cast<AInteractiveItem*>(MainHandTool);
 		InteractiveItem->StartInteractive();
 	}
 
@@ -196,9 +193,9 @@ void APlayerCharacter::OnInteractiveEnd()
 	
 	IsInteracting = false;
 	
-	if (MainHandTool && MainHandTool.IsA(AHookRope::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(AInteractiveItem::StaticClass()))
 	{
-		static_cast<AHookRope*>(MainHandTool)->OnEndInteractive();
+		static_cast<AInteractiveItem*>(MainHandTool)->EndInteractive();
 	}
 
 	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))

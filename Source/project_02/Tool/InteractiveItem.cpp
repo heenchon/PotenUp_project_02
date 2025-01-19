@@ -3,7 +3,6 @@
 
 AInteractiveItem::AInteractiveItem()
 {
-	PrimaryActorTick.bCanEverTick = IsHold;
 }
 
 void AInteractiveItem::Tick(float DeltaSeconds)
@@ -43,5 +42,3 @@ void AInteractiveItem::EndInteractive()
 	
 	Status = EInteractiveStatus::Idle;
 }
-
-
