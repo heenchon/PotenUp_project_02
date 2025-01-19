@@ -31,6 +31,8 @@ public:
 
 	void SetSelected(const bool bIsSelected) const;
 
+	void RemoveDragDropSlot() const;
+
 	FORCEINLINE void SetIndex(const uint16 NewIndex) { Index = NewIndex; }
 	FORCEINLINE void SetSlotItemId(const uint16 NewSlotItemId) { SlotItemId = NewSlotItemId; }
 
