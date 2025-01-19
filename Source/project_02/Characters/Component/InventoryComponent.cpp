@@ -145,15 +145,24 @@ void UInventoryComponent::ToggleInventory()
 				Cast<ABasePlayerController>(Player->GetController()), EquipmentUIClass);
 		}
 
+		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
+		
 		// 인벤토리 실질적 토글
 		if (IsOpenInventory)
 		{
 			EquipmentUI->RemoveFromParent();
-			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
+			if (PC)
+			{
+				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
+				PC->RemoveDraggedSelectedSlot();
+			}
 		} else
 		{
 			EquipmentUI->AddToViewport();
-			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
+			if (PC)
+			{
+				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
+			}
 		}
 
 		// 현재 인벤토리 상태 설정
