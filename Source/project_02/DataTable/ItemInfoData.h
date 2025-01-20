@@ -27,6 +27,7 @@ enum class EOptionDataKey : uint32
 {
 	None,
 	Damage,
+	AttachSocket,
 };
 
 // 아이템 정보를 담아 추후 아이템을 구성할 때 사용할 요소
@@ -41,7 +42,7 @@ struct PROJECT_02_API FItemInfoData : public FTableRowBase
 	FORCEINLINE TSubclassOf<AActor> GetShowItemActor() const { return ShowItemActor; }
 	FORCEINLINE int GetMaxItemCount() const { return MaxItemCount; }
 	FORCEINLINE TMap<EMetaDataKey, FString> GetMetaData() const { return MetaData; }
-	FORCEINLINE TMap<EMetaDataKey, FString> GetOptionData() const { return MetaData; }
+	FORCEINLINE TMap<EOptionDataKey, FString> GetOptionData() const { return OptionData; }
 	
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Data", meta=(AllowPrivateAccess = true));

@@ -122,10 +122,10 @@ void UInventoryComponent::SetHotSlotItemToPlayer(const uint8 PrevIndex, const ui
 					PS->GetPlayerInventoryList()[NewIndex].GetId()
 				];
 			
-			Player->SetViewItemOnHand(ItemInfo.GetShowItemActor() ? ItemInfo.GetShowItemActor() : nullptr);
+			Player->SetViewItemOnHand(ItemInfo);
 		} else
 		{
-			Player->SetViewItemOnHand(nullptr);
+			Player->ClearViewItemOnHand();
 		}
 	}
 }

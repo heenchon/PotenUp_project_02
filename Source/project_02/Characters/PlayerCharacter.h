@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+struct FItemInfoData;
+class UEntityAnimationInfo;
 class UBoxComponent;
 class USwimmingComponent;
 class UInventoryComponent;
@@ -25,7 +27,7 @@ class PROJECT_02_API APlayerCharacter : public ACharacter
 public:
 	APlayerCharacter();
 
-	FORCEINLINE FDataTableRowHandle GetAnimationData() const { return AnimationInfo; }
+	FORCEINLINE TObjectPtr<UEntityAnimationInfo> GetAnimationData() const { return AnimationInfo; }
 	
 	UPROPERTY(EditDefaultsOnly, Category = Camera)
 	TObjectPtr<UCameraComponent> CameraComponent;
@@ -35,10 +37,12 @@ public:
 
 	FORCEINLINE TObjectPtr<USurvivalComponent> GetSurvivalComponent() const { return SurvivalComponent; }
 	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
+	FORCEINLINE TObjectPtr<USwimmingComponent> GetSwimmingComponent() const { return SwimmingComponent; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetChestBox() const { return ChestBox; }
 
-	FORCEINLINE TObjectPtr<AActor> GetTestInteractiveItem() { return TestInteractiveItem; }
-	void SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass);
+	FORCEINLINE TObjectPtr<AActor> GetMainHandTool() { return MainHandTool; }
+	void ClearViewItemOnHand();
+	void SetViewItemOnHand(const FItemInfoData& NewItemInfo);
 	
 protected:
 	virtual void BeginPlay() override;
@@ -65,34 +69,34 @@ private:
 	TObjectPtr<UInputMappingContext> DefaultMappingContext;
 
 	// IA와 함수 1:1 매핑하게 하는 것도 방법으로 보임
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> MoveInputAction;
 
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> LookInputAction;
 	
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> JumpInputAction;
 	
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> InteractiveInputAction;
 	
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> UseInputAction;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Data"
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Data"
 		, meta = (AllowPrivateAccess = true))
-	FDataTableRowHandle AnimationInfo;
+	TObjectPtr<UEntityAnimationInfo> AnimationInfo;
 
 	// TODO: 추후 HookRope 자체를 공통화해서 상호작용하는 액터 자체를 적용할 예정
 	// 우선은 하드코딩으로 처리
 	UPROPERTY()
-	TObjectPtr<AActor> TestInteractiveItem;
+	TObjectPtr<AActor> MainHandTool;
 
 	UFUNCTION()
 	void MoveTo(const FInputActionValue& Value);
@@ -112,11 +116,9 @@ private:
 	UFUNCTION()
 	void UseItem();
 
-	//희연: 마우스 눌렀을 때 감지
 	UFUNCTION()
 	void OnInteractivePressed();
 	
-	// TODO: 이후 상호작용 관련 컴포넌트로 이전
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
 		, meta = (AllowPrivateAccess = true))
 	float UseInteractiveRange;

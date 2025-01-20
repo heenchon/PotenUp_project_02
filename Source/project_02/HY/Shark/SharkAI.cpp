@@ -14,7 +14,7 @@ ASharkAI::ASharkAI()
 	PrimaryActorTick.bCanEverTick = true;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	RootComponent = StaticMesh;
-	StaticMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 
 	AIController = ASharkAIController::StaticClass();
 }

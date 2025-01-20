@@ -5,7 +5,7 @@
 UBaseGameInstance::UBaseGameInstance()
 {
 	const static ConstructorHelpers::FObjectFinder<UDataTable>
-		ItemInfoDataTable(TEXT("/Script/Engine.DataTable'/Game/Sangmin/DataTable/DT_ItemInfo.DT_ItemInfo'"));
+		ItemInfoDataTable(TEXT("/Script/Engine.DataTable'/Game/Sangmin/DataTable/DT_ItemData.DT_ItemData'"));
 
 	if (ItemInfoDataTable.Succeeded())
 	{
