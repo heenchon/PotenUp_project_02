@@ -40,12 +40,13 @@ void APlaceObjects::Interact(AUsable_Item* input)
 {
 }
 
-void APlaceObjects::ProcesStart()
+void APlaceObjects::ProcessStart()
 {
-	GetWorld()->GetTimerManager().SetTimer(ProcessTimerHandle,this,&APlaceObjects::ProcesComplete,ProcessDuration,false);
+	GetWorld()->GetTimerManager().SetTimer(ProcessTimerHandle,this,&APlaceObjects::ProcessComplete,ProcessDuration,false);
 }
 
-void APlaceObjects::ProcesComplete()
+//TODO: 사운드, 효과 
+void APlaceObjects::ProcessComplete()
 {
 }
 

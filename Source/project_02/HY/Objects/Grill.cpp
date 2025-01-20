@@ -5,14 +5,22 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "project_02/HY/Items/FishRaw.h"
-#include "project_02/Player/BasePlayerState.h"
+// #include "project_02/HY/Items/FishCooked.h"
+#include "project_02/HY/Trash/Trash.h"
 
 
 // Sets default values
 AGrill::AGrill()
 {
 	ProcessDuration = 5.0f;
+	FoodPoint = CreateDefaultSubobject<USceneComponent>(TEXT("FoodPoint"));
+	FoodPoint->SetupAttachment(StaticMesh);
+	RawFoodMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("FoodMesh"));
+	RawFoodMesh->SetupAttachment(StaticMesh);
+	RawFoodMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	RawFoodMesh->SetVisibility(false);
 }
+
 
 // Called when the game starts or when spawned
 void AGrill::BeginPlay()
@@ -25,24 +33,29 @@ void AGrill::Interact(AUsable_Item* input)
 	Super::Interact(input);
 	if (bIsFood)
 	{
-		//인벤에 아이템 추가
 		bIsFood = false;
 		return;
 	}
-	if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
+	else
 	{
-		UE_LOG(LogTemp,Warning,TEXT("물고기 굽기 시작"));
-		//플레이어가 들고 있는 물고기 삭제
-		fishRaw->PutOnGrill();
-		//조리 시작
-		ProcesStart();
+		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
+		{
+			UE_LOG(LogTemp,Warning,TEXT("물고기 굽기 시작."));
+			RawFoodMesh->SetVisibility(true);
+			//플레이어가 들고 있는 물고기 삭제
+			fishRaw->PutOnGrill();
+			ProcessStart();
+		}
 	}
 }
 
-void AGrill::ProcesComplete()
+void AGrill::ProcessComplete()
 {
-	Super::ProcesComplete();
+	Super::ProcessComplete();
 	UE_LOG(LogTemp,Warning,TEXT("물고기 조리 완료."));
+	ATrash* fishCooked = GetWorld()->SpawnActor<ATrash>(FishCookedTemp,FoodPoint->GetComponentTransform());
+	RawFoodMesh->SetVisibility(false);
+	// fishCooked->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	bIsFood = true;
 }
 

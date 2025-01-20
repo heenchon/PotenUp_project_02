@@ -38,6 +38,7 @@ public:
 	void Place();
 	void UnPlace();
 	virtual void Interact(AUsable_Item* input);
-	void ProcesStart();
-	virtual void ProcesComplete();
+	void ProcessStart();
+	virtual void ProcessComplete();
+	
 };

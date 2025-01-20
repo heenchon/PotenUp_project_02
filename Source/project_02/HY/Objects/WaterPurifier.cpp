@@ -43,14 +43,14 @@ void AWaterPurifier::Interact(AUsable_Item* input)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("정수기에 바닷물 넣기"));
 			cup->EmptyCup();
-			ProcesStart();
+			ProcessStart();
 		}
 	}
 }
 
-void AWaterPurifier::ProcesComplete()
+void AWaterPurifier::ProcessComplete()
 {
-	Super::ProcesComplete();
+	Super::ProcessComplete();
 	UE_LOG(LogTemp, Warning, TEXT("정수 완료."));
 	bIsPurified = true;
 }

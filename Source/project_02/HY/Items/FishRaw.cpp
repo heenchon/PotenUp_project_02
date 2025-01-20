@@ -4,7 +4,7 @@
 #include "FishRaw.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "project_02/Characters/Component/SurvivalComponent.h"
+#include "project_02/Characters/PlayerCharacter.h"
 
 
 // Sets default values
@@ -17,8 +17,11 @@ void AFishRaw::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	APawn* Player = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	SurvivalComponent = Player->FindComponentByClass<USurvivalComponent>();
+	if (const APlayerCharacter* Player =
+		Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0)))
+	{
+		SurvivalComponent = Player->GetSurvivalComponent();
+	}
 }
 
 void AFishRaw::PutOnGrill()
