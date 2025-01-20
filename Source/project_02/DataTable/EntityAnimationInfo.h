@@ -10,6 +10,9 @@ class PROJECT_02_API UEntityAnimationInfo : public UDataAsset
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(EditDefaultsOnly, Category = "Options")
+	UPROPERTY(EditDefaultsOnly)
 	TObjectPtr<UAnimMontage> DiedAnimation;
+	
+	UPROPERTY(EditDefaultsOnly)
+	TObjectPtr<UAnimMontage> AttackAnimation;
 };

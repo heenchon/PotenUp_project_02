@@ -6,10 +6,8 @@
 #include "project_02/Characters/Component/InventoryComponent.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Helper/ItemHelper.h"
-#include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/Inventory/InventoryHotSlot.h"
-#include "project_02/Widgets/Inventory/InventoryList.h"
 
 ABasePlayerState::ABasePlayerState()
 {
