@@ -3,6 +3,7 @@
 
 #include "AttackNotifyState.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Weapon/WeaponBase.h"
 
@@ -27,6 +28,7 @@ void UAttackNotifyState::NotifyEnd(USkeletalMeshComponent* MeshComp, UAnimSequen
 		{
 			Weapon->ToggleWeaponAttack(false);
 		}
+		Player->GetCharacterMovement()->SetDefaultMovementMode();
 	}
 }
 

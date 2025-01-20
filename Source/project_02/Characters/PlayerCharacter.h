@@ -37,6 +37,7 @@ public:
 
 	FORCEINLINE TObjectPtr<USurvivalComponent> GetSurvivalComponent() const { return SurvivalComponent; }
 	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
+	FORCEINLINE TObjectPtr<USwimmingComponent> GetSwimmingComponent() const { return SwimmingComponent; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetChestBox() const { return ChestBox; }
 
 	FORCEINLINE TObjectPtr<AActor> GetMainHandTool() { return MainHandTool; }
