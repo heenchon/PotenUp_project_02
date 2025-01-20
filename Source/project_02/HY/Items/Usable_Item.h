@@ -18,7 +18,6 @@ public:
 	USceneComponent* Root;
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
-	bool bUsable =true;
 
 protected:
 	// Called when the game starts or when spawned

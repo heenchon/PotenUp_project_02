@@ -17,14 +17,29 @@ public:
 	// Sets default values for this actor's properties
 	ACup();
 	
+	UPROPERTY(EditAnywhere)
 	USurvivalComponent* SurvivalComponent;
+	UPROPERTY(EditAnywhere)
+	class UStaticMeshComponent* WaterMesh;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool bIsFresh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool bIsSea;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool bIsEmpty;
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+private:
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	virtual void Use() override;
+	void FillSeaWater();
+	void FillFreshWater();
+	void EmptyCup();
 };
