@@ -22,11 +22,16 @@ void ABasePlayerState::InitializeData()
 	PlayerInventoryList.Init(EmptyItem, GetTotalSlotCount());
 	
 	// TODO: 제거해야 할 테스트 코드
-	FItemMetaInfo NewItem;
-	NewItem.SetId(1);
-	NewItem.SetCurrentCount(1);
+	FItemMetaInfo Hook;
+	Hook.SetId(1);
+	Hook.SetCurrentCount(1);
+	
+	FItemMetaInfo Spear;
+	Spear.SetId(7);
+	Spear.SetCurrentCount(1);
 
-	PlayerInventoryList[0] = NewItem;
+	PlayerInventoryList[0] = Hook;
+	PlayerInventoryList[1] = Spear;
 }
 
 
@@ -60,7 +65,7 @@ void ABasePlayerState::SetPlayerHandItemByPS(const uint16 NewIndex)
 	{
 		if (Player->GetInventoryComponent()->GetSelectedHotSlotIndex() == NewIndex)
 		{
-			Player->SetViewItemOnHand(ItemInfoById.GetShowItemActor());
+			Player->SetViewItemOnHand(ItemInfoById);
 		}
 	}
 }

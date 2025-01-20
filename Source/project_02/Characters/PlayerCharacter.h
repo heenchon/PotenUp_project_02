@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+struct FItemInfoData;
 class UEntityAnimationInfo;
 class UBoxComponent;
 class USwimmingComponent;
@@ -39,7 +40,8 @@ public:
 	FORCEINLINE TObjectPtr<UBoxComponent> GetChestBox() const { return ChestBox; }
 
 	FORCEINLINE TObjectPtr<AActor> GetMainHandTool() { return MainHandTool; }
-	void SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass);
+	void ClearViewItemOnHand();
+	void SetViewItemOnHand(const FItemInfoData& NewItemInfo);
 	
 protected:
 	virtual void BeginPlay() override;

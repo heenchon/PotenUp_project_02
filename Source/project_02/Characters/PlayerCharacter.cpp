@@ -110,24 +110,30 @@ void APlayerCharacter::UseItem()
 	PC->GetPlayerUI()->SetInteractiveUIStatus(FindDroppedActor);
 }
 
-// 특정 아이템을 손에 들거나 내려놓게 하는 함수
-void APlayerCharacter::SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass)
+void APlayerCharacter::ClearViewItemOnHand()
 {
 	if (MainHandTool)
 	{
 		MainHandTool->Destroy();
 	}
+}
+
+
+// 특정 아이템을 손에 들거나 내려놓게 하는 함수
+void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
+{
+	ClearViewItemOnHand();
 	
-	if (NewActorClass)
-	{
-		MainHandTool = GetWorld()->SpawnActor<AActor>(NewActorClass);
+	MainHandTool = GetWorld()->SpawnActor<AActor>(NewItemInfo.GetShowItemActor());
 		
-		if (MainHandTool)
-		{
-			MainHandTool->AttachToComponent(GetMesh(),
-				FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
-			MainHandTool->SetOwner(this);
-		}
+	if (MainHandTool)
+	{
+		const FString AttachSocket = NewItemInfo.GetOptionData().Find(EOptionDataKey::AttachSocket) ?
+			*NewItemInfo.GetOptionData().Find(EOptionDataKey::AttachSocket) : FString();
+		
+		MainHandTool->AttachToComponent(GetMesh(),
+			FAttachmentTransformRules::KeepRelativeTransform, FName(AttachSocket));
+		MainHandTool->SetOwner(this);
 	}
 }
 
