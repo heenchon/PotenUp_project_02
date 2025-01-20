@@ -102,8 +102,9 @@ void APlayerCharacter::UseItem()
 		//TODO: InteractiveTool로 교체
 		if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
 		{
+			//삭제할 item info 전달하기
 			AUsable_Item* Item = static_cast<AUsable_Item*>(MainHandTool);
-			PlaceObject->Interact(Item);
+			PlaceObject->Interact(Item, InventoryComponent->GetSelectedHotSlotIndex());
 		}
 	}
 

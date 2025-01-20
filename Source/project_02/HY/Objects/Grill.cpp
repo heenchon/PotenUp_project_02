@@ -7,6 +7,7 @@
 #include "project_02/HY/Items/FishRaw.h"
 // #include "project_02/HY/Items/FishCooked.h"
 #include "project_02/HY/Trash/Trash.h"
+#include "project_02/Player/BasePlayerState.h"
 
 
 // Sets default values
@@ -28,9 +29,10 @@ void AGrill::BeginPlay()
 	Super::BeginPlay();
 }
 
-void AGrill::Interact(AUsable_Item* input)
+void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 {
-	Super::Interact(input);
+	Super::Interact(input, curItemIndex);
+	// UE_LOG(LogTemp,Warning,TEXT("현재 아이템 인덱스 %d"),curItemIndex);
 	if (bIsFood)
 	{
 		bIsFood = false;
@@ -40,6 +42,7 @@ void AGrill::Interact(AUsable_Item* input)
 	{
 		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
 		{
+			PS->DropItem(curItemIndex, 1);
 			UE_LOG(LogTemp,Warning,TEXT("물고기 굽기 시작."));
 			RawFoodMesh->SetVisibility(true);
 			//플레이어가 들고 있는 물고기 삭제

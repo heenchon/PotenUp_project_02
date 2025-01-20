@@ -26,9 +26,9 @@ void AWaterPurifier::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWaterPurifier::Interact(AUsable_Item* input)
+void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 {
-	Super::Interact(input);
+	Super::Interact(input, curItemIndex);
 	if (ACup* cup = Cast<ACup>(input))
 	{
 		if (bIsPurified)

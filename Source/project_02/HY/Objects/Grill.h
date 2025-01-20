@@ -31,7 +31,7 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	virtual void Interact(AUsable_Item* input) override;
+	virtual void Interact(AUsable_Item* input, int curItemIndex) override;
 	virtual void ProcessComplete() override;
 
 private:

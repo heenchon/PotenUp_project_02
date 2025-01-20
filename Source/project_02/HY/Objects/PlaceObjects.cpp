@@ -3,6 +3,8 @@
 
 #include "PlaceObjects.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "project_02/Player/BasePlayerState.h"
 
 // Sets default values
 APlaceObjects::APlaceObjects()
@@ -20,6 +22,7 @@ APlaceObjects::APlaceObjects()
 void APlaceObjects::BeginPlay()
 {
 	Super::BeginPlay();
+	// PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
 }
 
 // Called every frame
@@ -36,7 +39,7 @@ void APlaceObjects::UnPlace()
 {
 }
 
-void APlaceObjects::Interact(AUsable_Item* input)
+void APlaceObjects::Interact(AUsable_Item* input, int curItemIndex)
 {
 }
 
