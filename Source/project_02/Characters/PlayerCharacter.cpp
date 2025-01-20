@@ -17,6 +17,9 @@
 #include "project_02/HY/Raft/Raft.h"
 #include "project_02/HY/Raft/Sail.h"
 #include "project_02/Player/BasePlayerController.h"
+#include "project_02/HY/Objects/PlaceObjects.h"
+//TODO: 상민띠가 아이템 클래스 만들면 교체 
+#include "project_02/HY/Items/Usable_Item.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -91,6 +94,17 @@ void APlayerCharacter::UseItem()
 		Sail->SailToggle();
 	}
 
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(APlaceObjects::StaticClass()))
+	{
+		APlaceObjects* PlaceObject = static_cast<APlaceObjects*>(FindDroppedActor);
+		//TODO: 상민띠가 아이템 클래스 만들면 교체
+		if (TestInteractiveItem && TestInteractiveItem.IsA(AUsable_Item::StaticClass()))
+		{
+			AUsable_Item* Item = static_cast<AUsable_Item*>(TestInteractiveItem);
+			PlaceObject->Interact(Item);
+		}
+	}
+
 	// UI 후처리
 	ABasePlayerController* PC = Cast<ABasePlayerController>(GetController());
 	check(PC)
@@ -126,6 +140,10 @@ void APlayerCharacter::OnInteractivePressed()
 		Sail->RotateInit(GetControlRotation().Yaw);
 		IsInteracting = true;
 	}
+	if (TestInteractiveItem && TestInteractiveItem.IsA(AUsable_Item::StaticClass()))
+	{
+		static_cast<AUsable_Item*>(TestInteractiveItem)->Use();
+	}
 }
 
 void APlayerCharacter::OnInteractiveHolding()
@@ -154,6 +172,7 @@ void APlayerCharacter::OnInteractiveHolding()
 	{
 		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
 	}
+	
 }
 
 void APlayerCharacter::OnInteractiveEnd()
