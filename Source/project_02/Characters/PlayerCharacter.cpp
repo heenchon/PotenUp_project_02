@@ -7,19 +7,21 @@
 #include "Component/InventoryComponent.h"
 #include "Component/SwimmingComponent.h"
 #include "Components/BoxComponent.h"
+#include "project_02/Tool/InteractiveItem.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
-#include "project_02/Tool/HookRope.h"
 #include "project_02/HY/Paddle/PaddleTest.h"
 #include "project_02/HY/Raft/Raft.h"
 #include "project_02/HY/Raft/Sail.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
+
 //TODO: 상민띠가 아이템 클래스 만들면 교체 
 #include "project_02/HY/Items/Usable_Item.h"
+#include "project_02/Weapon/WeaponBase.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -97,10 +99,10 @@ void APlayerCharacter::UseItem()
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(APlaceObjects::StaticClass()))
 	{
 		APlaceObjects* PlaceObject = static_cast<APlaceObjects*>(FindDroppedActor);
-		//TODO: 상민띠가 아이템 클래스 만들면 교체
-		if (TestInteractiveItem && TestInteractiveItem.IsA(AUsable_Item::StaticClass()))
+		//TODO: InteractiveTool로 교체
+		if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
 		{
-			AUsable_Item* Item = static_cast<AUsable_Item*>(TestInteractiveItem);
+			AUsable_Item* Item = static_cast<AUsable_Item*>(MainHandTool);
 			PlaceObject->Interact(Item);
 		}
 	}
@@ -111,41 +113,63 @@ void APlayerCharacter::UseItem()
 	PC->GetPlayerUI()->SetInteractiveUIStatus(FindDroppedActor);
 }
 
-// 특정 아이템을 손에 들거나 내려놓게 하는 함수
-void APlayerCharacter::SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass)
+void APlayerCharacter::ClearViewItemOnHand()
 {
-	if (TestInteractiveItem)
+	if (MainHandTool)
 	{
-		TestInteractiveItem->Destroy();
+		MainHandTool->Destroy();
 	}
-	
-	if (NewActorClass)
+}
+
+
+// 특정 아이템을 손에 들거나 내려놓게 하는 함수
+void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
+{
+	ClearViewItemOnHand();
+	if (NewItemInfo.GetShowItemActor())
 	{
-		TestInteractiveItem = GetWorld()->SpawnActor<AActor>(NewActorClass);
+		MainHandTool = GetWorld()->SpawnActor<AActor>(NewItemInfo.GetShowItemActor());
+	}
 		
-		if (TestInteractiveItem)
-		{
-			TestInteractiveItem->AttachToComponent(GetMesh(),
-				FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
-			TestInteractiveItem->SetOwner(this);
-		}
+	if (MainHandTool)
+	{
+		const FString AttachSocket = NewItemInfo.GetOptionData().Find(EOptionDataKey::AttachSocket) ?
+			*NewItemInfo.GetOptionData().Find(EOptionDataKey::AttachSocket) : FString();
+		
+		MainHandTool->AttachToComponent(GetMesh(),
+			FAttachmentTransformRules::KeepRelativeTransform, FName(AttachSocket));
+		MainHandTool->SetOwner(this);
 	}
 }
 
 void APlayerCharacter::OnInteractivePressed()
 {
+	// 이 방식으로 통일
+	if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
+	{
+		InteractiveItem->StartInteractive();
+	}
+
+	if (AWeaponBase* Weapon = Cast<AWeaponBase>(MainHandTool))
+	{
+		Weapon->Attack();
+	}
+
+	// TODO: 레거시 코드
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
 		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
 		Sail->RotateInit(GetControlRotation().Yaw);
 		IsInteracting = true;
 	}
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AUsable_Item::StaticClass()))
+	
+	if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
 	{
-		static_cast<AUsable_Item*>(TestInteractiveItem)->Use();
+		static_cast<AUsable_Item*>(MainHandTool)->Use();
 	}
 }
 
+// TODO: 레거시 코드로 제거 필요
 void APlayerCharacter::OnInteractiveHolding()
 {
 	if (IsBlockAction()) return;
@@ -163,14 +187,9 @@ void APlayerCharacter::OnInteractiveHolding()
 	}
 	
 	// 손에든 아이템을 실행시키는 방식임
-	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
 	{
-		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingStart();
-	}
-	
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
-	{
-		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
+		static_cast<APaddleTest*>(MainHandTool)->PaddlingStart();
 	}
 	
 }
@@ -186,14 +205,14 @@ void APlayerCharacter::OnInteractiveEnd()
 	
 	IsInteracting = false;
 	
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(AInteractiveItem::StaticClass()))
 	{
-		static_cast<AHookRope*>(TestInteractiveItem)->OnEndInteractive();
+		static_cast<AInteractiveItem*>(MainHandTool)->EndInteractive();
 	}
 
-	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
 	{
-		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingEnd();
+		static_cast<APaddleTest*>(MainHandTool)->PaddlingEnd();
 	}
 }
 

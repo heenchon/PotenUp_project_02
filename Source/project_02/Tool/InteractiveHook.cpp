@@ -114,7 +114,6 @@ void AInteractiveHook::OnOverlapHookGrab(
 	{
 		HookStatus = EHookStatus::Fixed;
 		MoveToPos = FVector::ZeroVector;
-
 		
 		const FVector StartLocation = UGameplayStatics::GetPlayerPawn(GetWorld(), 0)->GetActorLocation();
 		FVector EndLocation = StartLocation;
@@ -131,7 +130,7 @@ void AInteractiveHook::OnOverlapHookGrab(
 			TraceTypeQuery1,
 			false,
 			IgnoreActorList,
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::ForOneFrame,
 			HitResult,
 			true,
 			FLinearColor::Red,
