@@ -126,8 +126,10 @@ void APlayerCharacter::ClearViewItemOnHand()
 void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
 {
 	ClearViewItemOnHand();
-	
-	MainHandTool = GetWorld()->SpawnActor<AActor>(NewItemInfo.GetShowItemActor());
+	if (NewItemInfo.GetShowItemActor())
+	{
+		MainHandTool = GetWorld()->SpawnActor<AActor>(NewItemInfo.GetShowItemActor());
+	}
 		
 	if (MainHandTool)
 	{
