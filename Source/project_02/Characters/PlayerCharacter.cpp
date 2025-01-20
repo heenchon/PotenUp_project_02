@@ -7,6 +7,7 @@
 #include "Component/InventoryComponent.h"
 #include "Component/SwimmingComponent.h"
 #include "Components/BoxComponent.h"
+#include "project_02/Tool/InteractiveItem.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -17,8 +18,10 @@
 #include "project_02/HY/Raft/Sail.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
+
 //TODO: 상민띠가 아이템 클래스 만들면 교체 
 #include "project_02/HY/Items/Usable_Item.h"
+#include "project_02/Weapon/WeaponBase.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -96,10 +99,10 @@ void APlayerCharacter::UseItem()
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(APlaceObjects::StaticClass()))
 	{
 		APlaceObjects* PlaceObject = static_cast<APlaceObjects*>(FindDroppedActor);
-		//TODO: 상민띠가 아이템 클래스 만들면 교체
-		if (TestInteractiveItem && TestInteractiveItem.IsA(AUsable_Item::StaticClass()))
+		//TODO: InteractiveTool로 교체
+		if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
 		{
-			AUsable_Item* Item = static_cast<AUsable_Item*>(TestInteractiveItem);
+			AUsable_Item* Item = static_cast<AUsable_Item*>(MainHandTool);
 			PlaceObject->Interact(Item);
 		}
 	}
@@ -145,6 +148,11 @@ void APlayerCharacter::OnInteractivePressed()
 		InteractiveItem->StartInteractive();
 	}
 
+	if (AWeaponBase* Weapon = Cast<AWeaponBase>(MainHandTool))
+	{
+		Weapon->Attack();
+	}
+
 	// TODO: 레거시 코드
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
@@ -152,9 +160,10 @@ void APlayerCharacter::OnInteractivePressed()
 		Sail->RotateInit(GetControlRotation().Yaw);
 		IsInteracting = true;
 	}
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AUsable_Item::StaticClass()))
+	
+	if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
 	{
-		static_cast<AUsable_Item*>(TestInteractiveItem)->Use();
+		static_cast<AUsable_Item*>(MainHandTool)->Use();
 	}
 }
 
@@ -179,11 +188,6 @@ void APlayerCharacter::OnInteractiveHolding()
 	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
 	{
 		static_cast<APaddleTest*>(MainHandTool)->PaddlingStart();
-	}
-	
-	if (MainHandTool && MainHandTool.IsA(AHookRope::StaticClass()))
-	{
-		static_cast<AHookRope*>(MainHandTool)->OnHoldInteractive();
 	}
 	
 }
