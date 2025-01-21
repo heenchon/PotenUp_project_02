@@ -30,12 +30,12 @@ void AGrill::BeginPlay()
 void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 {
 	Super::Interact(input, curItemIndex);
-
 	if (!bIsFood)
 	{
 		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
 		{
 			UE_LOG(LogTemp,Warning,TEXT("물고기 굽기 시작."));
+			bIsFood = true;
 			PS->DropItem(curItemIndex, 1);
 			RawFoodMesh->SetVisibility(true);
 			fishRaw->PutOnGrill();
@@ -50,7 +50,7 @@ void AGrill::ProcessComplete()
 	UE_LOG(LogTemp,Warning,TEXT("물고기 조리 완료."));
 	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp,FoodPoint->GetComponentTransform());
 	RawFoodMesh->SetVisibility(false);
-	bIsFood = true;
+	bIsFood = false;
 }
 
 
