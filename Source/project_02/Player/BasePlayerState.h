@@ -2,9 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "project_02/DataTable/ItemInfoData.h"
 #include "BasePlayerState.generated.h"
-
-struct FItemMetaInfo;
 
 UCLASS()
 class PROJECT_02_API ABasePlayerState : public APlayerState

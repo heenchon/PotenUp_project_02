@@ -16,10 +16,7 @@ class PROJECT_02_API AFishRaw : public AUsable_Item
 public:
 	// Sets default values for this actor's properties
 	AFishRaw();
-
-	UPROPERTY(EditAnywhere)
-	USurvivalComponent* SurvivalComponent;
-
+	
 	bool bIsCooked;
 
 protected:

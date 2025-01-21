@@ -3,6 +3,8 @@
 
 #include "PlaceObjects.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "project_02/Player/BasePlayerState.h"
 
 // Sets default values
 APlaceObjects::APlaceObjects()
@@ -20,6 +22,7 @@ APlaceObjects::APlaceObjects()
 void APlaceObjects::BeginPlay()
 {
 	Super::BeginPlay();
+	PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
 }
 
 // Called every frame
@@ -36,16 +39,21 @@ void APlaceObjects::UnPlace()
 {
 }
 
-void APlaceObjects::Interact(AUsable_Item* input)
+void APlaceObjects::Interact()
 {
 }
 
-void APlaceObjects::ProcesStart()
+void APlaceObjects::Interact(AUsable_Item* input, int curItemIndex)
 {
-	GetWorld()->GetTimerManager().SetTimer(ProcessTimerHandle,this,&APlaceObjects::ProcesComplete,ProcessDuration,false);
 }
 
-void APlaceObjects::ProcesComplete()
+void APlaceObjects::ProcessStart()
+{
+	GetWorld()->GetTimerManager().SetTimer(ProcessTimerHandle,this,&APlaceObjects::ProcessComplete,ProcessDuration,false);
+}
+
+//TODO: 사운드, 효과 
+void APlaceObjects::ProcessComplete()
 {
 }
 

@@ -4,7 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "PlaceObjects.h"
+#include "project_02/DataTable/ItemInfoData.h"
 #include "Grill.generated.h"
+
 
 UCLASS()
 class PROJECT_02_API AGrill : public APlaceObjects
@@ -15,13 +17,20 @@ public:
 	// Sets default values for this actor's properties
 	AGrill();
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	USceneComponent* FoodPoint;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	UStaticMeshComponent* RawFoodMesh;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	TSubclassOf<AUsable_Item> FishCookedTemp;
+	
 	bool bIsFood;
-
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	virtual void Interact(AUsable_Item* input) override;
-	virtual void ProcesComplete() override;
+	virtual void Interact(AUsable_Item* input, int curItemIndex) override;
+	virtual void ProcessComplete() override;
 };

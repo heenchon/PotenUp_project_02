@@ -4,7 +4,7 @@
 #include "FishRaw.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "project_02/Characters/Component/SurvivalComponent.h"
+#include "project_02/Characters/PlayerCharacter.h"
 
 
 // Sets default values
@@ -16,14 +16,10 @@ AFishRaw::AFishRaw()
 void AFishRaw::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	APawn* Player = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	SurvivalComponent = Player->FindComponentByClass<USurvivalComponent>();
 }
 
 void AFishRaw::PutOnGrill()
 {
-	//플레이어가 들고 있는 물고기 개수 -1
 	this->Destroy();
 }
 

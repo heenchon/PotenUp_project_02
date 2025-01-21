@@ -13,14 +13,14 @@ ASail::ASail()
 	PrimaryActorTick.bCanEverTick = true;
 	Root = CreateDefaultSubobject<USceneComponent>(TEXT("Root"));
 	RootComponent = Root;
-	SailMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
-	SailMesh->SetupAttachment(Root);
+	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	StaticMesh->SetupAttachment(Root);
 	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
-	if (DefaultMesh.Succeeded()) SailMesh->SetStaticMesh(DefaultMesh.Object);
+	if (DefaultMesh.Succeeded()) StaticMesh->SetStaticMesh(DefaultMesh.Object);
 	
-	SailMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	SailMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-	SailMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1,ECR_Overlap);
+	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	StaticMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	StaticMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1,ECR_Overlap);
 
 	Arrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Arrow"));
 	Arrow->SetupAttachment(Root);
@@ -29,7 +29,9 @@ ASail::ASail()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> arrow(TEXT("/Script/Engine.StaticMesh'/Engine/EditorResources/FieldNodes/_Resources/SM_FieldArrow.SM_FieldArrow'"));
 	if (arrow.Succeeded()) Arrow->SetStaticMesh(arrow.Object);
 	
-	MinSailStrength = 1.0f / MaxSailStrength;
+	MinSailStrength = 1.0f / MaxSailStrength *0.5f;
+
+	IsHold =true;
 }
 
 void ASail::BeginPlay()
@@ -58,9 +60,27 @@ void ASail::Tick(float DeltaTime)
 	{
 		MyDirection = this->GetActorRotation().Vector();
 		ChangeStrength(CompareDirection(MyDirection, WindDirection));
+		RotateSail();
 	}
 	// UE_LOG(LogTemp, Warning, TEXT("포워드 벡터: %s"), *MyDirection.ToString());
 }
+
+ void ASail::SailToggle()
+ {
+ 	if (bSailOn)
+ 	{
+ 		bSailOn = false;
+ 		//TODO: 임시로 애니메이션 대신 스케일 조정
+ 		SetActorScale3D(FVector(0.2, 2.0, 1.0));
+ 		Raft->SailStrength = 1.0f;
+ 	}
+ 	else
+ 	{
+ 		bSailOn = true;
+ 		SetActorScale3D(FVector(0.2, 2.0, 3.0));
+ 	}
+ 	// UE_LOG(LogTemp,Warning,TEXT("bSailOn %d"),bSailOn);
+ }
 
 void ASail::ChangeStrength(float myStrength)
 {
@@ -74,8 +94,36 @@ float ASail::CompareDirection(FVector3d myDir, FVector3d windDir)
 	return (MaxSailStrength * ForceMultiplier);
 }
 
-void ASail::SailToggle()
+void ASail::RotateSail()
 {
+	if (bIsRotate)
+	{
+		float yawDiff =  FMath::UnwindDegrees(PlayerController->GetControlRotation().Yaw-PlayerYawOrigin);
+		SetActorRotation(FRotator(0,SailYawOrigin+yawDiff*RotationMultiplier,0));
+	}
+}
+
+void ASail::RotateInit(float y)
+{
+	// UE_LOG(LogTemp, Warning, TEXT("%f"),yawValue);
+	PlayerYawOrigin = y;
+	SailYawOrigin = GetActorRotation().Yaw;
+	bIsRotate = true;
+}
+
+void ASail::RotateStop()
+{
+	bIsRotate = false;
+}
+
+void ASail::SetRaft(ARaft* raft)
+{
+	Raft = raft;
+}
+
+void ASail::StartInteractive()
+{
+	Super::StartInteractive();
 	if (bSailOn)
 	{
 		bSailOn = false;
@@ -89,25 +137,4 @@ void ASail::SailToggle()
 		SetActorScale3D(FVector(0.2, 2.0, 3.0));
 	}
 	// UE_LOG(LogTemp,Warning,TEXT("bSailOn %d"),bSailOn);
-}
-
-void ASail::RotateSail()
-{
-	if (bSailOn)
-	{
-		float yawDiff =  FMath::UnwindDegrees(PlayerController->GetControlRotation().Yaw-PlayerYawOrigin);
-		SetActorRotation(FRotator(0,SailYawOrigin+yawDiff*RotationMultiplier,0));
-	}
-}
-
-void ASail::RotateInit(float yawValue)
-{
-	// UE_LOG(LogTemp, Warning, TEXT("%f"),yawValue);
-	PlayerYawOrigin = yawValue;
-	SailYawOrigin = GetActorRotation().Yaw;
-}
-
-void ASail::SetRaft(ARaft* raft)
-{
-	Raft = raft;
 }

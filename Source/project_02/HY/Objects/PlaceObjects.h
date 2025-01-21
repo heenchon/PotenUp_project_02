@@ -7,6 +7,7 @@
 #include "PlaceObjects.generated.h"
 
 class AUsable_Item;
+class ABasePlayerState;
 
 UCLASS()
 class PROJECT_02_API APlaceObjects : public AActor
@@ -25,6 +26,9 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float ProcessDuration;
 
+	UPROPERTY(EditAnywhere)
+	ABasePlayerState* PS;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -37,7 +41,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void Place();
 	void UnPlace();
-	virtual void Interact(AUsable_Item* input);
-	void ProcesStart();
-	virtual void ProcesComplete();
+	virtual void Interact();
+	virtual void Interact(AUsable_Item* input, int curItemIndex);
+	void ProcessStart();
+	virtual void ProcessComplete();
 };

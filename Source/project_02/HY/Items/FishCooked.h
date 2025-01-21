@@ -6,7 +6,10 @@
 #include "Usable_Item.h"
 #include "FishCooked.generated.h"
 
+class APlayerCharacter;
 class USurvivalComponent;
+class UInventoryComponent;
+class ABasePlayerState;
 
 UCLASS()
 class PROJECT_02_API AFishCooked : public AUsable_Item
@@ -19,7 +22,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	USurvivalComponent* SurvivalComponent;
-
+	UPROPERTY(EditAnywhere)
+	UInventoryComponent* InventoryComponent;
+	UPROPERTY(EditAnywhere)
+	ABasePlayerState* PS;
 
 protected:
 	// Called when the game starts or when spawned

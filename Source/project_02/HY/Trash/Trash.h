@@ -23,10 +23,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly)
 	class UBuoyancyComponent* Buoyancy;
-
-	//TODO: 윈드 매니저 추가 후 cpp 수정
-	UPROPERTY(EditAnywhere)
-	class ARaft* Raft;
 	
 	FVector WindDirection;
 	float WindStrength = 100.0f;

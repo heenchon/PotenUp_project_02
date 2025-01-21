@@ -24,8 +24,8 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	virtual void Interact(AUsable_Item* input) override;
-	virtual void ProcesComplete() override;
+	virtual void Interact(AUsable_Item* input, int curItemIndex) override;
+	virtual void ProcessComplete() override;
 };
 
 

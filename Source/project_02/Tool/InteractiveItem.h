@@ -30,14 +30,14 @@ public:
 
 protected:
 	virtual void Tick(float DeltaSeconds) override;
-
-private:
-	EInteractiveStatus Status = EInteractiveStatus::Idle;
 	
 	// 홀딩 활성화 여부 설정
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Interactive", meta = (AllowPrivateAccess = true))
 	bool IsHold = false;
 
+private:
+	EInteractiveStatus Status = EInteractiveStatus::Idle;
+	
 	// 홀딩 주기 시간 설정, -1이면 별도의 홀딩 시간 없이 틱 마다 실행
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Interactive",
 		meta = (AllowPrivateAccess = true, ClampMin = -1))

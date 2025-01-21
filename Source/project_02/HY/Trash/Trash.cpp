@@ -4,7 +4,6 @@
 #include "project_02/Helper/ItemHelper.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/HY/RaftGameState.h"
-// #include "../Raft/Raft.h"
 
 
 ATrash::ATrash()

@@ -26,9 +26,9 @@ void AWaterPurifier::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void AWaterPurifier::Interact(AUsable_Item* input)
+void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 {
-	Super::Interact(input);
+	Super::Interact(input, curItemIndex);
 	if (ACup* cup = Cast<ACup>(input))
 	{
 		if (bIsPurified)
@@ -37,20 +37,19 @@ void AWaterPurifier::Interact(AUsable_Item* input)
 			bIsPurified = false;
 			return;
 		}
-		
 		//컵 속의 물을 없애고, 정수 시작
 		if (cup->bIsSea)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("정수기에 바닷물 넣기"));
 			cup->EmptyCup();
-			ProcesStart();
+			ProcessStart();
 		}
 	}
 }
 
-void AWaterPurifier::ProcesComplete()
+void AWaterPurifier::ProcessComplete()
 {
-	Super::ProcesComplete();
+	Super::ProcessComplete();
 	UE_LOG(LogTemp, Warning, TEXT("정수 완료."));
 	bIsPurified = true;
 }
