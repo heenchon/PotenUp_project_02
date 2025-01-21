@@ -32,6 +32,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
 	bool IsWireframe = true;

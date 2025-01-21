@@ -106,6 +106,16 @@ void UBuildingComponent::ClearWireframe()
 
 void UBuildingComponent::BuildWireframe()
 {
+	if (!CurrentWireframeActor)
+	{
+		return;	
+	}
+	
+	if (!CurrentWireframeBox)
+	{
+		return;
+	}
+	
 	CurrentWireframeActor->SetWireframe(false);
 	CurrentWireframeActor->SetDefaultMaterial();
 	CurrentWireframeActor = nullptr;
