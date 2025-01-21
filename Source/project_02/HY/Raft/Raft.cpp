@@ -2,6 +2,7 @@
 
 
 #include "Raft.h"
+#include "project_02/Building/BuildingActor.h"
 #include "../RaftGameState.h"
 #include "../Objects/Sail.h"
 
@@ -41,12 +42,20 @@ ARaft::ARaft()
 void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
+	StaticMesh->SetHiddenInGame(true);
 	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
 	if (RaftGameState)
 	{
 		WindDirection = RaftGameState->WindDirection;
 		WindStrength = RaftGameState->WindStrength;
 	}
+	
+	if (ABuildingActor* NewMainFloor = GetWorld()->SpawnActor<ABuildingActor>(MainFloorClass))
+	{
+		MainFloor = NewMainFloor;
+		MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	
 	SpawnSailActor();
 }
 
@@ -61,7 +70,7 @@ void ARaft::SpawnSailActor()
 {
 	if (ASail* sail = GetWorld()->SpawnActor<ASail>(ASail::StaticClass()))
 	{
-		sail->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+		sail->AttachToActor(MainFloor, FAttachmentTransformRules::KeepRelativeTransform);
 		sail->SetRaft(this);
 	}
 }

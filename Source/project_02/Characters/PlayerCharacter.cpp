@@ -144,6 +144,8 @@ void APlayerCharacter::ClearViewItemOnHand()
 {
 	if (MainHandTool)
 	{
+		// 해제를 하고 제거해야 한다.
+		MainHandTool->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 		MainHandTool->Destroy();
 		MainHandTool = nullptr;
 	}
@@ -166,18 +168,16 @@ void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
 		MainHandTool->AttachToComponent(GetMesh(),
 			FAttachmentTransformRules::KeepRelativeTransform, FName(AttachSocket));
 		MainHandTool->SetOwner(this);
+
+		if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
+		{
+			InteractiveItem->OnAttached();
+		}
 	}
 }
 
 void APlayerCharacter::OnInteractivePressed()
 {
-	
-	if (BuildingComponent->GetCanBuildMode())
-	{
-		BuildingComponent->BuildWireframe();
-		return;
-	}
-	
 	// 이 방식으로 통일
 	if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
 	{

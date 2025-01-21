@@ -20,6 +20,9 @@ public:
 	void BuildWireframe();
 
 	FORCEINLINE bool GetCanBuildMode() const { return CanBuild; } 
+	FORCEINLINE void SetBuildMode(const bool NewMode) { CanBuild = NewMode; } 
+
+	void ClearWireframe();
 
 protected:
 	virtual void BeginPlay() override;
@@ -41,8 +44,5 @@ private:
 	UPROPERTY()
 	TObjectPtr<UPrimitiveComponent> CurrentWireframeBox;
 	
-	// TODO: 해당 값은 추후 플레이어가 망치를 든다던가의 경우에 true로 변환됨
-	bool CanBuild = true;
-
-	void ClearWireframe();
+	bool CanBuild = false;
 };

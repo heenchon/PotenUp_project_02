@@ -22,6 +22,10 @@ void AInteractiveItem::Tick(float DeltaSeconds)
 	CurrentHoldTime += DeltaSeconds;
 }
 
+void AInteractiveItem::OnAttached()
+{
+	
+}
 
 void AInteractiveItem::StartInteractive()
 {

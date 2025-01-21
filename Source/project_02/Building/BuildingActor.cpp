@@ -55,6 +55,7 @@ float ABuildingActor::TakeDamage(float DamageAmount, struct FDamageEvent const& 
 
 void ABuildingActor::OnWireframeActive()
 {
+	BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	RightBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	LeftBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	NorthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
@@ -63,6 +64,7 @@ void ABuildingActor::OnWireframeActive()
 
 void ABuildingActor::OnWireframeDeactive()
 {
+	BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 	RightBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	LeftBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	NorthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);

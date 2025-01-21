@@ -20,6 +20,9 @@ class PROJECT_02_API AInteractiveItem : public AActor
 public:
 	AInteractiveItem();
 
+	// 특별한 의미는 있지 않지만 부착될 때 별도로 호출하는 함수
+	virtual void OnAttached();
+	
 	virtual void StartInteractive();
 	
 	virtual void OnInteractiveHold();

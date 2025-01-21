@@ -33,7 +33,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 		// Custom Channel인 4번으로 체크
 		TraceTypeQuery4,
 		false, IgnoreActors,
-		EDrawDebugTrace::Type::ForDuration,
+		EDrawDebugTrace::Type::None,
 		HitResult,
 		true,
 		FLinearColor::Red,

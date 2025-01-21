@@ -18,6 +18,7 @@ AWeaponBase::AWeaponBase()
 void AWeaponBase::BeginPlay()
 {
 	Super::BeginPlay();
+	AttackCollision->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	AttackCollision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlapAttackCollision);
 }
 
