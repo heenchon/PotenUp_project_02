@@ -3,26 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Usable_Item.h"
-#include "FishRaw.generated.h"
-
-class USurvivalComponent;
+#include "GameFramework/Actor.h"
+#include "FoodOnGrill.generated.h"
 
 UCLASS()
-class PROJECT_02_API AFishRaw : public AUsable_Item
+class PROJECT_02_API AFoodOnGrill : public AActor
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
-	AFishRaw();
-	
-	bool bIsCooked;
+	AFoodOnGrill();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	void PutOnGrill();
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 };

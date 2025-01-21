@@ -22,7 +22,7 @@ APlaceObjects::APlaceObjects()
 void APlaceObjects::BeginPlay()
 {
 	Super::BeginPlay();
-	// PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
+	PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
 }
 
 // Called every frame
