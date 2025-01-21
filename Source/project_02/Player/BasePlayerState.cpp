@@ -27,9 +27,14 @@ void ABasePlayerState::InitializeData()
 	FItemMetaInfo Spear;
 	Spear.SetId(10);
 	Spear.SetCurrentCount(1);
+	
+	FItemMetaInfo Hammer;
+	Spear.SetId(11);
+	Spear.SetCurrentCount(1);
 
 	PlayerInventoryList[0] = Hook;
 	PlayerInventoryList[1] = Spear;
+	PlayerInventoryList[2] = Hammer;
 }
 
 
