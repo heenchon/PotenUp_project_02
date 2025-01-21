@@ -4,21 +4,22 @@
 
 #include "CoreMinimal.h"
 #include "PlaceObjects.h"
+#include "project_02/Tool/InteractiveItem.h"
 #include "GameFramework/Actor.h"
 #include "Sail.generated.h"
 
 UCLASS()
-class PROJECT_02_API ASail : public APlaceObjects
+class PROJECT_02_API ASail : public AInteractiveItem
 {
 	GENERATED_BODY()
-
+	
 public:
 	// Sets default values for this actor's properties
 	ASail();
-	// UPROPERTY(EditAnywhere)
-	// class USceneComponent* Root;
-	// UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	// class UStaticMeshComponent* SailMesh;
+	UPROPERTY(EditAnywhere)
+	class USceneComponent* Root;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	class UStaticMeshComponent* StaticMesh;
 	
 	//TODO: 에셋 찾으면 제거
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -49,15 +50,20 @@ private:
 	float MinSailStrength;
 	FVector MyDirection;
 	bool bSailOn = false;
+	bool bIsRotate = false;
 	
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	virtual void Interact() override;
+	virtual void StartInteractive() override;
 	
+	void SailToggle();
 	void ChangeStrength(float myStrength);
 	float CompareDirection(FVector3d myDir, FVector3d windDir);
 	void RotateSail();
-	void RotateInit(float yawValue);
+	void RotateInit(float y);
+	void RotateStop();
 	void SetRaft(ARaft* raft);
 };
+
+

@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class ASail;
 struct FItemInfoData;
 class UEntityAnimationInfo;
 class UBoxComponent;
@@ -43,6 +44,9 @@ public:
 	FORCEINLINE TObjectPtr<AActor> GetMainHandTool() { return MainHandTool; }
 	void ClearViewItemOnHand();
 	void SetViewItemOnHand(const FItemInfoData& NewItemInfo);
+
+	UPROPERTY()
+	ASail* Sail;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -50,6 +54,7 @@ protected:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
@@ -128,7 +133,7 @@ private:
 	UFUNCTION()
 	void RotatePressed();
 	UFUNCTION()
-	void RotateHolding();
+	void RotateReleased();
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
 		, meta = (AllowPrivateAccess = true))

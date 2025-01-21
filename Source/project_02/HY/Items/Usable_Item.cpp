@@ -17,6 +17,7 @@ AUsable_Item::AUsable_Item()
 
 	Mesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	Mesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel1,ECR_Overlap);
+	Mesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
 }
 
 void AUsable_Item::UpdateItemInfo(const uint32 RemainCount)

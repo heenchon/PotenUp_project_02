@@ -15,12 +15,12 @@
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/HY/Paddle/PaddleTest.h"
 #include "project_02/HY/Raft/Raft.h"
-#include "project_02/HY/Objects/Sail.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
 
 //TODO: 상민띠가 아이템 클래스 만들면 교체 
 #include "project_02/HY/Items/Usable_Item.h"
+#include "project_02/HY/Objects/Sail.h"
 #include "project_02/Weapon/WeaponBase.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -79,7 +79,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Started
 		, this, &ThisClass::RotatePressed);
 		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Triggered
-		, this, &ThisClass::RotateHolding);
+		, this, &ThisClass::RotateReleased);
 	}
 }
 
@@ -93,14 +93,24 @@ void APlayerCharacter::UseItem()
 		
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
+		return;
 	}
 
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(AInteractiveItem::StaticClass()))
+	{
+		AInteractiveItem* Item = static_cast<AInteractiveItem*>(FindDroppedActor);
+		Item->StartInteractive();
+		IsInteracting = true;
+		return;
+	}
+	
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(AUsable_Item::StaticClass()))
 	{
 		AUsable_Item* Item = static_cast<AUsable_Item*>(FindDroppedActor);
 		
 		const uint32 RemainValue = PS->AddItem(Item->GetItemMetaInfo());
 		Item->UpdateItemInfo(RemainValue);
+		return;
 	}
 
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(APlaceObjects::StaticClass()))
@@ -116,7 +126,9 @@ void APlayerCharacter::UseItem()
 			return;
 		}
 		PlaceObject->Interact();
+		return;
 	}
+	
 
 	// UI 후처리
 	ABasePlayerController* PC = Cast<ABasePlayerController>(GetController());
@@ -159,19 +171,12 @@ void APlayerCharacter::OnInteractivePressed()
 	if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
 	{
 		InteractiveItem->StartInteractive();
+		return;
 	}
 
 	if (AWeaponBase* Weapon = Cast<AWeaponBase>(MainHandTool))
 	{
 		Weapon->Attack();
-	}
-
-	// TODO: 레거시 코드
-	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
-	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
-		Sail->RotateInit(GetControlRotation().Yaw);
-		IsInteracting = true;
 	}
 	
 	if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
@@ -182,25 +187,18 @@ void APlayerCharacter::OnInteractivePressed()
 
 void APlayerCharacter::RotatePressed()
 {
-	UE_LOG(LogTemp, Warning, TEXT("R 시작"));
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
 	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		Sail = static_cast<ASail*>(FindDroppedActor);
 		Sail->RotateInit(GetControlRotation().Yaw);
-		IsInteracting = true;
 	}
 }
 
-void APlayerCharacter::RotateHolding()
+void APlayerCharacter::RotateReleased()
 {
-	UE_LOG(LogTemp, Warning, TEXT("R 중.."));
-	if (IsInteracting)
+	if (Sail)
 	{
-		if (ASail* Sail = Cast<ASail>(FindDroppedActor))
-		{
-			Sail->RotateSail();
-		}
-		return;
+		Sail->RotateStop();
 	}
 }
 
@@ -211,14 +209,6 @@ void APlayerCharacter::OnInteractiveHolding()
 	// TODO: 우선순위에 대한 로직 추가 필요
 	// 여기서부터 아래까지는 보통 상호작용에 대한 처리이기 때문에 우선순위가 매우 높다.
 	// 상호작용에 대해서는 HoldEnd에 대해서도 처리하지 않는 것이 원칙. 추후 컴포넌트화 필요
-	if (IsInteracting)
-	{
-		if (ASail* Sail = Cast<ASail>(FindDroppedActor))
-		{
-			Sail->RotateSail();
-		}
-		return;
-	}
 	
 	// 손에든 아이템을 실행시키는 방식임
 	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
