@@ -28,9 +28,10 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),
 		GetOwner()->GetActorLocation(),
 		GetOwner()->GetActorLocation() + TraceTo * TraceRange,
+		// Visibility로 체크
 		TraceTypeQuery1,
 		false, IgnoreActors,
-		EDrawDebugTrace::Type::ForOneFrame,
+		EDrawDebugTrace::Type::None,
 		HitResult,
 		true,
 		FLinearColor::Red,
