@@ -3,6 +3,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingActor.h"
+#include "project_02/Characters/PlayerCharacter.h"
 
 
 UBuildingComponent::UBuildingComponent()
@@ -25,13 +26,14 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 	IgnoreActors.Add(GetOwner());
 
 	FHitResult HitResult;
+	
 	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),
 		GetOwner()->GetActorLocation(),
 		GetOwner()->GetActorLocation() + TraceTo * TraceRange,
-		// Visibility로 체크
-		TraceTypeQuery1,
+		// Custom Channel인 4번으로 체크
+		TraceTypeQuery4,
 		false, IgnoreActors,
-		EDrawDebugTrace::Type::None,
+		EDrawDebugTrace::Type::ForDuration,
 		HitResult,
 		true,
 		FLinearColor::Red,
@@ -51,50 +53,61 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 			if (HitResult.GetComponent()->IsA(UBoxComponent::StaticClass())) {
 				CurrentWireframeBox = HitResult.GetComponent();
 
-				if (!BuildWireframe)
+				if (!WireframeToBuildClass)
 				{
 					return;
 				}
-				
-				if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(BuildWireframe,
-					HitResult.GetComponent()->GetComponentLocation(),
-					HitResult.GetComponent()->GetComponentRotation()))
+
+				if (CurrentWireframeActor)
 				{
-					// TODO: 이런게 많이 생길 것 같으면 Object Pooling을 해라...
-					NewWireframe->SetWireframe(true);
-					if (CurrentWireframeActor)
-					{
-						CurrentWireframeActor->Destroy();
-					}
-					CurrentWireframeActor = NewWireframe;
+					CurrentWireframeActor->SetActorHiddenInGame(false);
 					CurrentWireframeActor->AttachToComponent(
-						HitResult.GetComponent(),
-						FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+							HitResult.GetComponent(),
+							FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 					CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+				} else
+				{
+					if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(WireframeToBuildClass,
+						HitResult.GetComponent()->GetComponentLocation(),
+						HitResult.GetComponent()->GetComponentRotation()))
+					{
+						NewWireframe->SetWireframe(true);
+						CurrentWireframeActor = NewWireframe;
+						CurrentWireframeActor->AttachToComponent(
+							HitResult.GetComponent(),
+							FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+						CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+					}
 				}
+			} else
+			{
+				ClearWireframe();
 			}
 		} else
 		{
 			// 다른 액터를 바라보는 경우
-			ClearBuildWireframe();
+			ClearWireframe();
 		}
 	} else
 	{
 		// 여기는 Trace시 결과가 없는 경우 즉, 바라보는 곳이 허공이기 때문에 Wireframe을 날려야 하는 경우
-		ClearBuildWireframe();
+		ClearWireframe();
 	}
 }
 
-void UBuildingComponent::ClearBuildWireframe()
+void UBuildingComponent::ClearWireframe()
 {
 	if (CurrentWireframeActor)
 	{
-		CurrentWireframeActor->Destroy();
+		CurrentWireframeActor->SetActorHiddenInGame(true);
 	}
-	if (CurrentWireframeBox)
-	{
-		CurrentWireframeBox = nullptr;
-	}
+	CurrentWireframeBox = nullptr;
 }
 
-
+void UBuildingComponent::BuildWireframe()
+{
+	CurrentWireframeActor->SetWireframe(false);
+	CurrentWireframeActor->SetDefaultMaterial();
+	CurrentWireframeActor = nullptr;
+	CurrentWireframeBox = nullptr;
+}

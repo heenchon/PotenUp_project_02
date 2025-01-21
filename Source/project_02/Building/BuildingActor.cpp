@@ -8,7 +8,7 @@ ABuildingActor::ABuildingActor()
 	
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>("Body Mesh");
 	SetRootComponent(BodyMesh);
-	BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 
 	RightBodyBox = CreateDefaultSubobject<UBoxComponent>("Right Body Box");
 	RightBodyBox->SetupAttachment(BodyMesh);
@@ -34,12 +34,24 @@ void ABuildingActor::BeginPlay()
 	
 	if (!IsWireframe)
 	{
-		BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
-		RightBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
-		LeftBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
-		NorthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
-		SouthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
+		OnWireframeDeactive();
 	}
+}
+
+void ABuildingActor::OnWireframeActive()
+{
+	RightBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	LeftBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	NorthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	SouthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+}
+
+void ABuildingActor::OnWireframeDeactive()
+{
+	RightBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
+	LeftBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
+	NorthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
+	SouthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 }
 
 void ABuildingActor::AttachWireframeToComponent(ABuildingActor* TargetBlock, UPrimitiveComponent* TargetComp)
@@ -54,11 +66,31 @@ void ABuildingActor::AttachWireframeToComponent(ABuildingActor* TargetBlock, UPr
 		FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 }
 
+void ABuildingActor::SetWireframe(const bool NewIsWireframe)
+{
+	IsWireframe = NewIsWireframe;
+	if (IsWireframe)
+	{
+		OnWireframeActive();	
+	} else
+	{
+		OnWireframeDeactive();
+	}
+}
+
 void ABuildingActor::SetWireframeMaterial(UMaterial* NewMaterial)
 {
 	for (int i = 0; i < BodyMesh->GetMaterials().Num(); i++)
 	{
 		BodyMesh->SetMaterial(i, NewMaterial);
+	}
+}
+
+void ABuildingActor::SetDefaultMaterial()
+{
+	for (int i = 0; i < OriginMaterials.Num(); i++)
+	{
+		BodyMesh->SetMaterial(i, OriginMaterials[i]);
 	}
 }
 

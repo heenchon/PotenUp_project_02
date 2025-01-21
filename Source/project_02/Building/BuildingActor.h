@@ -14,8 +14,15 @@ class PROJECT_02_API ABuildingActor : public AActor
 
 public:
 	ABuildingActor();
-	FORCEINLINE void SetWireframe(const bool NewIsWireframe) { IsWireframe = NewIsWireframe; }
-	FORCEINLINE void SetWireframeMaterial(UMaterial* NewMaterial);
+	
+	void SetWireframeMaterial(UMaterial* NewMaterial);
+	
+	void SetWireframe(const bool NewIsWireframe);
+
+	void OnWireframeActive();
+	void OnWireframeDeactive();
+
+	FORCEINLINE void SetDefaultMaterial();
 
 	void AttachWireframeToComponent(
 		ABuildingActor* TargetBlock,
