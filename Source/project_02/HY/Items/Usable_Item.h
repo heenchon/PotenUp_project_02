@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+// 직접 사용하기 위해서는 일단은 전방선언 불가함
+#include "project_02/DataTable/ItemInfoData.h"
 #include "Usable_Item.generated.h"
 
 UCLASS()
@@ -18,14 +20,21 @@ public:
 	USceneComponent* Root;
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* Mesh;
+	
+	FORCEINLINE FItemMetaInfo GetItemMetaInfo() const { return ItemMetaInfo; }
+	void UpdateItemInfo(const uint32 RemainCount);
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 	virtual void Use();
 	virtual void ApplyTo();
+	
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	uint32 ItemId;
+
+	FItemMetaInfo ItemMetaInfo;
 };

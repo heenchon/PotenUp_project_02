@@ -7,7 +7,6 @@
 #include "project_02/DataTable/ItemInfoData.h"
 #include "Grill.generated.h"
 
-class ATrash;
 
 UCLASS()
 class PROJECT_02_API AGrill : public APlaceObjects
@@ -23,9 +22,10 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	UStaticMeshComponent* RawFoodMesh;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	TSubclassOf<ATrash> FishCookedTemp;
-
+	TSubclassOf<AUsable_Item> FishCookedTemp;
+	
 	bool bIsFood;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -33,7 +33,4 @@ protected:
 public:
 	virtual void Interact(AUsable_Item* input, int curItemIndex) override;
 	virtual void ProcessComplete() override;
-
-private:
-	FItemMetaInfo GrilledItemData;
 };

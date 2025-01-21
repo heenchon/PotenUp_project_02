@@ -37,7 +37,6 @@ void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 			bIsPurified = false;
 			return;
 		}
-		
 		//컵 속의 물을 없애고, 정수 시작
 		if (cup->bIsSea)
 		{

@@ -15,7 +15,7 @@
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/HY/Paddle/PaddleTest.h"
 #include "project_02/HY/Raft/Raft.h"
-#include "project_02/HY/Raft/Sail.h"
+#include "project_02/HY/Objects/Sail.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
 
@@ -74,6 +74,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::UseItem);
+
+		//희연
+		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Started
+		, this, &ThisClass::RotatePressed);
+		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Triggered
+		, this, &ThisClass::RotateHolding);
 	}
 }
 
@@ -88,24 +94,28 @@ void APlayerCharacter::UseItem()
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
 	}
-	
-	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(AUsable_Item::StaticClass()))
 	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		AUsable_Item* Item = static_cast<AUsable_Item*>(FindDroppedActor);
 		
-		Sail->SailToggle();
+		const uint32 RemainValue = PS->AddItem(Item->GetItemMetaInfo());
+		Item->UpdateItemInfo(RemainValue);
 	}
 
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(APlaceObjects::StaticClass()))
 	{
 		APlaceObjects* PlaceObject = static_cast<APlaceObjects*>(FindDroppedActor);
+		
 		//TODO: InteractiveTool로 교체
 		if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
 		{
 			//삭제할 item info 전달하기
 			AUsable_Item* Item = static_cast<AUsable_Item*>(MainHandTool);
 			PlaceObject->Interact(Item, InventoryComponent->GetSelectedHotSlotIndex());
+			return;
 		}
+		PlaceObject->Interact();
 	}
 
 	// UI 후처리
@@ -170,11 +180,34 @@ void APlayerCharacter::OnInteractivePressed()
 	}
 }
 
+void APlayerCharacter::RotatePressed()
+{
+	UE_LOG(LogTemp, Warning, TEXT("R 시작"));
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	{
+		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		Sail->RotateInit(GetControlRotation().Yaw);
+		IsInteracting = true;
+	}
+}
+
+void APlayerCharacter::RotateHolding()
+{
+	UE_LOG(LogTemp, Warning, TEXT("R 중.."));
+	if (IsInteracting)
+	{
+		if (ASail* Sail = Cast<ASail>(FindDroppedActor))
+		{
+			Sail->RotateSail();
+		}
+		return;
+	}
+}
+
 // TODO: 레거시 코드로 제거 필요
 void APlayerCharacter::OnInteractiveHolding()
 {
 	if (IsBlockAction()) return;
-	
 	// TODO: 우선순위에 대한 로직 추가 필요
 	// 여기서부터 아래까지는 보통 상호작용에 대한 처리이기 때문에 우선순위가 매우 높다.
 	// 상호작용에 대해서는 HoldEnd에 대해서도 처리하지 않는 것이 원칙. 추후 컴포넌트화 필요

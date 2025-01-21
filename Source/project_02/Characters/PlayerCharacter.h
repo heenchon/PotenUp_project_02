@@ -88,6 +88,11 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> UseInputAction;
+
+	//희연
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> RotateInputAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Data"
 		, meta = (AllowPrivateAccess = true))
@@ -118,6 +123,12 @@ private:
 
 	UFUNCTION()
 	void OnInteractivePressed();
+
+	//희연
+	UFUNCTION()
+	void RotatePressed();
+	UFUNCTION()
+	void RotateHolding();
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
 		, meta = (AllowPrivateAccess = true))

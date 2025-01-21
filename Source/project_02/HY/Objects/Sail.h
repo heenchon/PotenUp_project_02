@@ -3,21 +3,23 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "PlaceObjects.h"
 #include "GameFramework/Actor.h"
 #include "Sail.generated.h"
 
 UCLASS()
-class PROJECT_02_API ASail : public AActor
+class PROJECT_02_API ASail : public APlaceObjects
 {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this actor's properties
 	ASail();
-	UPROPERTY(EditAnywhere)
-	class USceneComponent* Root;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	class UStaticMeshComponent* SailMesh;
+	// UPROPERTY(EditAnywhere)
+	// class USceneComponent* Root;
+	// UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	// class UStaticMeshComponent* SailMesh;
+	
 	//TODO: 에셋 찾으면 제거
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UStaticMeshComponent* Arrow;
@@ -51,9 +53,10 @@ private:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	virtual void Interact() override;
+	
 	void ChangeStrength(float myStrength);
 	float CompareDirection(FVector3d myDir, FVector3d windDir);
-	void SailToggle();
 	void RotateSail();
 	void RotateInit(float yawValue);
 	void SetRaft(ARaft* raft);

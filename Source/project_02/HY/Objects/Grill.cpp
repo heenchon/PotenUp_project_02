@@ -5,8 +5,6 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "project_02/HY/Items/FishRaw.h"
-// #include "project_02/HY/Items/FishCooked.h"
-#include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
 
 
@@ -32,20 +30,14 @@ void AGrill::BeginPlay()
 void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 {
 	Super::Interact(input, curItemIndex);
-	// UE_LOG(LogTemp,Warning,TEXT("현재 아이템 인덱스 %d"),curItemIndex);
-	if (bIsFood)
-	{
-		bIsFood = false;
-		return;
-	}
-	else
+
+	if (!bIsFood)
 	{
 		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
 		{
-			PS->DropItem(curItemIndex, 1);
 			UE_LOG(LogTemp,Warning,TEXT("물고기 굽기 시작."));
+			PS->DropItem(curItemIndex, 1);
 			RawFoodMesh->SetVisibility(true);
-			//플레이어가 들고 있는 물고기 삭제
 			fishRaw->PutOnGrill();
 			ProcessStart();
 		}
@@ -56,10 +48,11 @@ void AGrill::ProcessComplete()
 {
 	Super::ProcessComplete();
 	UE_LOG(LogTemp,Warning,TEXT("물고기 조리 완료."));
-	ATrash* fishCooked = GetWorld()->SpawnActor<ATrash>(FishCookedTemp,FoodPoint->GetComponentTransform());
+	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp,FoodPoint->GetComponentTransform());
 	RawFoodMesh->SetVisibility(false);
-	// fishCooked->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	bIsFood = true;
 }
+
+
 
 

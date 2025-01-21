@@ -3,7 +3,7 @@
 
 #include "Raft.h"
 #include "../RaftGameState.h"
-#include "Sail.h"
+#include "../Objects/Sail.h"
 
 // Sets default values
 ARaft::ARaft()

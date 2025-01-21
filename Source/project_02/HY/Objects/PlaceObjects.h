@@ -41,8 +41,8 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void Place();
 	void UnPlace();
+	virtual void Interact();
 	virtual void Interact(AUsable_Item* input, int curItemIndex);
 	void ProcessStart();
 	virtual void ProcessComplete();
-	
 };

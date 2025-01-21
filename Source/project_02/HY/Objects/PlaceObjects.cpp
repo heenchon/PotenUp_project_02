@@ -39,6 +39,10 @@ void APlaceObjects::UnPlace()
 {
 }
 
+void APlaceObjects::Interact()
+{
+}
+
 void APlaceObjects::Interact(AUsable_Item* input, int curItemIndex)
 {
 }
