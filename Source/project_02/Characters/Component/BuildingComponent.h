@@ -37,6 +37,7 @@ public:
 	FORCEINLINE void SetBuildMode(const bool NewMode) { CanBuild = NewMode; } 
 
 	void ClearWireframe();
+	void DeleteWireframe();
 
 protected:
 	virtual void BeginPlay() override;

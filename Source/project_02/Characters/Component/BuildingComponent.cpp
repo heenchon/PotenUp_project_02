@@ -62,12 +62,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 				return;
 			}
 			
-			if (GetWireframe()->IsChildOf(ABuildingFloor::StaticClass()))
-			{
-				CreateWireframeForGrid(HitResult);
-			}
-
-			
+			CreateWireframeForGrid(HitResult);
 		} else
 		{
 			// 다른 액터를 바라보는 경우
@@ -136,6 +131,18 @@ void UBuildingComponent::ClearWireframe()
 	CurrentWireframeBox = nullptr;
 }
 
+void UBuildingComponent::DeleteWireframe()
+{
+	if (CurrentWireframeActor)
+	{
+		CurrentWireframeActor->Destroy();
+		CurrentWireframeActor = nullptr;
+	}
+	CurrentWireframeBox = nullptr;
+	CurrentHitActor = nullptr;
+}
+
+
 void UBuildingComponent::BuildWireframe()
 {
 	if (!CurrentWireframeActor)
@@ -189,6 +196,9 @@ void UBuildingComponent::ChangeNextBuildAction()
 	{
 		return;
 	}
+
+	// 변경 값에 관계 없이 초기화 과정은 거쳐준다.
+	DeleteWireframe();
 	
 	if (FrameType == EBuildType::Floor)
 	{

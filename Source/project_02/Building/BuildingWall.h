@@ -13,6 +13,8 @@ class PROJECT_02_API ABuildingWall : public ABuildingActor
 
 public:
 	ABuildingWall();
+	virtual void OnWireframeActive() override;
+	virtual void OnWireframeInactive() override;
 
 protected:
 	virtual void BeginPlay() override;
