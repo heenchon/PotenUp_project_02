@@ -24,3 +24,21 @@
  * Map 형태로 저장
  * Key: 설치된 순서대로 반영되는 Id 값.
  * Value: BuildInfo 현재 설치된 구조물 정보 (ex. 구조물 타입, 설치된 블록 좌표 정보, 설치된 블록 좌표 기준으로 대략 어느정도 떨어져 있는지 정보)
+*/
+
+UENUM()
+enum class EBlockPos
+{
+	North,
+	South,
+	West,
+	East
+};
+
+// USTRUCT()
+// struct FBuildData
+// {
+// 	GENERATED_BODY()
+//
+// 	TMap<EBlockPos, FVector> NearBlockPosInfo;
+// };

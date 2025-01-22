@@ -19,10 +19,11 @@ public:
 	
 	void SetWireframe(const bool NewIsWireframe);
 
-	void OnWireframeActive();
-	void OnWireframeInactive();
+	virtual void OnWireframeActive();
+	virtual void OnWireframeInactive();
 
 	FORCEINLINE void SetDefaultMaterial();
+	FORCEINLINE TObjectPtr<UStaticMeshComponent> GetBodyMesh() const { return BodyMesh; }
 
 	void AttachWireframeToComponent(
 		ABuildingActor* TargetBlock,
@@ -45,18 +46,5 @@ private:
 	TObjectPtr<UStaticMeshComponent> BodyMesh;
 
 	UPROPERTY()
-	 TArray<TObjectPtr<UMaterialInterface>> OriginMaterials;
-
-	// TODO: 이 부분 배열과 enum을 고려해보기
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
-	TObjectPtr<UBoxComponent> RightBodyBox;
-	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
-	TObjectPtr<UBoxComponent> LeftBodyBox;
-	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
-	TObjectPtr<UBoxComponent> NorthBodyBox;
-	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
-	TObjectPtr<UBoxComponent> SouthBodyBox;
+	TArray<TObjectPtr<UMaterialInterface>> OriginMaterials;
 };

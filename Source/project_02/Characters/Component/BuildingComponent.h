@@ -17,6 +17,9 @@ public:
 
 	void TraceGroundToBuild(const FVector& TraceTo);
 
+	// 빌딩을 위한 즉 격자를 위한 처리
+	void CreateWireframeForGrid(const FHitResult& HitResult);
+
 	void BuildWireframe();
 
 	FORCEINLINE bool GetCanBuildMode() const { return CanBuild; } 

@@ -3,6 +3,7 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingActor.h"
+#include "project_02/Building/BuildingFloor.h"
 #include "project_02/Characters/PlayerCharacter.h"
 
 
@@ -33,7 +34,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 		// Custom Channel인 4번으로 체크
 		TraceTypeQuery4,
 		false, IgnoreActors,
-		EDrawDebugTrace::Type::None,
+		EDrawDebugTrace::Type::ForOneFrame,
 		HitResult,
 		true,
 		FLinearColor::Red,
@@ -49,39 +50,9 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 				return;
 			}
 			
-			// Wireframe을 위한 Box Collision일 경우
-			if (HitResult.GetComponent()->IsA(UBoxComponent::StaticClass())) {
-				CurrentWireframeBox = HitResult.GetComponent();
-
-				if (!WireframeToBuildClass)
-				{
-					return;
-				}
-
-				if (CurrentWireframeActor)
-				{
-					CurrentWireframeActor->SetActorHiddenInGame(false);
-					CurrentWireframeActor->AttachToComponent(
-							HitResult.GetComponent(),
-							FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-					CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
-				} else
-				{
-					if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(WireframeToBuildClass,
-						HitResult.GetComponent()->GetComponentLocation(),
-						HitResult.GetComponent()->GetComponentRotation()))
-					{
-						NewWireframe->SetWireframe(true);
-						CurrentWireframeActor = NewWireframe;
-						CurrentWireframeActor->AttachToComponent(
-							HitResult.GetComponent(),
-							FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-						CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
-					}
-				}
-			} else
+			if (WireframeToBuildClass->IsChildOf(ABuildingFloor::StaticClass()))
 			{
-				ClearWireframe();
+				CreateWireframeForGrid(HitResult);
 			}
 		} else
 		{
@@ -94,6 +65,45 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 		ClearWireframe();
 	}
 }
+
+void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
+{
+	if (!HitResult.GetComponent()->IsA(UBoxComponent::StaticClass()))
+	{
+		ClearWireframe();
+		return;
+	}
+	
+	CurrentWireframeBox = HitResult.GetComponent();
+
+	if (!WireframeToBuildClass)
+	{
+		return;
+	}
+
+	if (CurrentWireframeActor)
+	{
+		CurrentWireframeActor->SetActorHiddenInGame(false);
+		CurrentWireframeActor->AttachToComponent(
+				HitResult.GetComponent(),
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+	} else
+	{
+		if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(WireframeToBuildClass,
+			HitResult.GetComponent()->GetComponentLocation(),
+			HitResult.GetComponent()->GetComponentRotation()))
+		{
+			NewWireframe->SetWireframe(true);
+			CurrentWireframeActor = NewWireframe;
+			CurrentWireframeActor->AttachToComponent(
+				HitResult.GetComponent(),
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+		}
+	}
+}
+
 
 void UBuildingComponent::ClearWireframe()
 {

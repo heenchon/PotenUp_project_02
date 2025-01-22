@@ -8,6 +8,7 @@
 #include "BuoyancyComponent.h"
 #include "Raft.generated.h"
 
+class ABuildingFloor;
 class ABuildingActor;
 
 UCLASS()
@@ -25,7 +26,7 @@ public:
 	UBuoyancyComponent* Buoyancy;
 
 	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ABuildingActor> MainFloorClass;
+	TSubclassOf<ABuildingFloor> MainFloorClass;
 
 	UPROPERTY()
 	class ARaftGameState* RaftGameState;
