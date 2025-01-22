@@ -34,4 +34,17 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> SouthBodyBox;
+	
+	// TODO: 이 부분 배열과 enum을 고려해보기
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBoxComponent> NorthWallBodyBox;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBoxComponent> SouthWallBodyBox;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBoxComponent> EastWallBodyBox;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UBoxComponent> WestWallBodyBox;
 };

@@ -4,8 +4,18 @@
 #include "Components/ActorComponent.h"
 #include "BuildingComponent.generated.h"
 
+class ABuildingWall;
+class ABuildingFloor;
 class UBoxComponent;
 class ABuildingActor;
+
+UENUM()
+enum class EBuildType
+{
+	Floor,
+	Wall,
+	Object
+};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_02_API UBuildingComponent : public UActorComponent
@@ -31,9 +41,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	// TODO: 해당 정보는 나중에 동적으로 플레이어의 상태에 따라 변경될 예정
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
-	TSubclassOf<ABuildingActor> WireframeToBuildClass;
+	TSubclassOf<ABuildingFloor> WireframeToFloorClass;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TSubclassOf<ABuildingWall> WireframeToWallClass;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UMaterial> WireframeMaterial;
@@ -49,6 +61,11 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<AActor> CurrentHitActor;
+	
+	EBuildType FrameType = EBuildType::Floor;
+
+	TSubclassOf<ABuildingActor> GetWireframe() const;
+	ETraceTypeQuery GetCheckTraceChannel() const;
 	
 	bool CanBuild = false;
 };

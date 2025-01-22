@@ -9,6 +9,7 @@
 
 UBuildingComponent::UBuildingComponent()
 {
+	
 }
 
 void UBuildingComponent::BeginPlay()
@@ -32,7 +33,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 		GetOwner()->GetActorLocation(),
 		GetOwner()->GetActorLocation() + TraceTo * TraceRange,
 		// Custom Channel인 4번으로 체크
-		TraceTypeQuery4,
+		GetCheckTraceChannel(),
 		false, IgnoreActors,
 		EDrawDebugTrace::Type::ForOneFrame,
 		HitResult,
@@ -51,7 +52,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 				return;
 			}
 			
-			if (WireframeToBuildClass->IsChildOf(ABuildingFloor::StaticClass()))
+			if (WireframeToFloorClass->IsChildOf(ABuildingFloor::StaticClass()))
 			{
 				CreateWireframeForGrid(HitResult);
 			}
@@ -77,7 +78,7 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 	
 	CurrentWireframeBox = HitResult.GetComponent();
 
-	if (!WireframeToBuildClass)
+	if (!WireframeToFloorClass)
 	{
 		return;
 	}
@@ -93,12 +94,13 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 	} else
 	{
 		// 없으면 새로 만든다.
-		if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(WireframeToBuildClass,
+		if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(GetWireframe(),
 			HitResult.GetComponent()->GetComponentLocation(),
 			HitResult.GetComponent()->GetComponentRotation()))
 		{
-			NewWireframe->SetWireframe(true);
+			// 우선 값은 바로 할당하기
 			CurrentWireframeActor = NewWireframe;
+			CurrentWireframeActor->SetWireframe(true);
 			CurrentWireframeActor->AttachToComponent(
 				HitResult.GetComponent(),
 				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
@@ -144,3 +146,28 @@ void UBuildingComponent::BuildWireframe()
 	CurrentWireframeBox = nullptr;
 	CurrentHitActor = nullptr;
 }
+
+TSubclassOf<ABuildingActor> UBuildingComponent::GetWireframe() const
+{
+	switch (FrameType)
+	{
+		case EBuildType::Wall:
+			return WireframeToFloorClass;
+		case EBuildType::Floor:
+		default:
+			return WireframeToFloorClass;
+	}
+}
+
+ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
+{
+	switch (FrameType)
+	{
+		case EBuildType::Wall:
+			return TraceTypeQuery5;
+		case EBuildType::Floor:
+		default:
+			return TraceTypeQuery4;
+	}
+}
+

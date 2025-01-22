@@ -24,7 +24,8 @@ enum class EBlockPos
 	North,
 	South,
 	West,
-	East
+	East,
+	Max,
 };
 
 UENUM()
