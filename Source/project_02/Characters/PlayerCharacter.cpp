@@ -83,6 +83,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+// E키 사용
 void APlayerCharacter::UseItem()
 {
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
@@ -125,6 +126,7 @@ void APlayerCharacter::UseItem()
 			PlaceObject->Interact(Item, InventoryComponent->GetSelectedHotSlotIndex());
 			return;
 		}
+		
 		PlaceObject->Interact();
 		return;
 	}
@@ -141,6 +143,7 @@ void APlayerCharacter::ClearViewItemOnHand()
 	if (MainHandTool)
 	{
 		MainHandTool->Destroy();
+		MainHandTool = nullptr;
 	}
 }
 

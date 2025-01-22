@@ -30,8 +30,6 @@ ASail::ASail()
 	if (arrow.Succeeded()) Arrow->SetStaticMesh(arrow.Object);
 	
 	MinSailStrength = 1.0f / MaxSailStrength *0.5f;
-
-	IsHold =true;
 }
 
 void ASail::BeginPlay()

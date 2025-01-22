@@ -24,7 +24,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<AUsable_Item> FishCookedTemp;
 	
-	bool bIsFood;
+	bool bIsCooking;
+	bool bIsCooked = false;
 	
 protected:
 	// Called when the game starts or when spawned

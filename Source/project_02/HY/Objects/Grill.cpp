@@ -1,14 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Grill.h"
 
-
-#include "Grill.h"
-
-#include "Kismet/GameplayStatics.h"
+#include "project_02/Helper/ItemHelper.h"
 #include "project_02/HY/Items/FishRaw.h"
 #include "project_02/Player/BasePlayerState.h"
 
 
-// Sets default values
 AGrill::AGrill()
 {
 	ProcessDuration = 5.0f;
@@ -30,15 +26,22 @@ void AGrill::BeginPlay()
 void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 {
 	Super::Interact(input, curItemIndex);
-	if (!bIsFood)
+	if (!bIsCooking)
 	{
+		// if (FString* CookedTo = FItemHelper::GetItemInfoById(GetWorld(),
+		// 	PS->GetPlayerInventoryList()[curItemIndex].GetId())
+		// 	.GetOptionData().Find(EOptionDataKey::CookedTo))
+		// {
+		// 	// CookedTo
+		// }
+		// TODO: 하드코딩이니까 나중에 리팩토링 필요함.
 		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
 		{
-			UE_LOG(LogTemp,Warning,TEXT("물고기 굽기 시작."));
-			bIsFood = true;
 			PS->DropItem(curItemIndex, 1);
-			RawFoodMesh->SetVisibility(true);
 			fishRaw->PutOnGrill();
+			UE_LOG(LogTemp, Warning, TEXT("물고기 굽기 시작."));
+			bIsCooking = true;
+			RawFoodMesh->SetVisibility(true);
 			ProcessStart();
 		}
 	}
@@ -48,9 +51,10 @@ void AGrill::ProcessComplete()
 {
 	Super::ProcessComplete();
 	UE_LOG(LogTemp,Warning,TEXT("물고기 조리 완료."));
-	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp,FoodPoint->GetComponentTransform());
+	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp, FoodPoint->GetRelativeTransform());
+	fishCooked->AttachToActor(this,FAttachmentTransformRules::KeepRelativeTransform);
 	RawFoodMesh->SetVisibility(false);
-	bIsFood = false;
+	bIsCooking = false;
 }
 
 

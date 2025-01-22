@@ -85,7 +85,7 @@ bool APaddleTest::GetPlayerRaft()
 			return true;
 		}
 	}
-	UE_LOG(LogTemp,Warning,TEXT("배를 안 타고 있어요. 노는 작동하지 않아요."));
+	// UE_LOG(LogTemp,Warning,TEXT("배를 안 타고 있어요. 노는 작동하지 않아요."));
 	return false;
 }
 
