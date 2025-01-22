@@ -83,6 +83,7 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 
 	if (CurrentWireframeActor)
 	{
+		// 이미 부착하려는 액터가 존재하면 다시 나타나게 처리함
 		CurrentWireframeActor->SetActorHiddenInGame(false);
 		CurrentWireframeActor->AttachToComponent(
 				HitResult.GetComponent(),
@@ -90,6 +91,7 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
 	} else
 	{
+		// 없으면 새로 만든다.
 		if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(WireframeToBuildClass,
 			HitResult.GetComponent()->GetComponentLocation(),
 			HitResult.GetComponent()->GetComponentRotation()))
@@ -100,10 +102,15 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 				HitResult.GetComponent(),
 				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
 			CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+
+			// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
+			if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
+			{
+				CurrentWireframeActor->SetMainBuild(ParentBuild->GetMainBuild());
+			}
 		}
 	}
 }
-
 
 void UBuildingComponent::ClearWireframe()
 {
@@ -125,7 +132,7 @@ void UBuildingComponent::BuildWireframe()
 	{
 		return;
 	}
-	
+
 	CurrentWireframeActor->SetWireframe(false);
 	CurrentWireframeActor->SetDefaultMaterial();
 	CurrentWireframeActor = nullptr;

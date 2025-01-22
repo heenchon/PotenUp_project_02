@@ -21,7 +21,11 @@ public:
 
 	virtual void OnWireframeActive();
 	virtual void OnWireframeInactive();
-
+	virtual void SetCenter();
+	FORCEINLINE void SetMainBuild(const TObjectPtr<ABuildingActor>& NewValue) { MainBuild = NewValue; }
+	
+	FORCEINLINE bool GetIsMain() const { return IsMain; }
+	FORCEINLINE TObjectPtr<ABuildingActor> GetMainBuild() const { return MainBuild; }
 	FORCEINLINE void SetDefaultMaterial();
 	FORCEINLINE TObjectPtr<UStaticMeshComponent> GetBodyMesh() const { return BodyMesh; }
 
@@ -36,6 +40,12 @@ protected:
 	virtual float TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser) override;
 
 private:
+	UPROPERTY()
+	TObjectPtr<ABuildingActor> MainBuild;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
+	bool IsMain = false;
+	
 	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
 	bool IsWireframe = true;
 	

@@ -54,6 +54,7 @@ void ARaft::BeginPlay()
 	if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
 	{
 		MainFloor = NewMainFloor;
+		MainFloor->SetCenter();
 		MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	}
 	

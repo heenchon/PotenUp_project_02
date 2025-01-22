@@ -37,7 +37,6 @@ ABuildingFloor::ABuildingFloor()
 void ABuildingFloor::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ABuildingFloor::OnWireframeActive()

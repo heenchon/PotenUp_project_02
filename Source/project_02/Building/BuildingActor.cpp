@@ -17,6 +17,12 @@ void ABuildingActor::BeginPlay()
 {
 	Super::BeginPlay();
 	OriginMaterials = BodyMesh->GetMaterials();
+
+	if (IsMain)
+	{
+		OnWireframeInactive();
+		return;
+	}
 	
 	if (!IsWireframe)
 	{
@@ -29,10 +35,19 @@ void ABuildingActor::BeginPlay()
 
 float ABuildingActor::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
 {
-	Destroy();
+	if (!IsMain)
+	{
+		Destroy();
+	}
 	return DamageAmount;
 }
 
+void ABuildingActor::SetCenter()
+{
+	IsMain = true;
+	MainBuild = this;
+	OnWireframeInactive();
+}
 
 void ABuildingActor::OnWireframeActive()
 {
@@ -42,6 +57,12 @@ void ABuildingActor::OnWireframeActive()
 void ABuildingActor::OnWireframeInactive()
 {
 	BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
+	if (!IsMain)
+	{
+		AttachToComponent(
+        				MainBuild->GetRootComponent(),
+        				FAttachmentTransformRules::KeepWorldTransform);
+	}
 }
 
 void ABuildingActor::AttachWireframeToComponent(ABuildingActor* TargetBlock, UPrimitiveComponent* TargetComp)
