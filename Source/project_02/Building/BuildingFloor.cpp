@@ -2,7 +2,6 @@
 
 #include "Components/BoxComponent.h"
 #include "project_02/DataTable/BuildData.h"
-#include "project_02/Game/GameObject/BuildingInstance.h"
 #include "project_02/Helper/EnumHelper.h"
 #include "project_02/HY/RaftGameState.h"
 
@@ -66,7 +65,7 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 {
 	Super::UpdateBuildData(TargetComp, Child);
 
-	if (const ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
+	if (ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
 	{
 		FVector NewPos = GetBuildPos();
 		
@@ -91,12 +90,20 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 		}
 		
 		Child->SetBuildPos(NewPos);
-		RaftGameState->GetBuildingInstance()->UpdateBuildMetaData(NewPos);
-		
+		RaftGameState->UpdateBuildMetaData(NewPos, Child);	
 		if (ABuildingFloor* ChildFloor = Cast<ABuildingFloor>(Child))
 		{
 			ChildFloor->UpdateWireframeBoxInfo();
 		}
+	}
+}
+
+void ABuildingFloor::SetCenter()
+{
+	Super::SetCenter();
+	if (ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
+	{
+		RaftGameState->UpdateBuildMetaData(GetBuildPos(), this);
 	}
 }
 
@@ -120,7 +127,7 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 			TempPos.Y += MoveToY[i];
 
 			// 데이터에 존재하면 검색 트리에 추가
-			if (RaftGameState->GetBuildingInstance()->GetRaftBuildMetaData().Find(TempPos))
+			if (RaftGameState->GetRaftBuildMetaData().Find(TempPos))
 			{
 				SearchVectorList.Add(TempPos);
 			}
@@ -136,38 +143,45 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 				TempPos.X += MoveToX[i];
 				TempPos.Y += MoveToY[i];
 
-				const bool IsAlreadyBound = RaftGameState->GetBuildingInstance()->GetRaftBuildMetaData().Find(TempPos) ? true : false;
+				// 포인터의 포인터를 찾는 거라 역 포인터로 가져와야 함.
+				// TODO: 이렇게 안하는 방법에 대해 생각해볼 필요가 있다.
+				ABuildingActor* FoundBuild = RaftGameState->GetRaftBuildPointerData().FindRef(TempPos);
+				const bool IsAlreadyBound = IsValid(FoundBuild);
 			
 				UE_LOG(LogTemp, Display, TEXT("%s 탐색 결과: %d"),
 					*FEnumHelper::GetClassEnumKeyAsString(MoveTo[i]), IsAlreadyBound)
-				
-				if (MoveTo[i] == EBlockPos::East)
+
+				ABuildingActor* SetBuild = RaftGameState->GetRaftBuildPointerData().FindRef(SearchPos);
+				if (const ABuildingFloor* SearchBuildFloorResult = Cast<ABuildingFloor>(SetBuild))
 				{
-					RightBodyBox->SetCollisionEnabled(
-						IsAlreadyBound ?
-						ECollisionEnabled::Type::NoCollision :
-						ECollisionEnabled::Type::QueryOnly);
-				}
-				if (MoveTo[i] == EBlockPos::West)
-				{
-					LeftBodyBox->SetCollisionEnabled(
-						IsAlreadyBound ?
-						ECollisionEnabled::Type::NoCollision :
-						ECollisionEnabled::Type::QueryOnly);
-				}
-				if (MoveTo[i] == EBlockPos::North)
-				{
-					NorthBodyBox->SetCollisionEnabled(
-						IsAlreadyBound ?
-						ECollisionEnabled::Type::NoCollision :
-						ECollisionEnabled::Type::QueryOnly);
-				}
-				if (MoveTo[i] == EBlockPos::South)
-				{
-					SouthBodyBox->SetCollisionEnabled(
-						IsAlreadyBound ?
-						ECollisionEnabled::Type::NoCollision :
-						ECollisionEnabled::Type::QueryOnly);
+					if (MoveTo[i] == EBlockPos::East)
+					{
+						SearchBuildFloorResult->RightBodyBox->SetCollisionEnabled(
+							IsAlreadyBound ?
+							ECollisionEnabled::Type::NoCollision :
+							ECollisionEnabled::Type::QueryOnly);
+					}
+					if (MoveTo[i] == EBlockPos::West)
+					{
+						SearchBuildFloorResult->LeftBodyBox->SetCollisionEnabled(
+							IsAlreadyBound ?
+							ECollisionEnabled::Type::NoCollision :
+							ECollisionEnabled::Type::QueryOnly);
+					}
+					if (MoveTo[i] == EBlockPos::North)
+					{
+						SearchBuildFloorResult->NorthBodyBox->SetCollisionEnabled(
+							IsAlreadyBound ?
+							ECollisionEnabled::Type::NoCollision :
+							ECollisionEnabled::Type::QueryOnly);
+					}
+					if (MoveTo[i] == EBlockPos::South)
+					{
+						SearchBuildFloorResult->SouthBodyBox->SetCollisionEnabled(
+							IsAlreadyBound ?
+							ECollisionEnabled::Type::NoCollision :
+							ECollisionEnabled::Type::QueryOnly);
+					}
 				}
 			}
 		}

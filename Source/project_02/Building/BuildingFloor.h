@@ -12,6 +12,7 @@ class PROJECT_02_API ABuildingFloor : public ABuildingActor
 public:
 	ABuildingFloor();
 	
+	virtual void SetCenter() override;
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* Child) override;
