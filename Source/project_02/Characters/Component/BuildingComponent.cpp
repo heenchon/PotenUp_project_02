@@ -148,8 +148,10 @@ void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 	FVector NewLocation = HitResult.GetComponent()->GetComponentLocation();
 	// TODO: 테스트용 하드코딩으로 추후 제거 필요
 	NewLocation.Z += 50;
-	const FRotator NewRotation = HitResult.GetComponent()->GetComponentRotation();
-		
+	FRotator NewRotation = HitResult.GetComponent()->GetComponentRotation();
+	// 바라보는 방향에서 또 틀어줘야 한다. 이것도 일단은 하드코딩임
+	NewRotation.Yaw += 90;
+	
 	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(WireframeToWallClass, NewLocation, NewRotation))
 	{
 		// 우선 값은 바로 할당하기
@@ -157,7 +159,7 @@ void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 		CurrentWireframeActor->SetWireframe(true);
 		CurrentWireframeActor->AttachToComponent(
 			HitResult.GetComponent(),
-			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+			FAttachmentTransformRules::KeepWorldTransform);
 		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
 
 		// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
