@@ -38,25 +38,25 @@ ABuildingFloor::ABuildingFloor()
 
 	NorthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("North Wall Body Box");
 	NorthWallBodyBox->SetupAttachment(GetRootComponent());
-	NorthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel2, ECR_Block);
+	NorthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
 	NorthWallBodyBox->SetRelativeLocation({-177, 0, 0});
 	NorthWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
 	
 	SouthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("South Wall Body Box");
 	SouthWallBodyBox->SetupAttachment(GetRootComponent());
-	SouthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel2, ECR_Block);
+	SouthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
 	SouthWallBodyBox->SetRelativeLocation({-177, 0, 0});
 	SouthWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
 	
 	EastWallBodyBox = CreateDefaultSubobject<UBoxComponent>("East Wall Body Box");
 	EastWallBodyBox->SetupAttachment(GetRootComponent());
-	EastWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel2, ECR_Block);
+	EastWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
 	EastWallBodyBox->SetRelativeLocation({-177, 0, 0});
 	EastWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
 	
 	WestWallBodyBox = CreateDefaultSubobject<UBoxComponent>("West Wall Body Box");
 	WestWallBodyBox->SetupAttachment(GetRootComponent());
-	WestWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel2, ECR_Block);
+	WestWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
 	WestWallBodyBox->SetRelativeLocation({-177, 0, 0});
 	WestWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
 }

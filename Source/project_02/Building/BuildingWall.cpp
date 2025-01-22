@@ -1,26 +1,27 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "BuildingWall.h"
+
+#include "Components/BoxComponent.h"
 
 
-#include "BuildingWall.h"
-
-
-// Sets default values
 ABuildingWall::ABuildingWall()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	ForwardFloorBodyBox = CreateDefaultSubobject<UBoxComponent>("Forward Floor Body Box");
+	ForwardFloorBodyBox->SetupAttachment(GetRootComponent());
+	ForwardFloorBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	ForwardFloorBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel2, ECR_Block);
+	ForwardFloorBodyBox->SetRelativeLocation({0, 88.408905, 98.0});
+	ForwardFloorBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
+	
+	BackwardFloorBodyBox = CreateDefaultSubobject<UBoxComponent>("Backward Floor Body Box");
+	BackwardFloorBodyBox->SetupAttachment(GetRootComponent());
+	BackwardFloorBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	BackwardFloorBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel2, ECR_Block);
+	BackwardFloorBodyBox->SetRelativeLocation({0, -90.929366, 98.0});
+	BackwardFloorBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
 }
 
-// Called when the game starts or when spawned
 void ABuildingWall::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
-
-// Called every frame
-void ABuildingWall::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-

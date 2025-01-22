@@ -4,6 +4,7 @@
 #include "Components/ActorComponent.h"
 #include "BuildingComponent.generated.h"
 
+class UInputAction;
 class ABuildingWall;
 class ABuildingFloor;
 class UBoxComponent;
@@ -52,6 +53,13 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true, ClampMin = 0))
 	float TraceRange = 0.f;
+	
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> BuildChangeAction;
+
+	UFUNCTION()
+	void ChangeNextBuildAction();
 
 	UPROPERTY()
 	TObjectPtr<ABuildingActor> CurrentWireframeActor;

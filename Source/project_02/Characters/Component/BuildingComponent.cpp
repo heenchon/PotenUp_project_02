@@ -1,10 +1,12 @@
 ﻿#include "BuildingComponent.h"
 
+#include "EnhancedInputComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
-#include "project_02/DataTable/BuildData.h"
+#include "project_02/Building/BuildingWall.h"
+#include "project_02/Characters/PlayerCharacter.h"
 
 
 UBuildingComponent::UBuildingComponent()
@@ -15,6 +17,14 @@ UBuildingComponent::UBuildingComponent()
 void UBuildingComponent::BeginPlay()
 {
 	Super::BeginPlay();
+	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
+	{
+		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Player->InputComponent))
+		{
+			EnhancedInputComponent->BindAction(BuildChangeAction, ETriggerEvent::Triggered
+			, this, &ThisClass::ChangeNextBuildAction);
+		}
+	}
 }
 
 void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
@@ -52,10 +62,12 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 				return;
 			}
 			
-			if (WireframeToFloorClass->IsChildOf(ABuildingFloor::StaticClass()))
+			if (GetWireframe()->IsChildOf(ABuildingFloor::StaticClass()))
 			{
 				CreateWireframeForGrid(HitResult);
 			}
+
+			
 		} else
 		{
 			// 다른 액터를 바라보는 경우
@@ -152,7 +164,7 @@ TSubclassOf<ABuildingActor> UBuildingComponent::GetWireframe() const
 	switch (FrameType)
 	{
 		case EBuildType::Wall:
-			return WireframeToFloorClass;
+			return WireframeToWallClass;
 		case EBuildType::Floor:
 		default:
 			return WireframeToFloorClass;
@@ -168,6 +180,22 @@ ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
 		case EBuildType::Floor:
 		default:
 			return TraceTypeQuery4;
+	}
+}
+
+void UBuildingComponent::ChangeNextBuildAction()
+{
+	if (!CanBuild)
+	{
+		return;
+	}
+	
+	if (FrameType == EBuildType::Floor)
+	{
+		FrameType = EBuildType::Wall;
+	} else
+	{
+		FrameType = EBuildType::Floor;
 	}
 }
 
