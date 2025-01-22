@@ -110,12 +110,12 @@ bool ACup::IsLookingSea()
 	params.AddIgnoredActor(Player);
 
 	bool bHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params);
-	DrawDebugLine(GetWorld(), start, end, bHit ? FColor::Red:FColor::Green, false,0,0,2.0f);
+	// DrawDebugLine(GetWorld(), start, end, bHit ? FColor::Red:FColor::Green, false,0,0,2.0f);
+	// DrawDebugPoint(GetWorld(), hitLoc, 20, FColor::Red, false, 0.0f, 2.0f);
 	
 	if (bHit)
 	{
 		FVector hitLoc = hit.ImpactPoint;
-		DrawDebugPoint(GetWorld(), hitLoc, 20, FColor::Red, false, 0.0f, 2.0f);
 		AWaterBodyOcean* ocean = Cast<AWaterBodyOcean>(hit.GetActor());
 		if (ocean)
 		{
