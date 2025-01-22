@@ -92,12 +92,23 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 
 	if (CurrentWireframeActor)
 	{
-		// 이미 부착하려는 액터가 존재하면 다시 나타나게 처리함
-		CurrentWireframeActor->SetActorHiddenInGame(false);
-		CurrentWireframeActor->AttachToComponent(
-				HitResult.GetComponent(),
-				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+		switch (FrameType)
+		{
+		case EBuildType::Floor:
+			{
+				ReattachFloor(HitResult);
+				break;
+			}
+		case EBuildType::Wall:
+			{
+				ReattachWall(HitResult);
+				break;
+			}
+		default:
+			{
+				break;
+			}
+		}
 	} else
 	{
 		// 없으면 새로 만든다. 바닥의 케이스
@@ -120,6 +131,25 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 		}
 	}
 }
+
+void UBuildingComponent::ReattachFloor(const FHitResult& HitResult)
+{
+	CurrentWireframeActor->SetActorHiddenInGame(false);
+	CurrentWireframeActor->AttachToComponent(
+			HitResult.GetComponent(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+}
+
+void UBuildingComponent::ReattachWall(const FHitResult& HitResult)
+{
+	CurrentWireframeActor->SetActorHiddenInGame(false);
+	CurrentWireframeActor->AttachToComponent(
+			HitResult.GetComponent(),
+			FAttachmentTransformRules::KeepRelativeTransform);
+	CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+}
+
 
 void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 {
@@ -149,7 +179,6 @@ void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 	// TODO: 테스트용 하드코딩으로 추후 제거 필요
 	NewLocation.Z += 50;
 	FRotator NewRotation = HitResult.GetComponent()->GetComponentRotation();
-	// 바라보는 방향에서 또 틀어줘야 한다. 이것도 일단은 하드코딩임
 	NewRotation.Yaw += 90;
 	
 	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(WireframeToWallClass, NewLocation, NewRotation))

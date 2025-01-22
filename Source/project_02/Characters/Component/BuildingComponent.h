@@ -80,4 +80,8 @@ private:
 	void SpawnFrameFloor(const FHitResult& HitResult);
 
 	void SpawnFrameWall(const FHitResult& HitResult);
+
+	void ReattachFloor(const FHitResult& HitResult);
+	
+	void ReattachWall(const FHitResult& HitResult);
 };
