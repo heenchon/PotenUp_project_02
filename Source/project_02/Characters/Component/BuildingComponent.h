@@ -73,8 +73,11 @@ private:
 	
 	EBuildType FrameType = EBuildType::Floor;
 
-	TSubclassOf<ABuildingActor> GetWireframe() const;
 	ETraceTypeQuery GetCheckTraceChannel() const;
 	
 	bool CanBuild = false;
+
+	void SpawnFrameFloor(const FHitResult& HitResult);
+
+	void SpawnFrameWall(const FHitResult& HitResult);
 };

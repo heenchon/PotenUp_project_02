@@ -23,7 +23,6 @@ ABuildingWall::ABuildingWall()
 void ABuildingWall::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 void ABuildingWall::OnWireframeActive()

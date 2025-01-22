@@ -39,26 +39,40 @@ ABuildingFloor::ABuildingFloor()
 	NorthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("North Wall Body Box");
 	NorthWallBodyBox->SetupAttachment(GetRootComponent());
 	NorthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	NorthWallBodyBox->SetRelativeLocation({-177, 0, 0});
-	NorthWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
+	NorthWallBodyBox->SetRelativeLocation({0, -85.526552, 0});
+	NorthWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+	NorthWallBodyBox->SetRelativeRotation({0, 0, 90});
+
+	NorthWallSceneVector = CreateDefaultSubobject<USceneComponent>("North Wall Scene Vector");
+	NorthWallSceneVector->SetupAttachment(GetRootComponent());
 	
 	SouthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("South Wall Body Box");
 	SouthWallBodyBox->SetupAttachment(GetRootComponent());
 	SouthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	SouthWallBodyBox->SetRelativeLocation({-177, 0, 0});
-	SouthWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
+	SouthWallBodyBox->SetRelativeLocation({0, 85.526552, 0});
+	SouthWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+	NorthWallBodyBox->SetRelativeRotation({0, 0, 90});
+
+	SouthWallSceneVector = CreateDefaultSubobject<USceneComponent>("South Wall Scene Vector");
+	SouthWallSceneVector->SetupAttachment(GetRootComponent());
 	
 	EastWallBodyBox = CreateDefaultSubobject<UBoxComponent>("East Wall Body Box");
 	EastWallBodyBox->SetupAttachment(GetRootComponent());
 	EastWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	EastWallBodyBox->SetRelativeLocation({-177, 0, 0});
-	EastWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
+	EastWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
+	EastWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+
+	EastWallSceneVector = CreateDefaultSubobject<USceneComponent>("East Wall Scene Vector");
+	EastWallSceneVector->SetupAttachment(GetRootComponent());
 	
 	WestWallBodyBox = CreateDefaultSubobject<UBoxComponent>("West Wall Body Box");
 	WestWallBodyBox->SetupAttachment(GetRootComponent());
 	WestWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	WestWallBodyBox->SetRelativeLocation({-177, 0, 0});
-	WestWallBodyBox->SetRelativeScale3D({2.8, 2.8, 0.25});
+	WestWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
+	WestWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+
+	WestWallSceneVector = CreateDefaultSubobject<USceneComponent>("West Wall Scene Vector");
+	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
 
 void ABuildingFloor::BeginPlay()
@@ -211,7 +225,3 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 		}
 	}
 }
-
-
-
-

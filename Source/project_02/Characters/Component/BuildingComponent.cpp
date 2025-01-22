@@ -100,24 +100,70 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
 	} else
 	{
-		// 없으면 새로 만든다.
-		if (ABuildingActor* NewWireframe = GetWorld()->SpawnActor<ABuildingActor>(GetWireframe(),
+		// 없으면 새로 만든다. 바닥의 케이스
+		switch (FrameType)
+		{
+			case EBuildType::Floor:
+			{
+				SpawnFrameFloor(HitResult);
+				break;
+			}
+			case EBuildType::Wall:
+			{
+				SpawnFrameWall(HitResult);
+				break;
+			}
+			default:
+			{
+				break;
+			}
+		}
+	}
+}
+
+void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
+{
+	if (ABuildingFloor* NewWireframe = GetWorld()->SpawnActor<ABuildingFloor>(WireframeToFloorClass,
 			HitResult.GetComponent()->GetComponentLocation(),
 			HitResult.GetComponent()->GetComponentRotation()))
-		{
-			// 우선 값은 바로 할당하기
-			CurrentWireframeActor = NewWireframe;
-			CurrentWireframeActor->SetWireframe(true);
-			CurrentWireframeActor->AttachToComponent(
-				HitResult.GetComponent(),
-				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-			CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+	{
+		// 우선 값은 바로 할당하기
+		CurrentWireframeActor = NewWireframe;
+		CurrentWireframeActor->SetWireframe(true);
+		CurrentWireframeActor->AttachToComponent(
+			HitResult.GetComponent(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
 
-			// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
-			if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
-			{
-				CurrentWireframeActor->SetMainBuild(ParentBuild->GetMainBuild());
-			}
+		// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
+		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
+		{
+			CurrentWireframeActor->SetMainBuild(ParentBuild->GetMainBuild());
+		}
+	}
+}
+
+void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
+{
+	FVector NewLocation = HitResult.GetComponent()->GetComponentLocation();
+	// TODO: 테스트용 하드코딩으로 추후 제거 필요
+	NewLocation.Z += 50;
+	const FRotator NewRotation = HitResult.GetComponent()->GetComponentRotation();
+		
+	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(WireframeToWallClass, NewLocation, NewRotation))
+	{
+		// 우선 값은 바로 할당하기
+		CurrentWireframeActor = NewWireframe;
+		CurrentWireframeActor->SetWireframe(true);
+		CurrentWireframeActor->AttachToComponent(
+			HitResult.GetComponent(),
+			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+
+		// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
+		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
+		{
+			CurrentWireframeActor->SetMainBuild(ParentBuild->GetMainBuild());
 		}
 	}
 }
@@ -164,18 +210,6 @@ void UBuildingComponent::BuildWireframe()
 	CurrentWireframeActor = nullptr;
 	CurrentWireframeBox = nullptr;
 	CurrentHitActor = nullptr;
-}
-
-TSubclassOf<ABuildingActor> UBuildingComponent::GetWireframe() const
-{
-	switch (FrameType)
-	{
-		case EBuildType::Wall:
-			return WireframeToWallClass;
-		case EBuildType::Floor:
-		default:
-			return WireframeToFloorClass;
-	}
 }
 
 ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
