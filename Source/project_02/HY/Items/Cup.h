@@ -16,18 +16,20 @@ class PROJECT_02_API ACup : public AUsable_Item
 public:
 	// Sets default values for this actor's properties
 	ACup();
-	
+
+	UPROPERTY(EditAnywhere)
+	class APawn* Player;
+	UPROPERTY(EditAnywhere)
+	class APlayerCameraManager* CamManager;
 	UPROPERTY(EditAnywhere)
 	USurvivalComponent* SurvivalComponent;
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* WaterMesh;
-
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	bool bIsFresh;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	bool bIsSea;
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	bool bIsEmpty;
+	
+	static bool bIsFresh;
+	static bool bIsSea;
+	static bool bIsEmpty;
+	static bool bLookingSea;
 
 protected:
 	// Called when the game starts or when spawned
@@ -42,4 +44,5 @@ public:
 	void FillSeaWater();
 	void FillFreshWater();
 	void EmptyCup();
+	bool IsLookingSea();
 };
