@@ -6,8 +6,11 @@
 ABuildingActor::ABuildingActor()
 {
 	
+	RootComp = CreateDefaultSubobject<USceneComponent>("Root Comp");
+	SetRootComponent(RootComp);
+	
 	BodyMesh = CreateDefaultSubobject<UStaticMeshComponent>("Body Mesh");
-	SetRootComponent(BodyMesh);
+	BodyMesh->SetupAttachment(RootComp);
 	BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 	BodyMesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel2, ECR_Block);
 
@@ -39,7 +42,7 @@ void ABuildingActor::BeginPlay()
 	
 	if (!IsWireframe)
 	{
-		OnWireframeDeactive();
+		OnWireframeInactive();
 	} else
 	{
 		OnWireframeActive();
@@ -62,7 +65,7 @@ void ABuildingActor::OnWireframeActive()
 	SouthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 }
 
-void ABuildingActor::OnWireframeDeactive()
+void ABuildingActor::OnWireframeInactive()
 {
 	BodyMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryAndPhysics);
 	RightBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
@@ -91,7 +94,7 @@ void ABuildingActor::SetWireframe(const bool NewIsWireframe)
 		OnWireframeActive();	
 	} else
 	{
-		OnWireframeDeactive();
+		OnWireframeInactive();
 	}
 }
 

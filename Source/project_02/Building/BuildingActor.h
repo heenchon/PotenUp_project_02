@@ -20,7 +20,7 @@ public:
 	void SetWireframe(const bool NewIsWireframe);
 
 	void OnWireframeActive();
-	void OnWireframeDeactive();
+	void OnWireframeInactive();
 
 	FORCEINLINE void SetDefaultMaterial();
 
@@ -37,6 +37,9 @@ protected:
 private:
 	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
 	bool IsWireframe = true;
+	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<USceneComponent> RootComp;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UStaticMeshComponent> BodyMesh;
