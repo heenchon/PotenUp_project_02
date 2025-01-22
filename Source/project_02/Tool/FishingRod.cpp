@@ -5,6 +5,9 @@
 
 #include "FishingFloat.h"
 #include "Kismet/GameplayStatics.h"
+#include "project_02/DataTable/ItemInfoData.h"
+#include "project_02/Helper/ItemHelper.h"
+#include "project_02/Player/BasePlayerState.h"
 
 
 // Sets default values
@@ -29,6 +32,13 @@ void AFishingRod::BeginPlay()
 void AFishingRod::StartInteractive()
 {
 	Super::StartInteractive();
+	
+	if (bIsFish)
+	{
+		Float->Destroy();
+		GetFish();
+		return;
+	}
 	ChargeStart();
 }
 
@@ -44,32 +54,54 @@ bool AFishingRod::EndInteractive()
 	{
 		return false;
 	}
-	ChargeEnd();
-
+	if (bIsCharging)
+	{
+		ChargeEnd();
+	}
 	return true;
 }
 
 void AFishingRod::ChargeStart()
 {
-	FishingPoint = RodPoint->GetComponentLocation();
 	Power = 0.0f;
 	bIsCharging = true;
 }
 
 void AFishingRod::Charging(float deltaTime)
 {
-	Power += deltaTime * 500.0f;
+	Power += deltaTime * 600.0f;
 }
 
 void AFishingRod::ChargeEnd()
 {
-	UE_LOG(LogTemp,Warning,TEXT("%f"),Power);
 	bIsCharging = false;
 
 	Float = GetWorld()->SpawnActor<AFishingFloat>(FloatClass,RodPoint->GetComponentTransform());
 	if (Float)
 	{
+		Float->SetFishingRod(this);
 		Float->StartThrow(RodPoint->GetComponentLocation(),Power);
 	}
+}
+
+
+void AFishingRod::StartFishing()
+{
+	bIsFish = true;
+	UE_LOG(LogTemp,Warning,TEXT("미끼를 물었다!"));
+}
+
+
+void AFishingRod::GetFish()
+{
+	bIsFish = false;
+	FItemMetaInfo NewFish = FItemHelper::GetInitialItemMetaDataById(GetWorld(), 8);
+	ABasePlayerState* PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
+	PS->AddItem(NewFish);
+}
+
+void AFishingRod::FishingFail()
+{
+	bIsFish = false;
 }
 

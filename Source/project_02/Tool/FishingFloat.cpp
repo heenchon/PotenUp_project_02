@@ -1,11 +1,10 @@
 ﻿
 
 #include "FishingFloat.h"
-#include "../Player/BasePlayerState.h"
-#include "../Helper/ItemHelper.h"
+
+#include "FishingRod.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "project_02/Characters/PlayerCharacter.h"
-#include "project_02/Characters/Component/InventoryComponent.h"
 
 
 AFishingFloat::AFishingFloat()
@@ -15,12 +14,14 @@ AFishingFloat::AFishingFloat()
 	RootComponent = Root;
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(Root);
+	Collision = CreateDefaultSubobject<UBoxComponent>("Collision");
+	Collision->SetupAttachment(StaticMesh);
 }
 
 void AFishingFloat::BeginPlay()
 {
 	Super::BeginPlay();
-	PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
+	Collision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlap);
 }
 
 void AFishingFloat::Tick(float DeltaTime)
@@ -31,68 +32,104 @@ void AFishingFloat::Tick(float DeltaTime)
 		Throwing(DeltaTime);
 		return;
 	}
-	if (bIsFishing)
+	if (bIsWaiting)
+	{
+		Waiting(DeltaTime);
+		return;
+	}
+	if (bIsFish)
 	{
 		Fishing(DeltaTime);
 	}
 }
 
-void AFishingFloat::Throwing(float deltaTime)
+void AFishingFloat::StartWaiting()
 {
-	CurTime += deltaTime;
-	
-	float t = FMath::Clamp(CurTime / ThrowDuration, 0.0f, 1.0f);
-	
-	FVector curLoc = FMath::Lerp(StartLocation, FishingLocation, t); 
-	curLoc.Z = FMath::Lerp(StartLocation.Z, FishingLocation.Z, t) 
-						+ MaxThrowHeight * (1.0f - FMath::Pow(2.0f * t - 1.0f, 2.0f));
-	
-	SetActorLocation(curLoc);
-	DrawDebugDirectionalArrow(GetWorld(), curLoc, curLoc, 100.0f, FColor::Magenta, true, 1.0f, 0, 2.0f);
-	
-	if (t >= 1.0f)
-	{
-		CurTime = 0.0f;
-		bIsThrowing = false;
-		StartFishing();
-	}
+	WaitTime = FMath::RandRange(4.0f, 8.0f);
+	bIsWaiting = true;
 }
 
-void AFishingFloat::StartFishing()
+void AFishingFloat::Waiting(float deltaTime)
 {
-	FishingTime = FMath::RandRange(4.0f, 8.0f);
-	bIsFishing = true;
+	CurTime += deltaTime;
+	if (CurTime > WaitTime)
+	{
+		CurTime = 0.0f;
+		//낚싯대->물고기 낚였다는 정보 전달.
+		FishingRod->StartFishing();
+		bIsWaiting = false;
+		bIsFish = true;
+	}
 }
 
 void AFishingFloat::Fishing(float deltaTime)
 {
+	// UE_LOG(LogTemp, Display, TEXT("물고기와 겨루는 중..."));
 	CurTime += deltaTime;
 	if (CurTime > FishingTime)
 	{
-		CurTime = 0.0f;
-		bIsFishing = false;
-		GetFish();
+		UE_LOG(LogTemp, Warning, TEXT("물고기 놓쳤썩"));
+		FishingRod->FishingFail();
+		Destroy();
 	}
-}
-
-void AFishingFloat::GetFish()
-{
-	FItemMetaInfo NewFish = FItemHelper::GetInitialItemMetaDataById(GetWorld(), 8);
-	PS->AddItem(NewFish);
-	Destroy();
 }
 
 void AFishingFloat::StartThrow(const FVector& startLoc, float& power)
 {
-	UE_LOG(LogTemp, Warning, TEXT("%f"),power);
-	power = FMath::Clamp(power, 60.0f, 500.0f);
+	power = FMath::Clamp(power, 100.0f, 700.0f);
 	Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	
-	FishingLocation = startLoc + Player->GetActorForwardVector()*power;
-	FishingLocation.Z = 0.0f; 
-	// DrawDebugSphere(GetWorld(), FishingLocation, 10.0f, 12, FColor::Red,false,2.0f,0,0.0f);
-	
 	StartLocation = startLoc;
+	Velocity = Player->GetActorForwardVector()*power;
 	bIsThrowing = true;
+}
+
+void AFishingFloat::Throwing(float deltaTime)
+{
+	CurTime += deltaTime;
+	FVector NewLocation = StartLocation + (Velocity * CurTime) 
+	   + (0.5f * FVector(0, 0, Gravity) * CurTime * CurTime);
+	
+	SetActorLocation(NewLocation);
+}
+
+void AFishingFloat::SetFishingRod(AFishingRod* fishingRod)
+{
+	FishingRod = fishingRod;
+}
+
+void AFishingFloat::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (bIsThrowing)
+	{
+		bIsThrowing = false;
+		
+		StartLocation = Player->GetActorLocation();
+		FVector EndLocation = StartLocation;
+		EndLocation.Z -= 5000;
+
+		TArray<AActor*> IgnoreActorList;
+		IgnoreActorList.Add(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+
+		FHitResult HitResult;
+		// 사용한 플레이어 기준으로 아래를 바라보고 아래의 액터를 기준으로 위치를 고정하는 로직을 실행한다.
+		if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),
+			StartLocation,
+			EndLocation,
+			TraceTypeQuery1,
+			false,
+			IgnoreActorList,
+			EDrawDebugTrace::ForOneFrame,
+			HitResult,
+			true,
+			FLinearColor::Red,
+			FLinearColor::Green,
+			10
+		))
+		{
+			AttachToActor(HitResult.GetActor(), FAttachmentTransformRules::KeepWorldTransform);
+		}
+		StartWaiting();
+	}
 }
 

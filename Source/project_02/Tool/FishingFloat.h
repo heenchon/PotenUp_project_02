@@ -6,8 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "FishingFloat.generated.h"
 
-
-class ABasePlayerState;
+class AFishingRod;
 
 UCLASS()
 class PROJECT_02_API AFishingFloat : public AActor
@@ -16,26 +15,28 @@ class PROJECT_02_API AFishingFloat : public AActor
 
 public:
 	AFishingFloat();
-	ABasePlayerState* PS;
 
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* Root;
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* StaticMesh;
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* Collision;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class APawn* Player;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	AFishingRod* FishingRod;
 	
 	bool bIsThrowing;
 	FVector StartLocation;
-	FVector FishingLocation;
-	UPROPERTY(EditAnywhere)
-	float ThrowDuration = 0.5f;
-	UPROPERTY(EditAnywhere)
-	float MaxThrowHeight = 50.0f;
-	
-	bool bIsFishing;
-	float FishingTime;
+	float Gravity = -980.0f;
+	FVector Velocity;
+
+	bool bIsWaiting = false;
+	float WaitTime;
+	bool bIsFish = false;
+	float FishingTime = 2.0f;
 
 	float CurTime;
 	
@@ -44,10 +45,21 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void OnOverlap(
+		UPrimitiveComponent* OverlappedComponent, 
+		AActor* OtherActor, 
+		UPrimitiveComponent* OtherComp, 
+		int32 OtherBodyIndex, 
+		bool bFromSweep, 
+		const FHitResult &SweepResult
+	);
 
-	void Throwing(float deltaTime);
-	void StartFishing();
-	void Fishing(float deltaTime);
-	void GetFish();
 	void StartThrow(const FVector& startLoc, float& power);
+	void Throwing(float deltaTime);
+	void StartWaiting();
+	void Waiting(float deltaTime);
+	void Fishing(float deltaTime);
+	void SetFishingRod(AFishingRod* fishingRod);
 };
+

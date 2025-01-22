@@ -83,6 +83,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+// E키 사용
 void APlayerCharacter::UseItem()
 {
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());

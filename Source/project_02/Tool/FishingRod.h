@@ -28,12 +28,10 @@ public:
 	TObjectPtr<AFishingFloat> Float;
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<AFishingFloat> FloatClass;
-	
+
+	bool bIsFish;
 	bool bIsCharging;
 	float Power;
-	UPROPERTY(EditAnywhere)
-	float MaxPower = 20.0f;
-	FVector FishingPoint;
 
 protected:
 	// Called when the game starts or when spawned
@@ -46,7 +44,10 @@ public:
 	void ChargeStart();
 	void Charging(float deltaTime);
 	void ChargeEnd();
-
+	void StartWait();
+	void StartFishing();
+	void GetFish();
+	void FishingFail();
 };
 
 
