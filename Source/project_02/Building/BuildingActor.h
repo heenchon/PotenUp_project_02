@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "BuildingActor.generated.h"
 
+enum class EBlockPos;
 class UBoxComponent;
 class UMaterialInterface;
 
@@ -22,8 +23,12 @@ public:
 	virtual void OnWireframeActive();
 	virtual void OnWireframeInactive();
 	virtual void SetCenter();
+	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild);
+	
 	FORCEINLINE void SetMainBuild(const TObjectPtr<ABuildingActor>& NewValue) { MainBuild = NewValue; }
 	
+	FORCEINLINE FVector GetBuildPos() const { return BuildPos; }
+	FORCEINLINE void SetBuildPos(const FVector& NewValue) { BuildPos = NewValue; }
 	FORCEINLINE bool GetIsMain() const { return IsMain; }
 	FORCEINLINE TObjectPtr<ABuildingActor> GetMainBuild() const { return MainBuild; }
 	FORCEINLINE void SetDefaultMaterial();
@@ -57,4 +62,6 @@ private:
 
 	UPROPERTY()
 	TArray<TObjectPtr<UMaterialInterface>> OriginMaterials;
+
+	FVector BuildPos;
 };

@@ -14,9 +14,11 @@ public:
 	
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
-
+	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* Child) override;
 protected:
 	virtual void BeginPlay() override;
+
+	void UpdateWireframeBoxInfo();
 
 private:
 	// TODO: 이 부분 배열과 enum을 고려해보기

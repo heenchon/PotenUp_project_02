@@ -47,5 +47,8 @@ private:
 	UPROPERTY()
 	TObjectPtr<UPrimitiveComponent> CurrentWireframeBox;
 	
+	UPROPERTY()
+	TObjectPtr<AActor> CurrentHitActor;
+	
 	bool CanBuild = false;
 };

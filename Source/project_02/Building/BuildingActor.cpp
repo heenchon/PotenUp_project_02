@@ -1,5 +1,6 @@
 ﻿#include "BuildingActor.h"
 
+#include "project_02/DataTable/BuildData.h"
 
 
 ABuildingActor::ABuildingActor()
@@ -46,7 +47,14 @@ void ABuildingActor::SetCenter()
 {
 	IsMain = true;
 	MainBuild = this;
+	BuildPos = FVector::ZeroVector;
 	OnWireframeInactive();
+}
+
+void ABuildingActor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild)
+{
+	ChildBuild->SetWireframe(false);
+	ChildBuild->SetDefaultMaterial();
 }
 
 void ABuildingActor::OnWireframeActive()
@@ -104,6 +112,7 @@ void ABuildingActor::SetDefaultMaterial()
 		BodyMesh->SetMaterial(i, OriginMaterials[i]);
 	}
 }
+
 
 
 

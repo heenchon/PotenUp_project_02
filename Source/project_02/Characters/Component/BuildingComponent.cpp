@@ -4,7 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
-#include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/DataTable/BuildData.h"
 
 
 UBuildingComponent::UBuildingComponent()
@@ -42,6 +42,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 		1
 	))
 	{
+		CurrentHitActor = HitResult.GetActor();
 		if (HitResult.GetActor()->IsA(ABuildingActor::StaticClass()))
 		{
 			// 기존 컴포넌트와 동일한 경우는 그냥 처리하지 않음
@@ -133,8 +134,13 @@ void UBuildingComponent::BuildWireframe()
 		return;
 	}
 
-	CurrentWireframeActor->SetWireframe(false);
-	CurrentWireframeActor->SetDefaultMaterial();
+	// 여기서는 Meta Data를 업데이트 처리한다.
+	if (ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
+	{
+		ParentBuild->UpdateBuildData(CurrentWireframeBox, CurrentWireframeActor);
+	}
+
 	CurrentWireframeActor = nullptr;
 	CurrentWireframeBox = nullptr;
+	CurrentHitActor = nullptr;
 }
