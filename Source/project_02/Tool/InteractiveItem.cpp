@@ -16,6 +16,7 @@ void AInteractiveItem::Tick(float DeltaSeconds)
 		(CurrentHoldTime > HoldDuration || HoldDuration == -1))
 	{
 		OnInteractiveHold();
+		OnInteractiveHold(DeltaSeconds);
 	}
 
 	CurrentHoldTime += DeltaSeconds;
@@ -28,6 +29,10 @@ void AInteractiveItem::StartInteractive()
 }
 
 void AInteractiveItem::OnInteractiveHold()
+{
+}
+
+void AInteractiveItem::OnInteractiveHold(float DeltaTime)
 {
 }
 

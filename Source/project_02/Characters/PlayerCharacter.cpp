@@ -125,6 +125,7 @@ void APlayerCharacter::UseItem()
 			PlaceObject->Interact(Item, InventoryComponent->GetSelectedHotSlotIndex());
 			return;
 		}
+		
 		PlaceObject->Interact();
 		return;
 	}
@@ -141,6 +142,7 @@ void APlayerCharacter::ClearViewItemOnHand()
 	if (MainHandTool)
 	{
 		MainHandTool->Destroy();
+		MainHandTool = nullptr;
 	}
 }
 
