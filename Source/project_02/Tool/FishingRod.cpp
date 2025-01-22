@@ -51,34 +51,25 @@ bool AFishingRod::EndInteractive()
 
 void AFishingRod::ChargeStart()
 {
-	// UE_LOG(LogTemp,Warning,TEXT("낚시 차지 시작"));
-	Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
 	FishingPoint = RodPoint->GetComponentLocation();
+	Power = 0.0f;
 	bIsCharging = true;
 }
 
 void AFishingRod::Charging(float deltaTime)
 {
-	Power += deltaTime * 20.0f;
-	if (Power < MaxPower)
-	{
-		FishingPoint = FishingPoint + Player->GetActorForwardVector()*Power;
-	}
+	Power += deltaTime * 500.0f;
 }
 
 void AFishingRod::ChargeEnd()
 {
 	UE_LOG(LogTemp,Warning,TEXT("%f"),Power);
 	bIsCharging = false;
-	FishingPoint = FishingPoint + Player->GetActorForwardVector()*Power;
-	FishingPoint.Z = 0.0f; // WaterHeight 입니다....ㅋㅋㅋ
-	// DrawDebugSphere(GetWorld(), FishingPoint, 10.0f, 12, FColor::Red,false,2.0f,0,0.0f);
-	Power = 0.0f;
 
 	Float = GetWorld()->SpawnActor<AFishingFloat>(FloatClass,RodPoint->GetComponentTransform());
 	if (Float)
 	{
-		Float->StartThrow(RodPoint->GetComponentLocation(),FishingPoint);
+		Float->StartThrow(RodPoint->GetComponentLocation(),Power);
 	}
 }
 

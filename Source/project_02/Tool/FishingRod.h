@@ -47,8 +47,6 @@ public:
 	void Charging(float deltaTime);
 	void ChargeEnd();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class APawn* Player;
 };
 
 

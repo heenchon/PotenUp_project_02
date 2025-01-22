@@ -26,12 +26,6 @@ void AGrill::BeginPlay()
 void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 {
 	Super::Interact(input, curItemIndex);
-	if (bIsCooked)
-	{
-		bIsCooked = false;
-		return;
-	};
-	
 	if (!bIsCooking)
 	{
 		// if (FString* CookedTo = FItemHelper::GetItemInfoById(GetWorld(),
@@ -40,16 +34,14 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 		// {
 		// 	// CookedTo
 		// }
-		
-		PS->DropItem(curItemIndex, 1);
-		
 		// TODO: 하드코딩이니까 나중에 리팩토링 필요함.
 		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
 		{
+			PS->DropItem(curItemIndex, 1);
+			fishRaw->PutOnGrill();
 			UE_LOG(LogTemp, Warning, TEXT("물고기 굽기 시작."));
 			bIsCooking = true;
 			RawFoodMesh->SetVisibility(true);
-			fishRaw->PutOnGrill();
 			ProcessStart();
 		}
 	}
@@ -59,11 +51,10 @@ void AGrill::ProcessComplete()
 {
 	Super::ProcessComplete();
 	UE_LOG(LogTemp,Warning,TEXT("물고기 조리 완료."));
-	// AUsable_Item* fishCooked = GetWorld()->
-	// 	SpawnActor<AUsable_Item>(FishCookedTemp, FoodPoint->GetComponentTransform());
+	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp, FoodPoint->GetRelativeTransform());
+	fishCooked->AttachToActor(this,FAttachmentTransformRules::KeepRelativeTransform);
 	RawFoodMesh->SetVisibility(false);
 	bIsCooking = false;
-	bIsCooked = true;
 }
 
 

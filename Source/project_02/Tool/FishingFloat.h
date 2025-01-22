@@ -6,6 +6,9 @@
 #include "GameFramework/Actor.h"
 #include "FishingFloat.generated.h"
 
+
+class ABasePlayerState;
+
 UCLASS()
 class PROJECT_02_API AFishingFloat : public AActor
 {
@@ -13,25 +16,29 @@ class PROJECT_02_API AFishingFloat : public AActor
 
 public:
 	AFishingFloat();
+	ABasePlayerState* PS;
 
 	UPROPERTY(EditAnywhere)
 	class USceneComponent* Root;
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* StaticMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class APawn* Player;
 	
-	UPROPERTY(EditAnywhere)
-	float ThrowDuration = 1.0f;
-	UPROPERTY(EditAnywhere)
-	float MaxThrowHeight = 50.0f;
 	bool bIsThrowing;
 	FVector StartLocation;
 	FVector FishingLocation;
+	UPROPERTY(EditAnywhere)
+	float ThrowDuration = 0.5f;
+	UPROPERTY(EditAnywhere)
+	float MaxThrowHeight = 50.0f;
 	
-	float CurTime;
-
 	bool bIsFishing;
 	float FishingTime;
 
+	float CurTime;
+	
 protected:
 	virtual void BeginPlay() override;
 
@@ -42,5 +49,5 @@ public:
 	void StartFishing();
 	void Fishing(float deltaTime);
 	void GetFish();
-	void StartThrow(const FVector& startLoc, const FVector& endLoc);
+	void StartThrow(const FVector& startLoc, float& power);
 };
