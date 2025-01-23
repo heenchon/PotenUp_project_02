@@ -114,7 +114,7 @@ bool ACup::IsLookingSea()
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end,
 		ETraceTypeQuery::TraceTypeQuery1,
 		true,
-		ActorsToIgnore, EDrawDebugTrace::ForOneFrame,
+		ActorsToIgnore, EDrawDebugTrace::None,
 		hit,
 		true,
 		FLinearColor::Red,
