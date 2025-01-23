@@ -29,6 +29,19 @@ void AFishingRod::BeginPlay()
 	Super::BeginPlay();
 }
 
+void AFishingRod::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+	Super::EndPlay(EndPlayReason);
+
+	if (EndPlayReason == EEndPlayReason::Destroyed)
+	{
+		if (Float)
+		{
+			Float->Destroy();
+		}
+	}
+}
+
 void AFishingRod::StartInteractive()
 {
 	Super::StartInteractive();
