@@ -3,10 +3,8 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "project_02/DataTable/CraftingData.h"
+#include "project_02/DataTable/ItemInfoData.h"
 #include "BaseGameInstance.generated.h"
-
-struct FCraftingData;
-struct FItemInfoData;
 
 UCLASS()
 class PROJECT_02_API UBaseGameInstance : public UGameInstance
