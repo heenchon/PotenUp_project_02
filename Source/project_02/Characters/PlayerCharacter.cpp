@@ -77,7 +77,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::UseItem);
 
-		//희연
 		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Started
 		, this, &ThisClass::RotatePressed);
 		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Triggered
@@ -142,6 +141,12 @@ void APlayerCharacter::UseItem()
 
 void APlayerCharacter::ClearViewItemOnHand()
 {
+	if (BuildingComponent->GetCanBuildMode())
+	{
+		BuildingComponent->SetBuildMode(false);
+		BuildingComponent->DeleteWireframe();
+	}
+	
 	if (MainHandTool)
 	{
 		// 해제를 하고 제거해야 한다.
@@ -154,7 +159,20 @@ void APlayerCharacter::ClearViewItemOnHand()
 // 특정 아이템을 손에 들거나 내려놓게 하는 함수
 void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
 {
+	// 우선 손에 든 아이템을 초기화 시킨다.
 	ClearViewItemOnHand();
+
+	// 만약 아이템 타입이 빌드 타입 즉 설치용 이라면
+	// 스폰 관련 없이 바로 설치 flow 로 넘어가게 된다.
+	if (NewItemInfo.GetItemType() == EItemType::Build)
+	{
+		BuildingComponent->SetBuildMode(true);
+		BuildingComponent->SetCustomBuildBlueprint(NewItemInfo.GetShowItemActor());
+		BuildingComponent->SetBuildType(EBuildType::Object);
+		return;
+	}
+
+	// 빌딩 모드가 아닌 경우 + 손에 들 아이템이 있는 경우에 대한 처리
 	if (NewItemInfo.GetShowItemActor())
 	{
 		MainHandTool = GetWorld()->SpawnActor<AActor>(NewItemInfo.GetShowItemActor());
@@ -226,7 +244,6 @@ void APlayerCharacter::OnInteractiveHolding()
 	{
 		static_cast<APaddleTest*>(MainHandTool)->PaddlingStart();
 	}
-	
 }
 
 void APlayerCharacter::OnInteractiveEnd()
@@ -262,7 +279,7 @@ void APlayerCharacter::FindToUse()
 	FHitResult HitResult;
 	
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesArray;
-	ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+	ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_EngineTraceChannel1));
 	
 	TArray<AActor*> ActorsToNotTargeting;
 	ActorsToNotTargeting.Add(this);
@@ -374,3 +391,4 @@ bool APlayerCharacter::IsBlockAction() const
 {
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
 }
+

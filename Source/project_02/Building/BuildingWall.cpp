@@ -51,8 +51,35 @@ void ABuildingWall::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuil
 	if (ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
 	{
 		FVector NewPos = GetBuildPos();
+		// 벽은 그냥 한칸 위로 올라갔다고 가정하자
+		NewPos.Z += 1;
 		// 현재 기준으로 좌, 우를 바라보는지, 상, 하를 바라보는지는 어떻게 계산할 것인가?
-		
+		// TODO: 정보 저장에 필요한 데이터 여기에 잘 넣어두기
+		if (TargetComp == ForwardFloorBodyBox)
+		{
+			ForwardFloorBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+			if (UKismetMathLibrary::Fraction(NewPos.X) != 0)
+			{
+				NewPos.X += 0.5;
+			}
+			if (UKismetMathLibrary::Fraction(NewPos.Y) != 0)
+			{
+				NewPos.Y += 0.5;
+			}
+		}
+		if (TargetComp == BackwardFloorBodyBox)
+		{
+			BackwardFloorBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+			if (UKismetMathLibrary::Fraction(NewPos.X) != 0)
+			{
+				NewPos.X -= 0.5;
+			}
+			if (UKismetMathLibrary::Fraction(NewPos.Y) != 0)
+			{
+				NewPos.Y -= 0.5;
+			}
+		}
+		UE_LOG(LogTemp, Display, TEXT("벽 기준으로 바닥 설치 완료: 좌표값: %s"), *NewPos.ToString())
 		ChildBuild->SetBuildPos(NewPos);
 		RaftGameState->UpdateBuildMetaData(NewPos, ChildBuild);
 

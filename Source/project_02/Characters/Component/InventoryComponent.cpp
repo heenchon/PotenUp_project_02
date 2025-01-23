@@ -1,5 +1,6 @@
 ﻿#include "InventoryComponent.h"
 
+#include "BuildingComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/ItemInfoData.h"
@@ -135,6 +136,11 @@ void UInventoryComponent::ToggleInventory()
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
 		if(!EquipmentUIClass)
+		{
+			return;
+		}
+
+		if (Player->GetBuildingComponent()->GetCanBuildMode())
 		{
 			return;
 		}

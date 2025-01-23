@@ -19,22 +19,14 @@ void ABasePlayerState::InitializeData()
 	const FItemMetaInfo EmptyItem;
 	PlayerInventoryList.Init(EmptyItem, GetTotalSlotCount());
 	
-	// TODO: 제거해야 할 테스트 코드
-	FItemMetaInfo Hook;
-	Hook.SetId(1);
-	Hook.SetCurrentCount(1);
-	
-	FItemMetaInfo Spear;
-	Spear.SetId(10);
-	Spear.SetCurrentCount(1);
-	
-	FItemMetaInfo Hammer;
-	Hammer.SetId(11);
-	Hammer.SetCurrentCount(1);
+	for (int i = 0; i < InitialItemList.Num(); i++)
+	{
+		FItemMetaInfo NewItem;
+		NewItem.SetId(InitialItemList[i]);
+		NewItem.SetCurrentCount(1);
 
-	PlayerInventoryList[0] = Hook;
-	PlayerInventoryList[1] = Spear;
-	PlayerInventoryList[2] = Hammer;
+		PlayerInventoryList[i] = NewItem;
+	}
 }
 
 

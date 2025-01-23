@@ -34,6 +34,9 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TArray<uint32> InitialItemList;
+
 	UPROPERTY()
 	TArray<FItemMetaInfo> PlayerInventoryList;
 
