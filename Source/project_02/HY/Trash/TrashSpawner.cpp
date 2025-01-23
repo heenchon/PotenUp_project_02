@@ -21,11 +21,37 @@ void ATrashSpawner::MyOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	ATrash* trash = Cast<ATrash>(OtherActor);
 	if (trash)
 	{
-		ReturnPooledObject(trash);
+		DeactivePooledObject(trash);
 	}
 }
 
-ATrash* ATrashSpawner::SpawnPooledObject(FVector SpawnLocation, FRotator SpawnRotation)
+void ATrashSpawner::BeginPlay()
+{
+	Super::BeginPlay();
+	DestroyCollision->OnComponentBeginOverlap.AddDynamic(this,&ATrashSpawner::MyOverlap);
+	
+	Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	GS = Cast<ARaftGameState>(UGameplayStatics::GetGameState(GetWorld()));
+	
+	PooledObjects.Empty(PoolSize);
+	for (int32 i = 0; i < PoolSize; i++)
+	{
+		PooledObjects.Add(NewTrashSpawn());
+	}
+	
+	UpdateDestroyLocation();
+	GetWorldTimerManager().SetTimer(SpawnTimer, this, &ATrashSpawner::UpdatePooledObject,SpawnDuration,true);
+}
+
+void ATrashSpawner::UpdatePooledObject()
+{
+	ActivePooledObject(GetRandomLocation(),FRotator(0.0f));
+	ActivePooledObject(GetRandomLocation(),FRotator(0.0f));
+	ActivePooledObject(GetRandomLocation(),FRotator(0.0f));
+	UpdateDestroyLocation();
+}
+
+ATrash* ATrashSpawner::ActivePooledObject(FVector SpawnLocation, FRotator SpawnRotation)
 {
 	for (int32 i = 0; i < PooledObjects.Num(); i++)
 	{
@@ -33,8 +59,8 @@ ATrash* ATrashSpawner::SpawnPooledObject(FVector SpawnLocation, FRotator SpawnRo
 		{
 			PooledObjects[i]->SetActorLocation(SpawnLocation);
 			PooledObjects[i]->SetActorRotation(SpawnRotation);
-			PooledObjects[i]->StaticMesh->SetSimulatePhysics(true);
 			PooledObjects[i]->SetActorHiddenInGame(false);
+			PooledObjects[i]->StaticMesh->SetSimulatePhysics(true);
 			PooledObjects[i]->SetActorEnableCollision(true);
 			PooledObjects[i]->SetActorTickEnabled(true);
 			return PooledObjects[i];
@@ -43,13 +69,13 @@ ATrash* ATrashSpawner::SpawnPooledObject(FVector SpawnLocation, FRotator SpawnRo
 	return nullptr;
 }
 
-void ATrashSpawner::ReturnPooledObject(ATrash* ObjectToReturn)
+void ATrashSpawner::DeactivePooledObject(ATrash* ObjectToReturn)
 {
 	if (ObjectToReturn)
 	{
 		ObjectToReturn->SetActorHiddenInGame(true);
-		ObjectToReturn->SetActorEnableCollision(false);
 		ObjectToReturn->StaticMesh->SetSimulatePhysics(false);
+		ObjectToReturn->SetActorEnableCollision(false);
 		ObjectToReturn->SetActorTickEnabled(false);
 	}
 }
@@ -58,59 +84,57 @@ TSubclassOf<ATrash> ATrashSpawner::GetRandomTrash()
 {
 	if (TrashClasses.Num() > 0)
 	{
-		int32 RandomIndex = FMath::RandRange(0, TrashClasses.Num() - 1);
-		return TrashClasses[RandomIndex];
+		int32 randIndex = FMath::RandRange(0, TrashClasses.Num() - 1);
+		return TrashClasses[randIndex];
 	}
 	return nullptr;
 }
 
-FVector ATrashSpawner::UpdatePosition()
+FVector ATrashSpawner::GetRandomLocation() // 오브젝트 스폰할 랜덤 위치 지정
 {
-	APawn* Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
-	const ARaftGameState* GS = Cast<ARaftGameState>(UGameplayStatics::GetGameState(GetWorld()));
 	if (Player)
 	{
-		FVector PlayerLocation = Player->GetActorLocation();
-		FVector TargetLocation = PlayerLocation + GS->WindDirection*SpawnDistance;
+		FVector playerLoc = Player->GetActorLocation();
+		FVector targetLoc = playerLoc + GS->WindDirection*SpawnDistance;
 		
 		float randX= FMath::FRandRange(-X, X);
 		float randY= FMath::FRandRange(-Y, Y);
-		TargetLocation.X = TargetLocation.X + randX;
-		TargetLocation.Y = PlayerLocation.Y + randY;
-
-		FVector NewDestroyLocation = PlayerLocation + GS->WindDirection*(-DestroyDistance);
-		DestroyCollision->SetWorldLocation(NewDestroyLocation);
 		
-		return TargetLocation;
+		return FVector(targetLoc.X + randX, targetLoc.Y + randY, 15.0f);
 	}
 	return FVector::ZeroVector;
 }
 
-void ATrashSpawner::BeginPlay()
+void ATrashSpawner::RespawnTrashAt(ATrash* Trash)
 {
-	Super::BeginPlay();
-	DestroyCollision->OnComponentBeginOverlap.AddDynamic(this,&ATrashSpawner::MyOverlap);
-	
-	for (int32 i = 0; i < PoolSize; i++)
+	int index = PooledObjects.Find(Trash);
+	if (index >= 0 && index < PooledObjects.Num())
 	{
-		TSubclassOf<ATrash> selectTrash = GetRandomTrash();
-		if (selectTrash)
-		{
-			ATrash* NewObject = GetWorld()->SpawnActor<ATrash>(selectTrash);
-			if (NewObject)
-			{
-				NewObject->SetActorEnableCollision(false);
-				NewObject->SetActorHiddenInGame(true);
-				NewObject->SetActorTickEnabled(false);
-				PooledObjects.Add(NewObject);
-			}
-		}
-	}
-	
-	for (int32 i = 0; i < 20; i++)
-	{
-		SpawnPooledObject(UpdatePosition(), FRotator(0.0f, 0.0f, 0.0f));
+		PooledObjects[index]=nullptr;
+		PooledObjects[index]=NewTrashSpawn();
+		UE_LOG(LogTemp,Display,TEXT("쓰레기 다시 만들기"));
 	}
 }
 
+void ATrashSpawner::UpdateDestroyLocation()
+{
+	FVector newDestroyLoc = Player->GetActorLocation() + GS->WindDirection * -1.0f*(SpawnDistance+DestroyDistance);
+	DestroyCollision->SetWorldLocation(FVector(newDestroyLoc.X, newDestroyLoc.Y, 0.0f));
+}
+
+ATrash* ATrashSpawner::NewTrashSpawn()
+{
+	TSubclassOf<ATrash> selectTrash = GetRandomTrash();
+	
+	ATrash* newObject = GetWorld()->SpawnActor<ATrash>(selectTrash,FVector(0.0f,0.0f,0.0f),FRotator(0.0f));
+	if (newObject)
+	{
+		newObject->StaticMesh->SetSimulatePhysics(false);
+		newObject->SetActorEnableCollision(false);
+		newObject->SetActorHiddenInGame(true);
+		newObject->SetActorTickEnabled(false);
+		return newObject;
+	}
+	return nullptr;
+}
 

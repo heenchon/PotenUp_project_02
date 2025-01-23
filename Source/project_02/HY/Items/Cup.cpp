@@ -109,8 +109,7 @@ bool ACup::IsLookingSea()
 	TArray<AActor*> ActorsToIgnore;
 	FCollisionQueryParams params;
 	ActorsToIgnore.Add(Player);
-
-	// bool bHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params);
+	
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end,
 		ETraceTypeQuery::TraceTypeQuery1,
 		true,

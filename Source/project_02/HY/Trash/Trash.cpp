@@ -22,9 +22,16 @@ ATrash::ATrash()
 	Buoyancy->AddCustomPontoon(100,"center");
 
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-	StaticMesh->SetCollisionObjectType(ECC_PhysicsBody);
-	StaticMesh->SetCollisionResponseToChannel(ECC_Pawn,ECR_Ignore);
-	StaticMesh->SetCollisionResponseToChannel(ECC_PhysicsBody,ECR_Ignore);
+	StaticMesh->SetCollisionObjectType(ECC_WorldDynamic);
+	StaticMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Visibility,ECR_Block);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Camera,ECR_Block);
+	StaticMesh->SetCollisionResponseToChannel(ECC_WorldStatic,ECR_Block);
+	StaticMesh->SetCollisionResponseToChannel(ECC_WorldDynamic,ECR_Overlap);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Vehicle,ECR_Block);
+	StaticMesh->SetCollisionResponseToChannel(ECC_Destructible,ECR_Block);
+	StaticMesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel4,ECR_Block);
+	StaticMesh->SetCollisionResponseToChannel(ECC_EngineTraceChannel5,ECR_Overlap);
 	StaticMesh->BodyInstance.bLockRotation = true;
 }
 
