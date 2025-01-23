@@ -15,6 +15,7 @@ public:
 	ABuildingWall();
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
+	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
 
 protected:
 	virtual void BeginPlay() override;

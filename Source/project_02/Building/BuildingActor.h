@@ -26,7 +26,7 @@ public:
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild);
 	
 	FORCEINLINE void SetMainBuild(const TObjectPtr<ABuildingActor>& NewValue) { MainBuild = NewValue; }
-	
+	FORCEINLINE bool GetIsWireframe() const { return IsWireframe; }
 	FORCEINLINE FVector GetBuildPos() const { return BuildPos; }
 	FORCEINLINE void SetBuildPos(const FVector& NewValue) { BuildPos = NewValue; }
 	FORCEINLINE bool GetIsMain() const { return IsMain; }

@@ -1,5 +1,6 @@
 ﻿#include "BuildingFloor.h"
 
+#include "BuildingWall.h"
 #include "Components/BoxComponent.h"
 #include "project_02/DataTable/BuildData.h"
 #include "project_02/Helper/EnumHelper.h"
@@ -78,6 +79,15 @@ ABuildingFloor::ABuildingFloor()
 void ABuildingFloor::BeginPlay()
 {
 	Super::BeginPlay();
+
+	WestWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
+	WestWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
+	EastWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
+	EastWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
+	NorthWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
+	NorthWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
+	SouthWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
+	SouthWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
 }
 
 void ABuildingFloor::OnWireframeActive()
@@ -99,9 +109,9 @@ void ABuildingFloor::OnWireframeInactive()
 	SouthBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 }
 
-void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* Child)
+void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild)
 {
-	Super::UpdateBuildData(TargetComp, Child);
+	Super::UpdateBuildData(TargetComp, ChildBuild);
 
 	if (ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
 	{
@@ -126,10 +136,32 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 		{
 			NewPos.X -= 1;
 		}
+
+		if (TargetComp == NorthWallBodyBox)
+		{
+			NewPos.X += 0.5;
+		}
+
+		if (TargetComp == SouthWallBodyBox)
+		{
+			NewPos.X -= 0.5;
+		}
+
+		if (TargetComp == EastWallBodyBox)
+		{
+			NewPos.Y += 0.5;
+		}
+
+		if (TargetComp == WestWallBodyBox)
+		{
+			NewPos.Y -= 0.5;
+		}
+
+		// 자식에게 새로운 좌표값 지정
+		ChildBuild->SetBuildPos(NewPos);
+		RaftGameState->UpdateBuildMetaData(NewPos, ChildBuild);
 		
-		Child->SetBuildPos(NewPos);
-		RaftGameState->UpdateBuildMetaData(NewPos, Child);	
-		if (ABuildingFloor* ChildFloor = Cast<ABuildingFloor>(Child))
+		if (ABuildingFloor* ChildFloor = Cast<ABuildingFloor>(ChildBuild))
 		{
 			ChildFloor->UpdateWireframeBoxInfo();
 		}
@@ -149,9 +181,10 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 {
 	if (const ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
 	{
-		constexpr int MoveToX[4] = {0, 0, 1, -1};
-		constexpr int MoveToY[4] = {1, -1, 0, 0};
-		constexpr EBlockPos MoveTo[4] = {EBlockPos::East, EBlockPos::West, EBlockPos::North, EBlockPos::South};
+		constexpr int MoveToX[4] = { 0, 0, 1, -1 };
+		constexpr int MoveToY[4] = { 1, -1, 0, 0 };
+		constexpr EBlockPos MoveTo[4] = { EBlockPos::East,
+			EBlockPos::West, EBlockPos::North, EBlockPos::South };
 		
 		TArray<FVector> SearchVectorList;
 		// 자기 자신은 무조건 포함하고 계산해야 한다.
@@ -174,16 +207,14 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 		// 검색할 노드들 순회
 		for (const FVector SearchPos : SearchVectorList)
 		{
-			UE_LOG(LogTemp, Display, TEXT("주변 탐색: %s"), *SearchPos.ToString())
+			UE_LOG(LogTemp, Display, TEXT("바닥 주변 탐색: %s"), *SearchPos.ToString())
 			for (int i = 0; i < 4; i++)
 			{
 				FVector TempPos = SearchPos;
 				TempPos.X += MoveToX[i];
 				TempPos.Y += MoveToY[i];
 
-				// 포인터의 포인터를 찾는 거라 역 포인터로 가져와야 함.
-				// TODO: 이렇게 안하는 방법에 대해 생각해볼 필요가 있다.
-				ABuildingActor* FoundBuild = RaftGameState->GetRaftBuildPointerData().FindRef(TempPos);
+				const ABuildingActor* FoundBuild = RaftGameState->GetRaftBuildPointerData().FindRef(TempPos);
 				const bool IsAlreadyBound = IsValid(FoundBuild);
 			
 				UE_LOG(LogTemp, Display, TEXT("%s 탐색 결과: %d"),
@@ -223,5 +254,27 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 				}
 			}
 		}
+	}
+}
+
+void ABuildingFloor::OnWallBodyBeginOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	if (!OtherActor->IsA(ABuildingFloor::StaticClass()))
+	{
+		OverlappedComponent->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+	}
+}
+
+void ABuildingFloor::OnWallBodyEndOverlap(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	if (!OtherActor->IsA(ABuildingFloor::StaticClass()))
+	{
+		UE_LOG(LogTemp, Display, TEXT("%s, %s"), *OverlappedComponent->GetName(), *OtherActor->GetName())
+		// OverlappedComponent->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	}
 }

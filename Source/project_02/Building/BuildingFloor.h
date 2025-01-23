@@ -15,12 +15,12 @@ public:
 	virtual void SetCenter() override;
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
-	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* Child) override;
+	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
+	
+	void UpdateWireframeBoxInfo();
 	
 protected:
 	virtual void BeginPlay() override;
-
-	void UpdateWireframeBoxInfo();
 
 private:
 	// TODO: 이 부분 배열과 enum을 고려해보기
@@ -36,7 +36,7 @@ private:
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> SouthBodyBox;
 	
-	// TODO: 이 부분 배열과 enum을 고려해보기
+	// TODO: 이 부분 별도의 Actor Component 고려해보기
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> NorthWallBodyBox;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
@@ -56,4 +56,15 @@ private:
 	TObjectPtr<UBoxComponent> WestWallBodyBox;
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USceneComponent> WestWallSceneVector;
+
+	UFUNCTION()
+	void OnWallBodyBeginOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnWallBodyEndOverlap(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 };
