@@ -55,15 +55,18 @@ ATrash* ATrashSpawner::ActivePooledObject(FVector SpawnLocation, FRotator SpawnR
 {
 	for (int32 i = 0; i < PooledObjects.Num(); i++)
 	{
-		if (PooledObjects[i] && !PooledObjects[i]->IsActorTickEnabled())
+		if (PooledObjects[i])
 		{
-			PooledObjects[i]->SetActorLocation(SpawnLocation);
-			PooledObjects[i]->SetActorRotation(SpawnRotation);
-			PooledObjects[i]->SetActorHiddenInGame(false);
-			PooledObjects[i]->StaticMesh->SetSimulatePhysics(true);
-			PooledObjects[i]->SetActorEnableCollision(true);
-			PooledObjects[i]->SetActorTickEnabled(true);
-			return PooledObjects[i];
+			if (PooledObjects[i] && !PooledObjects[i]->IsActorTickEnabled())
+			{
+				PooledObjects[i]->SetActorLocation(SpawnLocation);
+				PooledObjects[i]->SetActorRotation(SpawnRotation);
+				PooledObjects[i]->SetActorHiddenInGame(false);
+				PooledObjects[i]->StaticMesh->SetSimulatePhysics(true);
+				PooledObjects[i]->SetActorEnableCollision(true);
+				PooledObjects[i]->SetActorTickEnabled(true);
+				return PooledObjects[i];
+			}
 		}
 	}
 	return nullptr;
@@ -112,7 +115,7 @@ void ATrashSpawner::RespawnTrashAt(ATrash* Trash)
 	{
 		PooledObjects[index]=nullptr;
 		PooledObjects[index]=NewTrashSpawn();
-		UE_LOG(LogTemp,Display,TEXT("쓰레기 다시 만들기"));
+		// UE_LOG(LogTemp,Display,TEXT("쓰레기 다시 만들기"));
 	}
 }
 
