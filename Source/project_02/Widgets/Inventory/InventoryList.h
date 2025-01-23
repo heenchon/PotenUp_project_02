@@ -23,10 +23,10 @@ protected:
 	virtual void NativeConstruct() override;
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 ItemListColumn;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 SlotCount;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
