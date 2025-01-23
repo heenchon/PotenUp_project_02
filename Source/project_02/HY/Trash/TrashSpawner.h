@@ -8,6 +8,9 @@
 
 class UBoxComponent;
 class ATrash;
+class APawn;
+class ARaftGameState;
+
 UCLASS()
 class PROJECT_02_API ATrashSpawner : public AActor
 {
@@ -18,14 +21,20 @@ public:
 	
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* DestroyCollision;
+
+	UPROPERTY()
+	APawn* Player;
+	UPROPERTY()
+	const ARaftGameState* GS;
 	
 	UPROPERTY(EditAnywhere, Category = "Object Pool")
 	int32 PoolSize = 40;
+	UPROPERTY(EditAnywhere, Category = "Object Pool")
+	float SpawnDuration = 5.0f;
 	
 	UPROPERTY(EditAnywhere, Category = "Object Pool|Trash List")
 	TArray<TSubclassOf<ATrash>> TrashClasses;
-	TSubclassOf<ATrash> GetRandomTrash();
-
+	
 	UPROPERTY(EditAnywhere, Category = "Object Pool|Random Spawn Range")
 	float X = 1000.0f;
 	UPROPERTY(EditAnywhere, Category = "Object Pool|Random Spawn Range")
@@ -40,16 +49,23 @@ protected:
 
 private:
 	TArray<ATrash*> PooledObjects;
+	FTimerHandle SpawnTimer;
 
 public:
 	UFUNCTION()
 	void MyOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
-	
-	UFUNCTION(BlueprintCallable)
-	ATrash* SpawnPooledObject(FVector SpawnLocation, FRotator SpawnRotation);
-	UFUNCTION(BlueprintCallable)
-	void ReturnPooledObject(ATrash* ObjectToReturn);
 
-	FVector UpdatePosition();
-	
+	UFUNCTION()
+	ATrash* NewTrashSpawn();
+	UFUNCTION()
+	ATrash* ActivePooledObject(FVector SpawnLocation, FRotator SpawnRotation);
+	UFUNCTION()
+	void DeactivePooledObject(ATrash* ObjectToReturn);
+
+	void UpdatePooledObject();
+	void UpdateDestroyLocation();
+	TSubclassOf<ATrash> GetRandomTrash();
+	FVector GetRandomLocation();
+
+	void RespawnTrashAt(ATrash* Trash);
 };

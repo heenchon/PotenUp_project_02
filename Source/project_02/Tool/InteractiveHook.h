@@ -6,6 +6,7 @@
 
 class UBoxComponent;
 class ATrash;
+class ATrashSpawner;
 class USphereComponent;
 
 UENUM()
@@ -55,7 +56,6 @@ private:
 	EHookStatus HookStatus = EHookStatus::Idle;
 	
 	FVector MoveToPos;
-	
 	uint8 Power;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))

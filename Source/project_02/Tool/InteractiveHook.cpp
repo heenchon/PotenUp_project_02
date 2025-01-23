@@ -4,6 +4,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "project_02/HY/Trash/Trash.h"
+#include "project_02/HY/Trash/TrashSpawner.h"
 #include "project_02/Player/BasePlayerState.h"
 
 // Sets default values
@@ -76,6 +77,8 @@ void AInteractiveHook::Tick(float DeltaTime)
 					if (ABasePlayerState* PS = Cast<ABasePlayerState>(UGameplayStatics::GetPlayerState(GetWorld(), 0)))
 					{
 						PS->AddItem(TrashItem->GetItemMetaInfo());
+						ATrashSpawner* TS = Cast<ATrashSpawner>(UGameplayStatics::GetActorOfClass(GetWorld(), ATrashSpawner::StaticClass()));
+						TS->RespawnTrashAt(TrashItem);
 						TrashItem->Destroy();
 					}
 				}
