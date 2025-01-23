@@ -3,11 +3,13 @@
 #include "EnhancedInputComponent.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "project_02/Characters/Component/InventoryComponent.h"
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
+#include "project_02/Player/BasePlayerState.h"
 
 UBuildingComponent::UBuildingComponent()
 {
@@ -289,6 +291,17 @@ void UBuildingComponent::BuildWireframe()
 		if (!PlaceObject->CanBuild)
 		{
 			return;
+		}
+
+		// 내가 손에 들고 있는 것을 대상으로 설치되기 때문에 하나를 버린다.
+		// 이 Component가 플레이어 대상으로 진행되기에 플레이어를 넣어둔다.
+		if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner()))
+		{
+			if (ABasePlayerState* PS = Cast<ABasePlayerState>(PlayerCharacter->GetPlayerState()))
+			{
+				PS->DropItem(PlayerCharacter->GetInventoryComponent()->GetSelectedHotSlotIndex(), 1);
+				SetBuildMode(false);
+			}
 		}
 
 		PlaceObject->SetDefaultMaterial();
