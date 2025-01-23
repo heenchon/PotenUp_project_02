@@ -28,7 +28,7 @@ private:
 	TObjectPtr<AInteractiveHook> ControlledHook;
 
 	uint8 Power = 0;
-	uint8 MaxPower = 100;
+	uint8 MaxPower = 200;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCableComponent> Cable;
