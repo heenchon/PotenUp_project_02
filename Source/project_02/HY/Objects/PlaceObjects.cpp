@@ -23,6 +23,7 @@ void APlaceObjects::BeginPlay()
 {
 	Super::BeginPlay();
 	PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
+	OriginMaterials = StaticMesh->GetMaterials();
 }
 
 // Called every frame
@@ -33,6 +34,7 @@ void APlaceObjects::Tick(float DeltaTime)
 
 void APlaceObjects::Place()
 {
+	IsEnabled = true;
 }
 
 void APlaceObjects::UnPlace()
@@ -41,6 +43,10 @@ void APlaceObjects::UnPlace()
 
 void APlaceObjects::Interact()
 {
+	if (!IsEnabled)
+	{
+		return;
+	}
 }
 
 void APlaceObjects::Interact(AUsable_Item* input, int curItemIndex)
@@ -57,3 +63,10 @@ void APlaceObjects::ProcessComplete()
 {
 }
 
+void APlaceObjects::SetDefaultMaterial()
+{
+	for (int i = 0; i < OriginMaterials.Num(); i++)
+	{
+		StaticMesh->SetMaterial(i, OriginMaterials[i]);
+	}
+}

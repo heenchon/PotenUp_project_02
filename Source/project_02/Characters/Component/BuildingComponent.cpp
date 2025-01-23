@@ -7,6 +7,7 @@
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
 #include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/HY/Objects/PlaceObjects.h"
 
 
 UBuildingComponent::UBuildingComponent()
@@ -31,7 +32,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 {
 	if (!CanBuild)
 	{
-		return;	
+		return;
 	}
 	
 	TArray<AActor*> IgnoreActors;
@@ -42,7 +43,6 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 	if (UKismetSystemLibrary::LineTraceSingle(GetWorld(),
 		GetOwner()->GetActorLocation(),
 		GetOwner()->GetActorLocation() + TraceTo * TraceRange,
-		// Custom Channel인 4번으로 체크
 		GetCheckTraceChannel(),
 		false, IgnoreActors,
 		EDrawDebugTrace::Type::ForOneFrame,
@@ -61,8 +61,24 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 			{
 				return;
 			}
+
+			// 바닥을 바라보고 있고, 그리고 그 중 Static Mesh 즉 바닥 Mesh를 바라보고 있는 경우에
+			// 오브젝트 설치에 대한 최소한의 조건을 만족시킨다. 그리고 이 조건은 반드시 오브젝트 설치인 경우다.
+			if (HitResult.GetComponent()->IsA(UStaticMeshComponent::StaticClass())
+				&& HitResult.GetActor()->IsA(ABuildingFloor::StaticClass())
+				&& FrameType == EBuildType::Object)
+			{
+				CreateWireframeForObject(HitResult);
+				return;
+			}
 			
-			CreateWireframeForGrid(HitResult);
+			if (HitResult.GetComponent()->IsA(UBoxComponent::StaticClass()))
+			{
+				CreateWireframeForGrid(HitResult);
+				return;
+			}
+			
+			ClearWireframe();
 		} else
 		{
 			// 다른 액터를 바라보는 경우
@@ -77,15 +93,10 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 
 void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 {
-	if (!HitResult.GetComponent()->IsA(UBoxComponent::StaticClass()))
-	{
-		ClearWireframe();
-		return;
-	}
-	
 	CurrentWireframeBox = HitResult.GetComponent();
 
-	if (!WireframeToFloorClass)
+	// 임시용 주석
+	if (!WireframeToFloorClass || !WireframeToWallClass)
 	{
 		return;
 	}
@@ -132,24 +143,65 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 	}
 }
 
+void UBuildingComponent::CreateWireframeForObject(const FHitResult& HitResult)
+{
+	if (!CustomBuildItemClass)
+	{
+		return;
+	}
+
+	// 조건은 총 2가지다.
+	// 1. 현재 Wireframe인 액터가 존재하지 않는다.
+	// 2. 현재 선택중인 커스텀 오브젝트의 타입이 아니다.
+	// 이 중 하나라도 만족하면 기존의 Actor를 없애고 새로 만든다.
+	if (
+		!CurrentWireframeActor
+		|| !CurrentWireframeActor.IsA(CustomBuildItemClass)
+	)
+	{
+		if (CurrentWireframeActor)
+		{
+			CurrentWireframeActor->Destroy();
+		}
+		
+		CurrentWireframeActor = GetWorld()->SpawnActor<AActor>(CustomBuildItemClass, HitResult.ImpactPoint, FRotator::ZeroRotator);
+		CurrentWireframeActor->AttachToActor(HitResult.GetActor(), FAttachmentTransformRules::KeepWorldTransform);
+		
+		if (APlaceObjects* PlaceObject = Cast<APlaceObjects>(CurrentWireframeActor))
+		{
+			PlaceObject->SetActorEnableCollision(false);
+			PlaceObject->IsEnabled = false;
+		}
+		return;
+	}
+	
+	CurrentWireframeActor->SetHidden(false);
+	CurrentWireframeActor->SetActorLocation(HitResult.ImpactPoint);
+}
+
 void UBuildingComponent::ReattachFloor(const FHitResult& HitResult)
 {
-	CurrentWireframeActor->SetActorHiddenInGame(false);
-	CurrentWireframeActor->AttachToComponent(
-			HitResult.GetComponent(),
-			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-	CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+	if (ABuildingFloor* FloorWireframe = Cast<ABuildingFloor>(CurrentWireframeActor))
+	{
+		FloorWireframe->SetActorHiddenInGame(false);
+		FloorWireframe->AttachToComponent(
+				HitResult.GetComponent(),
+				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+		FloorWireframe->SetWireframeMaterial(WireframeMaterial);
+	}
 }
 
 void UBuildingComponent::ReattachWall(const FHitResult& HitResult)
 {
-	CurrentWireframeActor->SetActorHiddenInGame(false);
-	CurrentWireframeActor->AttachToComponent(
-			HitResult.GetComponent(),
-			FAttachmentTransformRules::KeepRelativeTransform);
-	CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
+	if (ABuildingWall* WallWireframe = Cast<ABuildingWall>(CurrentWireframeActor))
+	{
+		WallWireframe->SetActorHiddenInGame(false);
+		WallWireframe->AttachToComponent(
+				HitResult.GetComponent(),
+				FAttachmentTransformRules::KeepRelativeTransform);
+		WallWireframe->SetWireframeMaterial(WireframeMaterial);
+	}
 }
-
 
 void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 {
@@ -158,18 +210,18 @@ void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 			HitResult.GetComponent()->GetComponentRotation()))
 	{
 		// 우선 값은 바로 할당하기
-		CurrentWireframeActor = NewWireframe;
-		CurrentWireframeActor->SetWireframe(true);
-		CurrentWireframeActor->AttachToComponent(
+		NewWireframe->SetWireframe(true);
+		NewWireframe->AttachToComponent(
 			HitResult.GetComponent(),
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
-
+		NewWireframe->SetWireframeMaterial(WireframeMaterial);
 		// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
 		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
 		{
-			CurrentWireframeActor->SetMainBuild(ParentBuild->GetMainBuild());
+			NewWireframe->SetMainBuild(ParentBuild->GetMainBuild());
 		}
+		
+		CurrentWireframeActor = NewWireframe;
 	}
 }
 
@@ -184,18 +236,18 @@ void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(WireframeToWallClass, NewLocation, NewRotation))
 	{
 		// 우선 값은 바로 할당하기
-		CurrentWireframeActor = NewWireframe;
-		CurrentWireframeActor->SetWireframe(true);
-		CurrentWireframeActor->AttachToComponent(
+		NewWireframe->SetWireframe(true);
+		NewWireframe->AttachToComponent(
 			HitResult.GetComponent(),
 			FAttachmentTransformRules::KeepWorldTransform);
-		CurrentWireframeActor->SetWireframeMaterial(WireframeMaterial);
-
+		NewWireframe->SetWireframeMaterial(WireframeMaterial);
 		// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
 		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
 		{
-			CurrentWireframeActor->SetMainBuild(ParentBuild->GetMainBuild());
+			NewWireframe->SetMainBuild(ParentBuild->GetMainBuild());
 		}
+		
+		CurrentWireframeActor = NewWireframe;
 	}
 }
 
@@ -235,7 +287,7 @@ void UBuildingComponent::BuildWireframe()
 	// 여기서는 Meta Data를 업데이트 처리한다.
 	if (ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
 	{
-		ParentBuild->UpdateBuildData(CurrentWireframeBox, CurrentWireframeActor);
+		ParentBuild->UpdateBuildData(CurrentWireframeBox, Cast<ABuildingActor>(CurrentWireframeActor));
 	}
 
 	CurrentWireframeActor = nullptr;
@@ -250,6 +302,7 @@ ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
 		case EBuildType::Wall:
 			return TraceTypeQuery5;
 		case EBuildType::Floor:
+		case EBuildType::Object:
 		default:
 			return TraceTypeQuery4;
 	}
@@ -258,6 +311,12 @@ ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
 void UBuildingComponent::ChangeNextBuildAction()
 {
 	if (!CanBuild)
+	{
+		return;
+	}
+
+	// 커스텀 오브젝트인 경우는 상태가 변경되지 않는다.
+	if (FrameType == EBuildType::Object)
 	{
 		return;
 	}

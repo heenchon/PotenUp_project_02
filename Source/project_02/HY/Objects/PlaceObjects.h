@@ -45,4 +45,11 @@ public:
 	virtual void Interact(AUsable_Item* input, int curItemIndex);
 	void ProcessStart();
 	virtual void ProcessComplete();
+
+	bool IsEnabled = false;
+	
+	UPROPERTY()
+	TArray<TObjectPtr<UMaterialInterface>> OriginMaterials;
+	
+	FORCEINLINE void SetDefaultMaterial();
 };
