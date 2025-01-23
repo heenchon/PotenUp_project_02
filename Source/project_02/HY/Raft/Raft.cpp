@@ -2,8 +2,10 @@
 
 
 #include "Raft.h"
+#include "project_02/Building/BuildingActor.h"
 #include "../RaftGameState.h"
 #include "../Objects/Sail.h"
+#include "project_02/Building/BuildingFloor.h"
 
 // Sets default values
 ARaft::ARaft()
@@ -26,10 +28,10 @@ ARaft::ARaft()
 	Buoyancy->AddCustomPontoon(100,"two");
 	Buoyancy->AddCustomPontoon(100,"three");
 	Buoyancy->AddCustomPontoon(100,"four");
-	Buoyancy->BuoyancyData.Pontoons[0].RelativeLocation = {50.0f,50.0f,0.0f};
-	Buoyancy->BuoyancyData.Pontoons[1].RelativeLocation = {-50.0f,50.0f,0};
-	Buoyancy->BuoyancyData.Pontoons[2].RelativeLocation = {50.0f,-50.0f,0};
-	Buoyancy->BuoyancyData.Pontoons[3].RelativeLocation = {-50.0f,-50.0f,0};
+	Buoyancy->BuoyancyData.Pontoons[0].RelativeLocation = {50.0f,50.0f,75.f};
+	Buoyancy->BuoyancyData.Pontoons[1].RelativeLocation = {-50.0f,50.0f,75.f};
+	Buoyancy->BuoyancyData.Pontoons[2].RelativeLocation = {50.0f,-50.0f,75.f};
+	Buoyancy->BuoyancyData.Pontoons[3].RelativeLocation = {-50.0f,-50.0f,75.f};
 
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	StaticMesh->SetCollisionObjectType(ECC_PhysicsBody);
@@ -41,12 +43,21 @@ ARaft::ARaft()
 void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
+	StaticMesh->SetHiddenInGame(true);
 	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
 	if (RaftGameState)
 	{
 		WindDirection = RaftGameState->WindDirection;
 		WindStrength = RaftGameState->WindStrength;
 	}
+	
+	if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
+	{
+		MainFloor = NewMainFloor;
+		MainFloor->SetCenter();
+		MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+	
 	SpawnSailActor();
 }
 
@@ -61,7 +72,7 @@ void ARaft::SpawnSailActor()
 {
 	if (ASail* sail = GetWorld()->SpawnActor<ASail>(ASail::StaticClass()))
 	{
-		sail->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+		sail->AttachToActor(MainFloor, FAttachmentTransformRules::KeepRelativeTransform);
 		sail->SetRaft(this);
 	}
 }

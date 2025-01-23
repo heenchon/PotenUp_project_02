@@ -8,6 +8,9 @@
 #include "BuoyancyComponent.h"
 #include "Raft.generated.h"
 
+class ABuildingFloor;
+class ABuildingActor;
+
 UCLASS()
 class PROJECT_02_API ARaft : public AActor
 {
@@ -21,6 +24,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UBuoyancyComponent* Buoyancy;
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABuildingFloor> MainFloorClass;
 
 	UPROPERTY()
 	class ARaftGameState* RaftGameState;
@@ -40,6 +46,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void SpawnSailActor();
 
+private:
+	UPROPERTY()
+	ABuildingActor* MainFloor;
 };
 
 

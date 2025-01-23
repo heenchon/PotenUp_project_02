@@ -4,6 +4,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class UBuildingComponent;
 class ASail;
 struct FItemInfoData;
 class UEntityAnimationInfo;
@@ -39,6 +40,7 @@ public:
 	FORCEINLINE TObjectPtr<USurvivalComponent> GetSurvivalComponent() const { return SurvivalComponent; }
 	FORCEINLINE TObjectPtr<UInventoryComponent> GetInventoryComponent() const { return InventoryComponent; }
 	FORCEINLINE TObjectPtr<USwimmingComponent> GetSwimmingComponent() const { return SwimmingComponent; }
+	FORCEINLINE TObjectPtr<UBuildingComponent> GetBuildingComponent() { return BuildingComponent; }
 	FORCEINLINE TObjectPtr<UBoxComponent> GetChestBox() const { return ChestBox; }
 
 	FORCEINLINE TObjectPtr<AActor> GetMainHandTool() { return MainHandTool; }
@@ -68,6 +70,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
 	TObjectPtr<USwimmingComponent> SwimmingComponent;
+	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
+	TObjectPtr<UBuildingComponent> BuildingComponent;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input
 		, meta = (AllowPrivateAccess = true))
@@ -102,6 +107,17 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Data"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UEntityAnimationInfo> AnimationInfo;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
+		, meta = (AllowPrivateAccess = true))
+	float UseInteractiveRange;
+
+	// TODO: Inventory 보다 더 적절한 곳이 있어 보여 우선
+	// PlayerCharacter로 처리
+	UPROPERTY()
+	TObjectPtr<AActor> FindDroppedActor;
+
+	bool IsInteracting;
 
 	// TODO: 추후 HookRope 자체를 공통화해서 상호작용하는 액터 자체를 적용할 예정
 	// 우선은 하드코딩으로 처리
@@ -135,18 +151,7 @@ private:
 	UFUNCTION()
 	void RotateReleased();
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Options|Use"
-		, meta = (AllowPrivateAccess = true))
-	float UseInteractiveRange;
-	
 	void FindToUse();
 	
 	bool IsBlockAction() const;
-
-	// TODO: Inventory 보다 더 적절한 곳이 있어 보여 우선
-	// PlayerCharacter로 처리
-	UPROPERTY()
-	TObjectPtr<AActor> FindDroppedActor;
-
-	bool IsInteracting;
 };
