@@ -18,9 +18,9 @@ ASail::ASail()
 	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	if (DefaultMesh.Succeeded()) StaticMesh->SetStaticMesh(DefaultMesh.Object);
 	
-	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	StaticMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
-	StaticMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1,ECR_Overlap);
+	// StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	// StaticMesh->SetCollisionResponseToAllChannels(ECR_Ignore);
+	// StaticMesh->SetCollisionResponseToChannel(ECC_GameTraceChannel1,ECR_Overlap);
 
 	Arrow = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Arrow"));
 	Arrow->SetupAttachment(Root);

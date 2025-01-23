@@ -31,7 +31,7 @@ public:
 	FORCEINLINE void SetBuildPos(const FVector& NewValue) { BuildPos = NewValue; }
 	FORCEINLINE bool GetIsMain() const { return IsMain; }
 	FORCEINLINE TObjectPtr<ABuildingActor> GetMainBuild() const { return MainBuild; }
-	FORCEINLINE void SetDefaultMaterial();
+	void SetDefaultMaterial();
 	FORCEINLINE TObjectPtr<UStaticMeshComponent> GetBodyMesh() const { return BodyMesh; }
 
 	void AttachWireframeToComponent(

@@ -11,6 +11,7 @@ enum class EItemType : uint32
 	Equipment,
 	Consume,
 	Ingredient,
+	Build,
 	Max,
 };
 

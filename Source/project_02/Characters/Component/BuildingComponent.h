@@ -28,13 +28,12 @@ public:
 
 	void TraceGroundToBuild(const FVector& TraceTo);
 
-	// 빌딩을 위한 즉 격자를 위한 처리
-	void CreateWireframeForGrid(const FHitResult& HitResult);
-
 	void BuildWireframe();
 
+	void SetBuildType(const EBuildType NewType);
 	FORCEINLINE bool GetCanBuildMode() const { return CanBuild; } 
 	FORCEINLINE void SetBuildMode(const bool NewMode) { CanBuild = NewMode; } 
+	FORCEINLINE void SetCustomBuildBlueprint(const TSubclassOf<AActor>& NewBlueprint) { CustomBuildItemClass = NewBlueprint; } 
 
 	void ClearWireframe();
 	void DeleteWireframe();
@@ -43,14 +42,20 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY()
+	TSubclassOf<AActor> CustomBuildItemClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Building", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ABuildingFloor> WireframeToFloorClass;
 	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Building", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ABuildingWall> WireframeToWallClass;
 	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Wireframe", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UMaterial> WireframeMaterial;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Wireframe", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UMaterial> WireframeBlockMaterial;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true, ClampMin = 0))
 	float TraceRange = 0.f;
@@ -59,11 +64,18 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> BuildChangeAction;
 
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> InteractiveInputAction;
+	
 	UFUNCTION()
 	void ChangeNextBuildAction();
 
+	UFUNCTION()
+	void BuildCustomObject();
+
 	UPROPERTY()
-	TObjectPtr<ABuildingActor> CurrentWireframeActor;
+	TObjectPtr<AActor> CurrentWireframeActor;
 	
 	UPROPERTY()
 	TObjectPtr<UPrimitiveComponent> CurrentWireframeBox;
@@ -84,4 +96,10 @@ private:
 	void ReattachFloor(const FHitResult& HitResult);
 	
 	void ReattachWall(const FHitResult& HitResult);
+
+	// 빌딩을 위한 즉 격자를 위한 처리
+	void CreateWireframeForGrid(const FHitResult& HitResult);
+
+	// 오브젝트 전용 처리
+	void CreateWireframeForObject(const FHitResult& HitResult);
 };

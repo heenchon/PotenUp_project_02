@@ -19,7 +19,7 @@ class PROJECT_02_API UInventorySlot : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void SetThumbnail(const TSoftObjectPtr<UTexture2D> Thumbnail) const;
+	void SetThumbnail(const TSoftObjectPtr<UTexture2D>& Thumbnail) const;
 	
 	void SetItemCount(const uint16 NewCount) const;
 	

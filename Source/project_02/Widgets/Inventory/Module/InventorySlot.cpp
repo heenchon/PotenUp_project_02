@@ -142,9 +142,11 @@ void UInventorySlot::SetSlotInfo(const FItemMetaInfo& ItemMetaInfo)
 }
 
 
-void UInventorySlot::SetThumbnail(const TSoftObjectPtr<UTexture2D> Thumbnail) const
+void UInventorySlot::SetThumbnail(const TSoftObjectPtr<UTexture2D>& Thumbnail) const
 {
-	ItemThumbnail.Get()->SetBrushFromTexture(Thumbnail.Get());
+	// 처음 로딩 시 반드시 동기적으로 로딩을 해줘야 한다.
+	UTexture2D* LoadedTexture = Thumbnail.LoadSynchronous();
+	ItemThumbnail.Get()->SetBrushFromTexture(LoadedTexture);
 }
 
 
