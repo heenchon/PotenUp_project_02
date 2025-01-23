@@ -290,13 +290,13 @@ void UBuildingComponent::BuildWireframe()
 		{
 			return;
 		}
+
+		PlaceObject->SetDefaultMaterial();
+		PlaceObject->IsEnabled = true;
 		
 		CurrentWireframeActor = nullptr;
 		CurrentWireframeBox = nullptr;
 		CurrentHitActor = nullptr;
-
-		PlaceObject->SetDefaultMaterial();
-		PlaceObject->IsEnabled = true;
 		
 		return;
 	}

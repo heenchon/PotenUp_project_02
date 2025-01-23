@@ -141,6 +141,12 @@ void APlayerCharacter::UseItem()
 
 void APlayerCharacter::ClearViewItemOnHand()
 {
+	if (BuildingComponent->GetCanBuildMode())
+	{
+		BuildingComponent->SetBuildMode(false);
+		BuildingComponent->DeleteWireframe();
+	}
+	
 	if (MainHandTool)
 	{
 		// 해제를 하고 제거해야 한다.
