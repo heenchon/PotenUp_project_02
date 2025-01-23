@@ -4,6 +4,7 @@
 #include "PlaceObjects.h"
 
 #include "Kismet/GameplayStatics.h"
+#include "project_02/Building/BuildingFloor.h"
 #include "project_02/Player/BasePlayerState.h"
 
 // Sets default values
@@ -24,6 +25,9 @@ void APlaceObjects::BeginPlay()
 	Super::BeginPlay();
 	PS = UGameplayStatics::GetPlayerPawn(GetWorld(),0)->GetPlayerState<ABasePlayerState>();
 	OriginMaterials = StaticMesh->GetMaterials();
+	
+	StaticMesh->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnBeginOverlapMesh);
+	StaticMesh->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnEndOverlapMesh);
 }
 
 // Called every frame
@@ -68,5 +72,34 @@ void APlaceObjects::SetDefaultMaterial()
 	for (int i = 0; i < OriginMaterials.Num(); i++)
 	{
 		StaticMesh->SetMaterial(i, OriginMaterials[i]);
+	}
+}
+
+void APlaceObjects::SetWireframeMaterial(UMaterial* NewMaterial)
+{
+	for (int i = 0; i < StaticMesh->GetMaterials().Num(); i++)
+	{
+		StaticMesh->SetMaterial(i, NewMaterial);
+	}
+}
+
+void APlaceObjects::OnBeginOverlapMesh(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep,
+	const FHitResult& SweepResult)
+{
+	if (!OtherActor->IsA(ABuildingFloor::StaticClass()))
+	{
+		CanBuild = false;
+	}
+}
+
+void APlaceObjects::OnEndOverlapMesh(UPrimitiveComponent* OverlappedComponent,
+	AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	if (!OtherActor->IsA(ABuildingFloor::StaticClass()))
+	{
+		CanBuild = true;
 	}
 }

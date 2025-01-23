@@ -47,9 +47,24 @@ public:
 	virtual void ProcessComplete();
 
 	bool IsEnabled = false;
+	bool CanBuild = true;
 	
 	UPROPERTY()
 	TArray<TObjectPtr<UMaterialInterface>> OriginMaterials;
 	
 	FORCEINLINE void SetDefaultMaterial();
+	
+	void SetWireframeMaterial(UMaterial* NewMaterial);
+
+private:
+	UFUNCTION()
+	void OnBeginOverlapMesh(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex, bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnEndOverlapMesh(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor, UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex);
 };

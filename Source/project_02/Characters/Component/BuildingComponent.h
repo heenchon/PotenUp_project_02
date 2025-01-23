@@ -30,7 +30,7 @@ public:
 
 	void BuildWireframe();
 
-	FORCEINLINE void SetBuildType(const EBuildType NewType) { FrameType = NewType; }
+	void SetBuildType(const EBuildType NewType);
 	FORCEINLINE bool GetCanBuildMode() const { return CanBuild; } 
 	FORCEINLINE void SetBuildMode(const bool NewMode) { CanBuild = NewMode; } 
 	FORCEINLINE void SetCustomBuildBlueprint(const TSubclassOf<AActor>& NewBlueprint) { CustomBuildItemClass = NewBlueprint; } 
@@ -45,14 +45,17 @@ private:
 	UPROPERTY()
 	TSubclassOf<AActor> CustomBuildItemClass;
 	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Building", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ABuildingFloor> WireframeToFloorClass;
 	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Building", meta = (AllowPrivateAccess = true))
 	TSubclassOf<ABuildingWall> WireframeToWallClass;
 	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Wireframe", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UMaterial> WireframeMaterial;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Wireframe", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UMaterial> WireframeBlockMaterial;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true, ClampMin = 0))
 	float TraceRange = 0.f;
@@ -61,8 +64,15 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> BuildChangeAction;
 
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> InteractiveInputAction;
+	
 	UFUNCTION()
 	void ChangeNextBuildAction();
+
+	UFUNCTION()
+	void BuildCustomObject();
 
 	UPROPERTY()
 	TObjectPtr<AActor> CurrentWireframeActor;

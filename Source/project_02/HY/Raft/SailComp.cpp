@@ -9,7 +9,6 @@ USailComp::USailComp()
 {
 	PrimaryComponentTick.bCanEverTick = true;
 	MinSailStrength = 1.0f / MaxSailStrength;
-	SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void USailComp::BeginPlay()

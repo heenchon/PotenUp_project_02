@@ -9,7 +9,6 @@
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
 
-
 UBuildingComponent::UBuildingComponent()
 {
 	
@@ -24,6 +23,8 @@ void UBuildingComponent::BeginPlay()
 		{
 			EnhancedInputComponent->BindAction(BuildChangeAction, ETriggerEvent::Triggered
 			, this, &ThisClass::ChangeNextBuildAction);
+			EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
+			, this, &ThisClass::BuildCustomObject);
 		}
 	}
 }
@@ -101,7 +102,7 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 		return;
 	}
 
-	if (CurrentWireframeActor)
+	if (CurrentWireframeActor && CurrentWireframeActor.IsA(ABuildingActor::StaticClass()))
 	{
 		switch (FrameType)
 		{
@@ -154,6 +155,7 @@ void UBuildingComponent::CreateWireframeForObject(const FHitResult& HitResult)
 	// 1. 현재 Wireframe인 액터가 존재하지 않는다.
 	// 2. 현재 선택중인 커스텀 오브젝트의 타입이 아니다.
 	// 이 중 하나라도 만족하면 기존의 Actor를 없애고 새로 만든다.
+	
 	if (
 		!CurrentWireframeActor
 		|| !CurrentWireframeActor.IsA(CustomBuildItemClass)
@@ -169,7 +171,6 @@ void UBuildingComponent::CreateWireframeForObject(const FHitResult& HitResult)
 		
 		if (APlaceObjects* PlaceObject = Cast<APlaceObjects>(CurrentWireframeActor))
 		{
-			PlaceObject->SetActorEnableCollision(false);
 			PlaceObject->IsEnabled = false;
 		}
 		return;
@@ -177,6 +178,10 @@ void UBuildingComponent::CreateWireframeForObject(const FHitResult& HitResult)
 	
 	CurrentWireframeActor->SetHidden(false);
 	CurrentWireframeActor->SetActorLocation(HitResult.ImpactPoint);
+	if (APlaceObjects* PlaceObject = Cast<APlaceObjects>(CurrentWireframeActor))
+	{
+		PlaceObject->SetWireframeMaterial(PlaceObject->CanBuild ? WireframeMaterial : WireframeBlockMaterial);
+	}
 }
 
 void UBuildingComponent::ReattachFloor(const FHitResult& HitResult)
@@ -271,28 +276,49 @@ void UBuildingComponent::DeleteWireframe()
 	CurrentHitActor = nullptr;
 }
 
-
 void UBuildingComponent::BuildWireframe()
 {
 	if (!CurrentWireframeActor)
 	{
 		return;	
 	}
-	
-	if (!CurrentWireframeBox)
+
+	// 단순 설치류 아이템이면 여기서 설치한다.
+	if (APlaceObjects* PlaceObject = Cast<APlaceObjects>(CurrentWireframeActor))
 	{
+		if (!PlaceObject->CanBuild)
+		{
+			return;
+		}
+		
+		CurrentWireframeActor = nullptr;
+		CurrentWireframeBox = nullptr;
+		CurrentHitActor = nullptr;
+
+		PlaceObject->SetDefaultMaterial();
+		PlaceObject->IsEnabled = true;
+		
 		return;
 	}
 
-	// 여기서는 Meta Data를 업데이트 처리한다.
-	if (ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
+	// 설치류가 아닌 건축 블럭이라면 여기를 수행한다.
+	if (CurrentWireframeActor->IsA(ABuildingActor::StaticClass()))
 	{
-		ParentBuild->UpdateBuildData(CurrentWireframeBox, Cast<ABuildingActor>(CurrentWireframeActor));
-	}
+		// 여기서는 Meta Data를 업데이트 처리한다.
+		if (ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
+		{
+			if (!CurrentWireframeBox)
+			{
+				return;
+			}
+		
+			ParentBuild->UpdateBuildData(CurrentWireframeBox, Cast<ABuildingActor>(CurrentWireframeActor));
 
-	CurrentWireframeActor = nullptr;
-	CurrentWireframeBox = nullptr;
-	CurrentHitActor = nullptr;
+			CurrentWireframeActor = nullptr;
+			CurrentWireframeBox = nullptr;
+			CurrentHitActor = nullptr;
+		}
+	}
 }
 
 ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
@@ -333,3 +359,13 @@ void UBuildingComponent::ChangeNextBuildAction()
 	}
 }
 
+void UBuildingComponent::SetBuildType(const EBuildType NewType)
+{
+	DeleteWireframe();
+	FrameType = NewType;
+}
+
+void UBuildingComponent::BuildCustomObject()
+{
+	BuildWireframe();
+}

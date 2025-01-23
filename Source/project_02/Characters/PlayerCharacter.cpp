@@ -385,3 +385,4 @@ bool APlayerCharacter::IsBlockAction() const
 {
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
 }
+
