@@ -15,6 +15,16 @@ ATrashSpawner::ATrashSpawner()
 	DestroyCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("DestroyCollision"));
 }
 
+void ATrashSpawner::MyOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ATrash* trash = Cast<ATrash>(OtherActor);
+	if (trash)
+	{
+		ReturnPooledObject(trash);
+	}
+}
+
 ATrash* ATrashSpawner::SpawnPooledObject(FVector SpawnLocation, FRotator SpawnRotation)
 {
 	for (int32 i = 0; i < PooledObjects.Num(); i++)
@@ -27,11 +37,6 @@ ATrash* ATrashSpawner::SpawnPooledObject(FVector SpawnLocation, FRotator SpawnRo
 			PooledObjects[i]->SetActorHiddenInGame(false);
 			PooledObjects[i]->SetActorEnableCollision(true);
 			PooledObjects[i]->SetActorTickEnabled(true);
-			// UE_LOG(LogTemp, Display, TEXT("Index: %d, Name: %s, TickEnabled: %s, Hidden: %s"), 
-		 //   i, 
-		 //   *PooledObjects[i]->GetName(), 
-		 //   PooledObjects[i]->IsActorTickEnabled() ? TEXT("true") : TEXT("false"),
-		 //   PooledObjects[i]->IsHidden() ? TEXT("true") : TEXT("false"));
 			return PooledObjects[i];
 		}
 	}
@@ -66,15 +71,14 @@ FVector ATrashSpawner::UpdatePosition()
 	if (Player)
 	{
 		FVector PlayerLocation = Player->GetActorLocation();
-		FVector TargetLocation = PlayerLocation + GS->WindDirection*3000.0f;
+		FVector TargetLocation = PlayerLocation + GS->WindDirection*SpawnDistance;
+		
+		float randX= FMath::FRandRange(-X, X);
+		float randY= FMath::FRandRange(-Y, Y);
+		TargetLocation.X = TargetLocation.X + randX;
+		TargetLocation.Y = PlayerLocation.Y + randY;
 
-		//TODO: 임시 코드. 바람 방향 변했을 때 고려 X.
-		float randF= FMath::FRandRange(-2000.0f, 2000.0f);
-		TargetLocation.X = TargetLocation.X + randF*0.5f;
-		TargetLocation.Y = PlayerLocation.Y + randF;
-		UE_LOG(LogTemp,Warning,TEXT("X: %f / Y: %f"), TargetLocation.X, TargetLocation.Y);
-
-		FVector NewDestroyLocation = PlayerLocation + GS->WindDirection* -1000.0f;
+		FVector NewDestroyLocation = PlayerLocation + GS->WindDirection*(-DestroyDistance);
 		DestroyCollision->SetWorldLocation(NewDestroyLocation);
 		
 		return TargetLocation;
@@ -85,6 +89,7 @@ FVector ATrashSpawner::UpdatePosition()
 void ATrashSpawner::BeginPlay()
 {
 	Super::BeginPlay();
+	DestroyCollision->OnComponentBeginOverlap.AddDynamic(this,&ATrashSpawner::MyOverlap);
 	
 	for (int32 i = 0; i < PoolSize; i++)
 	{

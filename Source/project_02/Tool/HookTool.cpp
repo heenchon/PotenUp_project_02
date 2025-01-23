@@ -62,7 +62,7 @@ void AHookTool::OnInteractiveHold()
 		return;
 	}
 	
-	Power = UKismetMathLibrary::Min(Power + 1, MaxPower);
+	Power = UKismetMathLibrary::Min(Power + 2, MaxPower);
 	
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
