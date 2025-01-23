@@ -176,8 +176,8 @@ void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 {
 	FVector NewLocation = HitResult.GetComponent()->GetComponentLocation();
-	// TODO: 테스트용 하드코딩으로 추후 제거 필요
-	NewLocation.Z += 50;
+	// TODO: 테스트용 하드코딩으로 추후 제거 필요 -> 설치 컴포넌트 위치를 Scene으로 이전
+	NewLocation.Z += 70;
 	FRotator NewRotation = HitResult.GetComponent()->GetComponentRotation();
 	NewRotation.Yaw += 90;
 	
