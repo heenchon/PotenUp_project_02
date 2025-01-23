@@ -106,16 +106,24 @@ bool ACup::IsLookingSea()
 	FVector end = CamManager->GetCameraLocation()+ CamManager->GetActorForwardVector()*3000.0f;
 
 	FHitResult hit;
+	TArray<AActor*> ActorsToIgnore;
 	FCollisionQueryParams params;
-	params.AddIgnoredActor(Player);
+	ActorsToIgnore.Add(Player);
 
-	bool bHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params);
-	// DrawDebugLine(GetWorld(), start, end, bHit ? FColor::Red:FColor::Green, false,0,0,2.0f);
-	// DrawDebugPoint(GetWorld(), hitLoc, 20, FColor::Red, false, 0.0f, 2.0f);
+	// bool bHit = GetWorld()->LineTraceSingleByChannel(hit, start, end, ECC_Visibility, params);
+	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end,
+		ETraceTypeQuery::TraceTypeQuery1,
+		true,
+		ActorsToIgnore, EDrawDebugTrace::ForOneFrame,
+		hit,
+		true,
+		FLinearColor::Red,
+		FLinearColor::Green,
+		1
+	);
 	
 	if (bHit)
 	{
-		FVector hitLoc = hit.ImpactPoint;
 		AWaterBodyOcean* ocean = Cast<AWaterBodyOcean>(hit.GetActor());
 		if (ocean)
 		{
