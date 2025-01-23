@@ -279,7 +279,7 @@ void APlayerCharacter::FindToUse()
 	FHitResult HitResult;
 	
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesArray;
-	// ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+	ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_EngineTraceChannel1));
 	
 	TArray<AActor*> ActorsToNotTargeting;
 	ActorsToNotTargeting.Add(this);
