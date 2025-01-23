@@ -6,6 +6,7 @@
 #include "Component/SurvivalComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/SwimmingComponent.h"
+#include "Component/BuildingComponent.h"
 #include "Components/BoxComponent.h"
 #include "project_02/Tool/InteractiveItem.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
@@ -18,7 +19,7 @@
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
 
-//TODO: 상민띠가 아이템 클래스 만들면 교체 
+// TODO: 상민띠가 아이템 클래스 만들면 교체
 #include "project_02/HY/Items/Usable_Item.h"
 #include "project_02/HY/Objects/Sail.h"
 #include "project_02/Weapon/WeaponBase.h"
@@ -28,6 +29,7 @@ APlayerCharacter::APlayerCharacter()
 	SurvivalComponent = CreateDefaultSubobject<USurvivalComponent>("Survival Component");
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>("Swimming Component");
+	BuildingComponent = CreateDefaultSubobject<UBuildingComponent>("Building Component");
 	
 	ChestBox = CreateDefaultSubobject<UBoxComponent>("Chest Box");
 	ChestBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "ChestSocket");
@@ -142,11 +144,12 @@ void APlayerCharacter::ClearViewItemOnHand()
 {
 	if (MainHandTool)
 	{
+		// 해제를 하고 제거해야 한다.
+		MainHandTool->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
 		MainHandTool->Destroy();
 		MainHandTool = nullptr;
 	}
 }
-
 
 // 특정 아이템을 손에 들거나 내려놓게 하는 함수
 void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
@@ -165,6 +168,11 @@ void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
 		MainHandTool->AttachToComponent(GetMesh(),
 			FAttachmentTransformRules::KeepRelativeTransform, FName(AttachSocket));
 		MainHandTool->SetOwner(this);
+
+		if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
+		{
+			InteractiveItem->OnAttached();
+		}
 	}
 }
 
@@ -312,8 +320,10 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 
 	    AddMovementInput(FinalValue);
 	}
-	
+
+	// TODO: 해당 부분 공통화 or 함수화 필요
 	FindToUse();
+	BuildingComponent->TraceGroundToBuild(CameraComponent->GetForwardVector());
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -329,7 +339,9 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	// Pitch는 앞 뒤가 아닌 위 아래 회전이기 때문에 Y값을 넣어줌
 	AddControllerPitchInput(VectorValue.Y * - 0.5);
 	
+	// TODO: 해당 부분 공통화 or 함수화 필요
 	FindToUse();
+	BuildingComponent->TraceGroundToBuild(CameraComponent->GetForwardVector());
 }
 
 void APlayerCharacter::GoToUp(const FInputActionValue& Value)
