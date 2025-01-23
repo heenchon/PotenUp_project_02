@@ -81,13 +81,9 @@ void ABuildingFloor::BeginPlay()
 	Super::BeginPlay();
 
 	WestWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
-	WestWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
 	EastWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
-	EastWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
 	NorthWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
-	NorthWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
 	SouthWallBodyBox->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnWallBodyBeginOverlap);
-	SouthWallBodyBox->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnWallBodyEndOverlap);
 }
 
 void ABuildingFloor::OnWireframeActive()
@@ -262,19 +258,9 @@ void ABuildingFloor::OnWallBodyBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	int32 OtherBodyIndex, bool bFromSweep,
 	const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Display, TEXT("Overlapped Data: %s, %s"), *OverlappedComponent->GetName(), *OtherActor->GetName())
 	if (!OtherActor->IsA(ABuildingFloor::StaticClass()))
 	{
 		OverlappedComponent->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
-	}
-}
-
-void ABuildingFloor::OnWallBodyEndOverlap(UPrimitiveComponent* OverlappedComponent,
-	AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex)
-{
-	if (!OtherActor->IsA(ABuildingFloor::StaticClass()))
-	{
-		UE_LOG(LogTemp, Display, TEXT("%s, %s"), *OverlappedComponent->GetName(), *OtherActor->GetName())
-		// OverlappedComponent->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
 	}
 }
