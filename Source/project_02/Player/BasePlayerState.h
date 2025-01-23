@@ -30,6 +30,8 @@ public:
 
 	void SetPlayerHandItemByPS(const uint16 NewIndex);
 
+	TMap<uint32, uint32> GetCurrentRemainItemValue();
+
 protected:
 	virtual void BeginPlay() override;
 	

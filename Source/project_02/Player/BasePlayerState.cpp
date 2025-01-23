@@ -29,6 +29,24 @@ void ABasePlayerState::InitializeData()
 	}
 }
 
+TMap<uint32, uint32> ABasePlayerState::GetCurrentRemainItemValue()
+{
+	TMap<uint32, uint32> NewMap;
+	
+	for (int i = 0; i < InitialItemList.Num(); i++)
+	{
+		if (NewMap.Find(PlayerInventoryList[i].GetId())) 
+		{
+			NewMap.Add(PlayerInventoryList[i].GetId(), PlayerInventoryList[i].GetCurrentCount());
+		}
+		else
+		{
+			NewMap[PlayerInventoryList[i].GetId()] += PlayerInventoryList[i].GetCurrentCount();
+		}
+	}
+
+	return NewMap;
+}
 
 void ABasePlayerState::BeginPlay()
 {
