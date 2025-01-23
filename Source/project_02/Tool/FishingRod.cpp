@@ -39,7 +39,10 @@ void AFishingRod::StartInteractive()
 		GetFish();
 		return;
 	}
-	ChargeStart();
+	if (!bIsWaiting)
+	{
+		ChargeStart();
+	}
 }
 
 void AFishingRod::OnInteractiveHold(float DeltaTime)
@@ -54,6 +57,7 @@ bool AFishingRod::EndInteractive()
 	{
 		return false;
 	}
+	
 	if (bIsCharging)
 	{
 		ChargeEnd();
@@ -79,6 +83,7 @@ void AFishingRod::ChargeEnd()
 	Float = GetWorld()->SpawnActor<AFishingFloat>(FloatClass,RodPoint->GetComponentTransform());
 	if (Float)
 	{
+		bIsWaiting = true;
 		Float->SetFishingRod(this);
 		Float->StartThrow(RodPoint->GetComponentLocation(),Power);
 	}
@@ -88,6 +93,7 @@ void AFishingRod::ChargeEnd()
 void AFishingRod::StartFishing()
 {
 	bIsFish = true;
+	bIsWaiting = false;
 	UE_LOG(LogTemp,Warning,TEXT("미끼를 물었다!"));
 }
 

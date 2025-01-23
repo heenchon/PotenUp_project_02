@@ -30,6 +30,7 @@ public:
 	TSubclassOf<AFishingFloat> FloatClass;
 
 	bool bIsFish;
+	bool bIsWaiting;
 	bool bIsCharging;
 	float Power;
 
