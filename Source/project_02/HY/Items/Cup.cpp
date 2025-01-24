@@ -113,7 +113,7 @@ bool ACup::IsLookingSea()
 	ActorsToIgnore.Add(Player);
 	
 	bool bHit = UKismetSystemLibrary::LineTraceSingle(GetWorld(), start, end,
-		ETraceTypeQuery::TraceTypeQuery1,
+		ETraceTypeQuery::TraceTypeQuery6,
 		true,
 		ActorsToIgnore, EDrawDebugTrace::None,
 		hit,
