@@ -8,6 +8,9 @@
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Helper/ItemHelper.h"
 #include "project_02/Player/BasePlayerState.h"
+#include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/Player/BasePlayerController.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
 
 
 // Sets default values
@@ -61,11 +64,15 @@ void AFishingRod::StartInteractive()
 void AFishingRod::OnInteractiveHold(float DeltaTime)
 {
 	Super::OnInteractiveHold();
-	Charging(DeltaTime);
+	if (bIsCharging)
+	{
+		Charging(DeltaTime);
+	}
 }
 
 bool AFishingRod::EndInteractive()
 {
+	
 	if (!Super::EndInteractive())
 	{
 		return false;
@@ -87,12 +94,26 @@ void AFishingRod::ChargeStart()
 void AFishingRod::Charging(float deltaTime)
 {
 	Power += deltaTime * 600.0f;
+	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
+	{
+		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
+		check(PC)
+		
+		PC->GetPlayerUI()->SetProgressPercent(static_cast<float>(Power) / MaxPower);
+	}
 }
 
 void AFishingRod::ChargeEnd()
 {
 	bIsCharging = false;
-
+	
+	const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner());
+	ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
+	
+	check(PC)
+	
+	PC->GetPlayerUI()->SetProgressPercent(0);
+	
 	Float = GetWorld()->SpawnActor<AFishingFloat>(FloatClass,RodPoint->GetComponentTransform());
 	if (Float)
 	{
@@ -107,7 +128,7 @@ void AFishingRod::StartFishing()
 {
 	bIsFish = true;
 	bIsWaiting = false;
-	UE_LOG(LogTemp,Warning,TEXT("미끼를 물었다!"));
+	UE_LOG(LogTemp,Display,TEXT("미끼를 물었다!"));
 }
 
 

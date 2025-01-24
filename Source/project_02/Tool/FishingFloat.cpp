@@ -68,7 +68,7 @@ void AFishingFloat::Fishing(float deltaTime)
 	CurTime += deltaTime;
 	if (CurTime > FishingTime)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("물고기 놓쳤썩"));
+		UE_LOG(LogTemp, Display, TEXT("물고기 놓쳤썩"));
 		FishingRod->FishingFail();
 		Destroy();
 	}

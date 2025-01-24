@@ -79,6 +79,7 @@ void ACup::FillSeaWater()
 	{
 		bIsEmpty = false;
 		bIsSea = true;
+		WaterMesh->SetMaterial(0,Ocean);
 		WaterMesh->SetVisibility(true);
 	}
 }
@@ -89,6 +90,7 @@ void ACup::FillFreshWater()
 	{
 		bIsEmpty = false;
 		bIsFresh = true;
+		WaterMesh->SetMaterial(0,Fresh);
 		WaterMesh->SetVisibility(true);
 	}
 }
