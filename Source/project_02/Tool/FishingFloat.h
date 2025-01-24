@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/TimelineComponent.h"
 #include "GameFramework/Actor.h"
 #include "FishingFloat.generated.h"
 
@@ -23,10 +24,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* Collision;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	class APawn* Player;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	AFishingRod* FishingRod;
+
+	UPROPERTY(EditAnywhere, Category = "Curve Animation")
+	UCurveFloat* ZCurve;
+	UPROPERTY()
+	FTimeline ZTimeline;
 	
 	bool bIsThrowing;
 	FVector StartLocation;
@@ -36,7 +42,8 @@ public:
 	bool bIsWaiting = false;
 	float WaitTime;
 	bool bIsFish = false;
-	float FishingTime = 2.0f;
+	UPROPERTY(EditAnywhere)
+	float FishingTime = 3.0f;
 
 	float CurTime;
 	
@@ -45,6 +52,7 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+	
 	UFUNCTION()
 	void OnOverlap(
 		UPrimitiveComponent* OverlappedComponent, 
@@ -61,5 +69,6 @@ public:
 	void Waiting(float deltaTime);
 	void Fishing(float deltaTime);
 	void SetFishingRod(AFishingRod* fishingRod);
+	void FishBate(float value);
 };
 

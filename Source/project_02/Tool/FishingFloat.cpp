@@ -22,6 +22,13 @@ void AFishingFloat::BeginPlay()
 {
 	Super::BeginPlay();
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnOverlap);
+	
+	FOnTimelineFloat ProgressFunction;
+	ProgressFunction.BindUFunction(this, FName("FishBate"));
+
+	ZTimeline.AddInterpFloat(ZCurve, ProgressFunction);
+	ZTimeline.SetLooping(false);
+
 }
 
 void AFishingFloat::Tick(float DeltaTime)
@@ -57,6 +64,8 @@ void AFishingFloat::Waiting(float deltaTime)
 		CurTime = 0.0f;
 		//낚싯대->물고기 낚였다는 정보 전달.
 		FishingRod->StartFishing();
+		StartLocation = GetActorLocation();
+		ZTimeline.PlayFromStart();
 		bIsWaiting = false;
 		bIsFish = true;
 	}
@@ -97,8 +106,16 @@ void AFishingFloat::SetFishingRod(AFishingRod* fishingRod)
 	FishingRod = fishingRod;
 }
 
+void AFishingFloat::FishBate(float Value)
+{
+	UE_LOG(LogTemp, Display, TEXT("FishBate"));
+	FVector NewLocation = StartLocation;
+	NewLocation.Z += Value;
+	SetActorLocation(NewLocation);
+}
+
 void AFishingFloat::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (bIsThrowing)
 	{
