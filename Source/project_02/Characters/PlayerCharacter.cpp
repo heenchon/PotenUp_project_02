@@ -194,6 +194,11 @@ void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
 
 void APlayerCharacter::OnInteractivePressed()
 {
+	if (InventoryComponent->GetIsOpenInventory())
+	{
+		return;
+	}
+	
 	// 이 방식으로 통일
 	if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
 	{
