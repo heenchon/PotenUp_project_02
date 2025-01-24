@@ -18,13 +18,20 @@ public:
 	ACup();
 
 	UPROPERTY(EditAnywhere)
-	class APawn* Player;
-	UPROPERTY(EditAnywhere)
-	class APlayerCameraManager* CamManager;
-	UPROPERTY(EditAnywhere)
-	USurvivalComponent* SurvivalComponent;
-	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* WaterMesh;
+
+	UPROPERTY(EditAnywhere, Category = "Materials")
+	UMaterialInterface* Ocean;
+
+	UPROPERTY(EditAnywhere, Category = "Materials")
+	UMaterialInterface* Fresh;
+	
+	UPROPERTY()
+	class APawn* Player;
+	UPROPERTY()
+	class APlayerCameraManager* CamManager;
+	UPROPERTY()
+	USurvivalComponent* SurvivalComponent;
 	
 	static bool bIsFresh;
 	static bool bIsSea;

@@ -14,7 +14,16 @@ class PROJECT_02_API AWaterPurifier : public APlaceObjects
 public:
 	// Sets default values for this actor's properties
 	AWaterPurifier();
+		
+	UPROPERTY(EditAnywhere)
+	UStaticMeshComponent* WaterMesh;
+	
+	UPROPERTY(EditAnywhere, Category = "Materials")
+	UMaterialInterface* Ocean;
 
+	UPROPERTY(EditAnywhere, Category = "Materials")
+	UMaterialInterface* Fresh;
+	
 	bool bIsPurified;
 
 protected:
