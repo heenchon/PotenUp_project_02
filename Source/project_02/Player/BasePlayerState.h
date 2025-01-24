@@ -23,6 +23,8 @@ public:
 	uint32 AddItem(const FItemMetaInfo& ItemInfo);
 
 	bool DropItem(const uint16 Index, const uint32 Count);
+	
+	bool RemoveItem(const uint16 Id, const uint32 Count);
 
 	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
 
@@ -30,7 +32,7 @@ public:
 
 	void SetPlayerHandItemByPS(const uint16 NewIndex);
 
-	TMap<uint32, uint32> GetCurrentRemainItemValue();
+	TMap<uint32, uint32> GetCurrentRemainItemValue() const;
 
 protected:
 	virtual void BeginPlay() override;

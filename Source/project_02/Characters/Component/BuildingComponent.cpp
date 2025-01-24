@@ -8,6 +8,7 @@
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
 #include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/DataTable/BuildData.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
 #include "project_02/Player/BasePlayerState.h"
 
@@ -194,7 +195,7 @@ void UBuildingComponent::ReattachFloor(const FHitResult& HitResult)
 		FloorWireframe->AttachToComponent(
 				HitResult.GetComponent(),
 				FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		FloorWireframe->SetWireframeMaterial(WireframeMaterial);
+		FloorWireframe->SetWireframeMaterial(CanBuildBlockBuild(FloorWireframe) ? WireframeMaterial : WireframeBlockMaterial);
 	}
 }
 
@@ -206,7 +207,7 @@ void UBuildingComponent::ReattachWall(const FHitResult& HitResult)
 		WallWireframe->AttachToComponent(
 				HitResult.GetComponent(),
 				FAttachmentTransformRules::KeepRelativeTransform);
-		WallWireframe->SetWireframeMaterial(WireframeMaterial);
+		WallWireframe->SetWireframeMaterial(CanBuildBlockBuild(WallWireframe) ? WireframeMaterial : WireframeBlockMaterial);
 	}
 }
 
@@ -221,7 +222,9 @@ void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 		NewWireframe->AttachToComponent(
 			HitResult.GetComponent(),
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
-		NewWireframe->SetWireframeMaterial(WireframeMaterial);
+		NewWireframe->SetWireframeMaterial(
+			CanBuildBlockBuild(NewWireframe) ?
+			WireframeMaterial : WireframeBlockMaterial);
 		// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
 		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
 		{
@@ -247,7 +250,9 @@ void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 		NewWireframe->AttachToComponent(
 			HitResult.GetComponent(),
 			FAttachmentTransformRules::KeepWorldTransform);
-		NewWireframe->SetWireframeMaterial(WireframeMaterial);
+		NewWireframe->SetWireframeMaterial(
+			CanBuildBlockBuild(NewWireframe) ?
+			WireframeMaterial : WireframeBlockMaterial);
 		// 상위 함수에서 이미 검증하지만 혹시 모르니 재검증
 		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(HitResult.GetActor()))
 		{
@@ -315,8 +320,13 @@ void UBuildingComponent::BuildWireframe()
 	}
 
 	// 설치류가 아닌 건축 블럭이라면 여기를 수행한다.
-	if (CurrentWireframeActor->IsA(ABuildingActor::StaticClass()))
+	if (const ABuildingActor* NewBuildActor = Cast<ABuildingActor>(CurrentWireframeActor))
 	{
+		if (!CanBuildBlockBuild(NewBuildActor))
+		{
+			return;
+		}
+		
 		// 여기서는 Meta Data를 업데이트 처리한다.
 		if (ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
 		{
@@ -324,12 +334,25 @@ void UBuildingComponent::BuildWireframe()
 			{
 				return;
 			}
-		
-			ParentBuild->UpdateBuildData(CurrentWireframeBox, Cast<ABuildingActor>(CurrentWireframeActor));
 
-			CurrentWireframeActor = nullptr;
-			CurrentWireframeBox = nullptr;
-			CurrentHitActor = nullptr;
+			if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner()))
+			{
+				ABasePlayerState* PS = Cast<ABasePlayerState>(PlayerCharacter->GetPlayerState());
+				
+				if (!PS)
+				{
+					return;
+				}
+				
+				if (PS->RemoveItem(GetBuildBlockType(NewBuildActor), NewBuildActor->GetConsumeCount()))
+				{
+					ParentBuild->UpdateBuildData(CurrentWireframeBox, Cast<ABuildingActor>(CurrentWireframeActor));
+
+					CurrentWireframeActor = nullptr;
+					CurrentWireframeBox = nullptr;
+					CurrentHitActor = nullptr;
+				}
+			}
 		}
 	}
 }
@@ -381,4 +404,38 @@ void UBuildingComponent::SetBuildType(const EBuildType NewType)
 void UBuildingComponent::BuildCustomObject()
 {
 	BuildWireframe();
+}
+
+uint32 UBuildingComponent::GetBuildBlockType(const ABuildingActor* BuildingActor)
+{
+	if (BuildingActor->GetBlockType() == EBlockType::Wood)
+	{
+		// 나뭇조각 id
+		// TODO: 하드코딩을 방지할 수 있는 방법을 탐색해야 한다.
+		return 5;
+	}
+	return 0;
+}
+
+bool UBuildingComponent::CanBuildBlockBuild(const ABuildingActor* BuildingActor)
+{
+	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
+	{
+		const ABasePlayerState* PS = Player->GetPlayerState<ABasePlayerState>();
+		if (!PS)
+		{
+			return false;	
+		}
+
+		// 전체 아이템 정보 에서 내가 원하는 아이템 타입 정보를 가져온다.
+		if (const uint32* Result = PS->GetCurrentRemainItemValue().Find(GetBuildBlockType(BuildingActor)))
+		{
+			if (*Result >= BuildingActor->GetConsumeCount())
+			{
+				return true;
+			}
+		}
+	}
+	
+	return false;
 }

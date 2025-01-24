@@ -2,8 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "project_02/Building/BuildingActor.h"
 #include "BuildingComponent.generated.h"
 
+enum class EBlockType;
 class UInputAction;
 class ABuildingWall;
 class ABuildingFloor;
@@ -102,4 +104,8 @@ private:
 
 	// 오브젝트 전용 처리
 	void CreateWireframeForObject(const FHitResult& HitResult);
+
+	uint32 GetBuildBlockType(const ABuildingActor* BuildingActor);
+
+	bool CanBuildBlockBuild(const ABuildingActor* BuildingActor);
 };

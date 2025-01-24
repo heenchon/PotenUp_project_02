@@ -23,13 +23,16 @@ void ABasePlayerState::InitializeData()
 	{
 		FItemMetaInfo NewItem;
 		NewItem.SetId(InitialItemList[i]);
-		NewItem.SetCurrentCount(1);
+		NewItem.SetCurrentCount(FItemHelper::GetItemInfoById(
+			GetWorld(), InitialItemList[i])
+			.GetMaxItemCount());
 
 		PlayerInventoryList[i] = NewItem;
 	}
 }
 
-TMap<uint32, uint32> ABasePlayerState::GetCurrentRemainItemValue()
+// TODO: 이건 내부 로직에서 아이템 변경될 때 마다 처리하기
+TMap<uint32, uint32> ABasePlayerState::GetCurrentRemainItemValue() const
 {
 	TMap<uint32, uint32> NewMap;
 	
@@ -37,11 +40,11 @@ TMap<uint32, uint32> ABasePlayerState::GetCurrentRemainItemValue()
 	{
 		if (NewMap.Find(PlayerInventoryList[i].GetId())) 
 		{
-			NewMap.Add(PlayerInventoryList[i].GetId(), PlayerInventoryList[i].GetCurrentCount());
+			NewMap[PlayerInventoryList[i].GetId()] += PlayerInventoryList[i].GetCurrentCount();
 		}
 		else
 		{
-			NewMap[PlayerInventoryList[i].GetId()] += PlayerInventoryList[i].GetCurrentCount();
+			NewMap.Add(PlayerInventoryList[i].GetId(), PlayerInventoryList[i].GetCurrentCount());
 		}
 	}
 
@@ -212,6 +215,63 @@ uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 	UpdateInventoryHotbar();
 	
 	return 0;
+}
+
+bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
+{
+	uint32 RemainNum = Count;
+	TArray<uint32> CanRemoveIndexList;
+	for (int i = 0; i < GetTotalSlotCount(); i++)
+	{
+		if (PlayerInventoryList[i].GetId() == Id)
+		{
+			CanRemoveIndexList.Add(i);
+			RemainNum = UKismetMathLibrary::Max(RemainNum - PlayerInventoryList[i].GetCurrentCount(), 0);
+		}
+
+		// RemainNum이 0보다 작거나 같다는 의미는 즉
+		// 더이상 탐색하지 않아도 전부 없앨 수 있다라는 의미다.
+		if (RemainNum <= 0)
+		{
+			break;
+		}
+	}
+
+	// 0보다 큰 상황이라면 사용하기에는 양이 부족하다라는 의미기에 false를 반환한다.
+	if (RemainNum > 0)
+	{
+		return false;
+	}
+	
+	// 다시 RemainNum을 돌려둔다. 재사용해서 갯수를 없애는 것에 실질적으로 이용함
+	RemainNum = Count;
+	for (const uint32 RemoveIndex : CanRemoveIndexList)
+	{
+		// 둘 중 더 작은 값을 없애준다. 만약 RemainNum이 10이고, 아이템의 현재 갯수가 7이라면
+		// 7개만 없애주고, 아이템 갯수가 13개면 10개만 없앤다.
+		const uint32 RemoveCount = UKismetMathLibrary::Min(PlayerInventoryList[RemoveIndex].GetCurrentCount(), RemainNum);
+
+		// 우선은 값 설정
+		PlayerInventoryList[RemoveIndex].SetCurrentCount(PlayerInventoryList[RemoveIndex].GetCurrentCount() - RemoveCount);
+		RemainNum -= RemoveCount;
+		
+		// 만약 슬롯이 현재 0개라면 슬롯 초기화를 진행한다.
+		if (PlayerInventoryList[RemoveIndex].GetCurrentCount() == 0)
+		{
+			const FItemMetaInfo ClearItemMeta;
+			PlayerInventoryList[RemoveIndex] = ClearItemMeta;
+		}
+
+		// 어차피 여기서 다 버려서 0이 될 수 밖에 없다.
+		if (RemainNum == 0)
+		{
+			UpdateInventoryHotbar();
+			return true;
+		}
+	}
+
+	// 이건 혹시 모르는 예외 사항에 대한 처리
+	return false;
 }
 
 void ABasePlayerState::UpdateInventoryHotbar() const
