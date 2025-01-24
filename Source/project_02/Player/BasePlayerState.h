@@ -32,12 +32,15 @@ public:
 
 	void SetPlayerHandItemByPS(const uint16 NewIndex);
 
-	TMap<uint32, uint32> GetCurrentRemainItemValue() const;
+	FORCEINLINE TMap<uint32, uint32> GetCurrentRemainItemValue() const { return CurrentRemainItemValue; }
 
 protected:
 	virtual void BeginPlay() override;
 	
 private:
+	TMap<uint32, uint32> CurrentRemainItemValue;
+	void UpdateCurrentRemainItemValue();
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	TArray<uint32> InitialItemList;
 
@@ -51,5 +54,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 HotSlotCount = 0;
 
-	void UpdateInventoryHotbar() const;
+	void OnUpdateInventory();
 };
