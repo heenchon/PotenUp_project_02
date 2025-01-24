@@ -132,9 +132,6 @@ private:
 	
 	UFUNCTION()
 	void GoToUp(const FInputActionValue& Value);
-
-	UFUNCTION()
-	void OnInteractiveHolding();
 	
 	UFUNCTION()
 	void OnInteractiveEnd();

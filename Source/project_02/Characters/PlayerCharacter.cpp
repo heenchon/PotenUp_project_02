@@ -69,8 +69,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
 		, this, &ThisClass::OnInteractivePressed);
-		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
-		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
 		
@@ -212,6 +210,11 @@ void APlayerCharacter::OnInteractivePressed()
 	{
 		static_cast<AUsable_Item*>(MainHandTool)->Use();
 	}
+
+	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
+	{
+		static_cast<APaddleTest*>(MainHandTool)->PaddlingStart();
+	}
 }
 
 void APlayerCharacter::RotatePressed()
@@ -230,22 +233,6 @@ void APlayerCharacter::RotateReleased()
 		Sail->RotateStop();
 	}
 }
-
-// TODO: 레거시 코드로 제거 필요
-void APlayerCharacter::OnInteractiveHolding()
-{
-	if (IsBlockAction()) return;
-	// TODO: 우선순위에 대한 로직 추가 필요
-	// 여기서부터 아래까지는 보통 상호작용에 대한 처리이기 때문에 우선순위가 매우 높다.
-	// 상호작용에 대해서는 HoldEnd에 대해서도 처리하지 않는 것이 원칙. 추후 컴포넌트화 필요
-	
-	// 손에든 아이템을 실행시키는 방식임
-	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
-	{
-		static_cast<APaddleTest*>(MainHandTool)->PaddlingStart();
-	}
-}
-
 void APlayerCharacter::OnInteractiveEnd()
 {
 	if (IsBlockAction()) return;

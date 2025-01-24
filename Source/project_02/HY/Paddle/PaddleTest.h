@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Components/TimelineComponent.h"
 #include "PaddleTest.generated.h"
 
 UCLASS()
@@ -17,14 +18,14 @@ public:
 
 	//TODO: 윈드 매니저 추가 후 cpp 수정
 	//Raft의 바람 방향을 가져오기 위해
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	class ARaftGameState* RaftGameState;
+	UPROPERTY();
+	TObjectPtr<class ARaftGameState> RaftGameState;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	class ARaft* Raft;
+	UPROPERTY();
+	TObjectPtr<class ARaft> Raft;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite);
-	class APawn* Player;
+	UPROPERTY();
+	TObjectPtr<APawn> Player;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite);
 	bool bIsPaddling = false;
@@ -39,14 +40,30 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
-	FVector WindOriginDir;
-	float WindOriginStrength;
+	FVector PaddleVelocity;
+	
 	FTimerHandle PaddleTimerHandle;
+	
+	UPROPERTY()
+	TObjectPtr<class UTimelineComponent> PaddlingTimeline;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
+	TObjectPtr<UCurveFloat> PaddlingTimingCurve;
+	
+	FOnTimelineFloat DivingCallback;
+	
+	FOnTimelineEvent DivingFinish;
+	
+	UFUNCTION()
+	void OnPaddlingPlayCallback(float Output);
+	
+	UFUNCTION()
+	void OnPaddlingFinish();
 	
 public:
 	UFUNCTION()
 	void PaddlingStart();
-
+	
 	UFUNCTION()
 	void PaddlingEnd();
 

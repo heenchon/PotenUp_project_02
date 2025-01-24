@@ -25,8 +25,6 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wind")
 	float WindStrength = 40.0f;
-	// UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wind")
-	// float SailStrength = 1.5f;
 	
 	UFUNCTION(BlueprintCallable, Category = "Wind")
 	void SetWind(FVector newDir, float newStrength);
