@@ -29,10 +29,12 @@ void ABasePlayerState::InitializeData()
 
 		PlayerInventoryList[i] = NewItem;
 	}
+	
+	UpdateCurrentRemainItemValue();
 }
 
 // TODO: 이건 내부 로직에서 아이템 변경될 때 마다 처리하기
-TMap<uint32, uint32> ABasePlayerState::GetCurrentRemainItemValue() const
+void ABasePlayerState::UpdateCurrentRemainItemValue()
 {
 	TMap<uint32, uint32> NewMap;
 	
@@ -48,7 +50,7 @@ TMap<uint32, uint32> ABasePlayerState::GetCurrentRemainItemValue() const
 		}
 	}
 
-	return NewMap;
+	CurrentRemainItemValue.Append(NewMap);
 }
 
 void ABasePlayerState::BeginPlay()
@@ -140,6 +142,7 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 		}
 	}
 
+	UpdateCurrentRemainItemValue();
 	return RemainCount > 0 ? RemainCount : 0;
 }
 
@@ -150,7 +153,8 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 	{
 		const FItemMetaInfo ClearItemMeta;
 		PlayerInventoryList[Index] = ClearItemMeta;
-		UpdateInventoryHotbar();
+		OnUpdateInventory();
+		UpdateCurrentRemainItemValue();
 		return true;
 	}
 	
@@ -167,7 +171,7 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 		PlayerInventoryList[Index].SetCurrentCount(PlayerInventoryList[Index].GetCurrentCount() - Count);
 	}
 	
-	UpdateInventoryHotbar();
+	OnUpdateInventory();
 	
 	return true;
 }
@@ -212,7 +216,7 @@ uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 	}
 
 	// UI 업데이트
-	UpdateInventoryHotbar();
+	OnUpdateInventory();
 	
 	return 0;
 }
@@ -265,7 +269,7 @@ bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
 		// 어차피 여기서 다 버려서 0이 될 수 밖에 없다.
 		if (RemainNum == 0)
 		{
-			UpdateInventoryHotbar();
+			OnUpdateInventory();
 			return true;
 		}
 	}
@@ -274,9 +278,10 @@ bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
 	return false;
 }
 
-void ABasePlayerState::UpdateInventoryHotbar() const
+void ABasePlayerState::OnUpdateInventory()
 {
 	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetPlayerController());
 
+	UpdateCurrentRemainItemValue();
 	PC->GetPlayerUI()->GetInventoryHotSlot()->UpdateInventoryArray();
 }
