@@ -28,7 +28,9 @@ private:
 	TObjectPtr<AInteractiveHook> ControlledHook;
 
 	uint8 Power = 0;
-	uint8 MaxPower = 200;
+	uint8 PowerGage = 1;
+	uint8 MaxPower = 100;
+	
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCableComponent> Cable;
@@ -41,4 +43,10 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USceneComponent> DefaultRoot;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	float StartForward = 100.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	float StartRelativeUpward = 80.f;
 };

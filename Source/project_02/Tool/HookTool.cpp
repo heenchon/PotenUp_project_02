@@ -7,6 +7,7 @@
 
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Player/BasePlayerController.h"
+#include "Camera/CameraComponent.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 
 AHookTool::AHookTool()
@@ -62,7 +63,7 @@ void AHookTool::OnInteractiveHold()
 		return;
 	}
 	
-	Power = UKismetMathLibrary::Min(Power + 2, MaxPower);
+	Power = UKismetMathLibrary::Min(Power + PowerGage, MaxPower);
 	
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
@@ -91,8 +92,8 @@ bool AHookTool::EndInteractive()
 	
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
-		FVector NewLocation = GetActorLocation() + Player->GetActorForwardVector() * 50;
-		NewLocation.Z += 50;
+		FVector NewLocation = GetActorLocation() + Player->CameraComponent->GetComponentRotation().Vector() * StartForward;
+		NewLocation.Z += StartRelativeUpward;
 
 		ControlledHook = GetWorld()->SpawnActor<AInteractiveHook>(HookItem, NewLocation, GetActorRotation());
 		if (ControlledHook)

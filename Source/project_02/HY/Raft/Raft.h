@@ -31,10 +31,6 @@ public:
 	UPROPERTY()
 	class ARaftGameState* RaftGameState;
 	
-	UPROPERTY(EditAnywhere, Category = "Move")
-	FVector WindDirection;
-	UPROPERTY(EditAnywhere, Category = "Move")
-	float WindStrength;
 	float SailStrength = 1.0f;
 
 protected:

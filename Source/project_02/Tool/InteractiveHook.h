@@ -57,6 +57,8 @@ private:
 	
 	FVector MoveToPos;
 	uint8 Power;
+
+	float GravityStackTime = 0.f;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USceneComponent> DefaultRoot;

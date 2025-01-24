@@ -44,12 +44,6 @@ void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
 	StaticMesh->SetHiddenInGame(true);
-	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
-	if (RaftGameState)
-	{
-		WindDirection = RaftGameState->WindDirection;
-		WindStrength = RaftGameState->WindStrength;
-	}
 	
 	if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
 	{
@@ -65,7 +59,11 @@ void ARaft::BeginPlay()
 void ARaft::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength*SailStrength);
+	
+	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
+	
+	AddActorLocalOffset(RaftGameState->WindDirection
+		* DeltaTime * RaftGameState->WindStrength * SailStrength);
 }
 
 void ARaft::SpawnSailActor()
