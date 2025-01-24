@@ -26,13 +26,13 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float ProcessDuration;
 
-	UPROPERTY(EditAnywhere)
-	ABasePlayerState* PS;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY()
+	ABasePlayerState* PS;
+	
 private:
 	FTimerHandle ProcessTimerHandle;
 	
