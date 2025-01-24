@@ -49,8 +49,8 @@ void ABasePlayerState::UpdateCurrentRemainItemValue()
 			NewMap.Add(PlayerInventoryList[i].GetId(), PlayerInventoryList[i].GetCurrentCount());
 		}
 	}
-
-	CurrentRemainItemValue.Append(NewMap);
+	CurrentRemainItemValue.Empty();
+	CurrentRemainItemValue.Append(NewMap); 
 }
 
 void ABasePlayerState::BeginPlay()

@@ -430,6 +430,7 @@ bool UBuildingComponent::CanBuildBlockBuild(const ABuildingActor* BuildingActor)
 		// 전체 아이템 정보 에서 내가 원하는 아이템 타입 정보를 가져온다.
 		if (const uint32* Result = PS->GetCurrentRemainItemValue().Find(GetBuildBlockType(BuildingActor)))
 		{
+			UE_LOG(LogTemp, Display, TEXT("Result: %d"), *Result)
 			if (*Result >= BuildingActor->GetConsumeCount())
 			{
 				return true;
