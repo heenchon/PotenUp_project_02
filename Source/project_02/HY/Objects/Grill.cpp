@@ -34,6 +34,7 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 		// 	// CookedTo
 		// }
 		// TODO: 하드코딩이니까 나중에 리팩토링 필요함.
+		
 		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
 		{
 			PS->DropItem(curItemIndex, 1);
