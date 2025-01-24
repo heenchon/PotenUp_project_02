@@ -51,7 +51,7 @@ void AInteractiveHook::StartLaunch(const FVector& MoveToVector, const uint8 NewP
 {
 	HookStatus = EHookStatus::Launched;
 	Power = NewPower;
-	MoveToPos = MoveToVector;
+	MoveToPos = MoveToVector.GetSafeNormal(1);
 }
 
 // Called every frame
@@ -59,12 +59,14 @@ void AInteractiveHook::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	GravityStackTime += DeltaTime * DeltaTime;
+	
 	switch (HookStatus)
 	{
 		case EHookStatus::Launched:
 		{
 			AddActorWorldOffset(MoveToPos * DeltaTime * Power * PowerPercent + 
-										FVector::UpVector * (-1.f * GravityScale * DeltaTime));
+										FVector::UpVector * (-1.f * GravityScale * GravityStackTime));
 			break;
 		}
 		case EHookStatus::Pulled:
