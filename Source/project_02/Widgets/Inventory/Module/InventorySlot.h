@@ -19,7 +19,7 @@ class PROJECT_02_API UInventorySlot : public UUserWidget
 	GENERATED_BODY()
 	
 public:
-	void SetThumbnail(const TSoftObjectPtr<UTexture2D> Thumbnail) const;
+	void SetThumbnail(const TSoftObjectPtr<UTexture2D>& Thumbnail) const;
 	
 	void SetItemCount(const uint16 NewCount) const;
 	
@@ -30,6 +30,8 @@ public:
 	void SetSlotInfo(const FItemMetaInfo& ItemMetaInfo);
 
 	void SetSelected(const bool bIsSelected) const;
+
+	void RemoveDragDropSlot() const;
 
 	FORCEINLINE void SetIndex(const uint16 NewIndex) { Index = NewIndex; }
 	FORCEINLINE void SetSlotItemId(const uint16 NewSlotItemId) { SlotItemId = NewSlotItemId; }

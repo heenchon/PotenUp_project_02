@@ -2,9 +2,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerState.h"
+#include "project_02/DataTable/ItemInfoData.h"
 #include "BasePlayerState.generated.h"
-
-struct FItemMetaInfo;
 
 UCLASS()
 class PROJECT_02_API ABasePlayerState : public APlayerState
@@ -24,6 +23,8 @@ public:
 	uint32 AddItem(const FItemMetaInfo& ItemInfo);
 
 	bool DropItem(const uint16 Index, const uint32 Count);
+	
+	bool RemoveItem(const uint16 Id, const uint32 Count);
 
 	uint32 AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo);
 
@@ -31,10 +32,18 @@ public:
 
 	void SetPlayerHandItemByPS(const uint16 NewIndex);
 
+	FORCEINLINE TMap<uint32, uint32> GetCurrentRemainItemValue() const { return CurrentRemainItemValue; }
+
 protected:
 	virtual void BeginPlay() override;
 	
 private:
+	TMap<uint32, uint32> CurrentRemainItemValue;
+	void UpdateCurrentRemainItemValue();
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TArray<uint32> InitialItemList;
+
 	UPROPERTY()
 	TArray<FItemMetaInfo> PlayerInventoryList;
 
@@ -45,5 +54,5 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 HotSlotCount = 0;
 
-	void UpdateInventoryHotbar() const;
+	void OnUpdateInventory();
 };

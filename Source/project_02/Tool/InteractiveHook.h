@@ -6,6 +6,7 @@
 
 class UBoxComponent;
 class ATrash;
+class ATrashSpawner;
 class USphereComponent;
 
 UENUM()
@@ -55,8 +56,9 @@ private:
 	EHookStatus HookStatus = EHookStatus::Idle;
 	
 	FVector MoveToPos;
-	
 	uint8 Power;
+
+	float GravityStackTime = 0.f;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USceneComponent> DefaultRoot;

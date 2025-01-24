@@ -4,6 +4,8 @@
 #include "Components/ActorComponent.h"
 #include "SurvivalComponent.generated.h"
 
+class UEntityStatInfo;
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_02_API USurvivalComponent : public UActorComponent
 {
@@ -24,7 +26,11 @@ public:
 	UFUNCTION()
 	void DecreaseHunger(const uint8 NewValue);
 	UFUNCTION()
+	void IncreaseHunger(const uint8 NewValue);
+	UFUNCTION()
 	void DecreaseThirst(const uint8 NewValue);
+	UFUNCTION()
+	void IncreaseThirst(const uint8 NewValue);
 	
 	void InitialSurvivalData();
 	
@@ -35,7 +41,7 @@ private:
 	bool IsDied = false;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Data", meta = (AllowPrivateAccess = true))
-	FDataTableRowHandle EntityInfo;
+	TObjectPtr<UEntityStatInfo> EntityStatInfo;
 	
 	TPair<uint8, uint8> HealthInfo;
 	

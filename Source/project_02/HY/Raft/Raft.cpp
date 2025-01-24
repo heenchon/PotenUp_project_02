@@ -2,8 +2,10 @@
 
 
 #include "Raft.h"
+#include "project_02/Building/BuildingActor.h"
 #include "../RaftGameState.h"
-#include "Sail.h"
+#include "../Objects/Sail.h"
+#include "project_02/Building/BuildingFloor.h"
 
 // Sets default values
 ARaft::ARaft()
@@ -26,10 +28,10 @@ ARaft::ARaft()
 	Buoyancy->AddCustomPontoon(100,"two");
 	Buoyancy->AddCustomPontoon(100,"three");
 	Buoyancy->AddCustomPontoon(100,"four");
-	Buoyancy->BuoyancyData.Pontoons[0].RelativeLocation = {50.0f,50.0f,0.0f};
-	Buoyancy->BuoyancyData.Pontoons[1].RelativeLocation = {-50.0f,50.0f,0};
-	Buoyancy->BuoyancyData.Pontoons[2].RelativeLocation = {50.0f,-50.0f,0};
-	Buoyancy->BuoyancyData.Pontoons[3].RelativeLocation = {-50.0f,-50.0f,0};
+	Buoyancy->BuoyancyData.Pontoons[0].RelativeLocation = {50.0f,50.0f,75.f};
+	Buoyancy->BuoyancyData.Pontoons[1].RelativeLocation = {-50.0f,50.0f,75.f};
+	Buoyancy->BuoyancyData.Pontoons[2].RelativeLocation = {50.0f,-50.0f,75.f};
+	Buoyancy->BuoyancyData.Pontoons[3].RelativeLocation = {-50.0f,-50.0f,75.f};
 
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 	StaticMesh->SetCollisionObjectType(ECC_PhysicsBody);
@@ -41,12 +43,15 @@ ARaft::ARaft()
 void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
-	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
-	if (RaftGameState)
+	StaticMesh->SetHiddenInGame(true);
+	
+	if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
 	{
-		WindDirection = RaftGameState->WindDirection;
-		WindStrength = RaftGameState->WindStrength;
+		MainFloor = NewMainFloor;
+		MainFloor->SetCenter();
+		MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 	}
+	
 	SpawnSailActor();
 }
 
@@ -54,14 +59,18 @@ void ARaft::BeginPlay()
 void ARaft::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	SetActorLocation(GetActorLocation()+WindDirection*DeltaTime*WindStrength*SailStrength);
+	
+	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
+	
+	AddActorLocalOffset(RaftGameState->WindDirection
+		* DeltaTime * RaftGameState->WindStrength * SailStrength);
 }
 
 void ARaft::SpawnSailActor()
 {
 	if (ASail* sail = GetWorld()->SpawnActor<ASail>(ASail::StaticClass()))
 	{
-		sail->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+		sail->AttachToActor(MainFloor, FAttachmentTransformRules::KeepRelativeTransform);
 		sail->SetRaft(this);
 	}
 }

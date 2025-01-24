@@ -1,11 +1,13 @@
 ﻿#include "PaddleTest.h"
 #include "../RaftGameState.h"
 #include "../Raft/Raft.h"
+#include "Components/TimelineComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
 APaddleTest::APaddleTest()
 {
+	PaddlingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Paddling Timeline Component"));
 }
 
 void APaddleTest::BeginPlay()
@@ -17,11 +19,13 @@ void APaddleTest::BeginPlay()
 		// UE_LOG(LogTemp,Warning,TEXT("플레이어는? %s"),*Player->GetName());
 	}
 	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
-	if (RaftGameState)
-	{
-		WindOriginDir = RaftGameState->WindDirection;
-	}
-	
+
+	DivingCallback.BindDynamic(this, &ThisClass::OnPaddlingPlayCallback);
+	DivingFinish.BindDynamic(this, &ThisClass::OnPaddlingFinish);
+
+	PaddlingTimeline->SetLooping(true);
+	PaddlingTimeline->AddInterpFloat(PaddlingTimingCurve, DivingCallback);
+	PaddlingTimeline->SetTimelineFinishedFunc(DivingFinish);
 }
 
 void APaddleTest::PaddlingStart()
@@ -30,34 +34,32 @@ void APaddleTest::PaddlingStart()
 	{
 		if (!GetPlayerRaft()) return;
 	
-		UE_LOG(LogTemp, Warning, TEXT("Paddling..."));
+		UE_LOG(LogTemp, Display, TEXT("Paddling..."));
 	
 		//Yaw값만을 반영하는 플레이어 정면
-		FRotator PlayerRotator = Player->GetActorRotation();
-		FVector PlayerForwardVector = FRotator(0.0f, PlayerRotator.Yaw,0.0f).Vector();
-	
-		WindOriginDir = RaftGameState->WindDirection; //원본 바람 방향 백업
-		WindOriginStrength = RaftGameState->WindStrength; //원본 바람 힘 백업
-		Raft->WindDirection = PlayerForwardVector + WindOriginDir; //기존 바람 방향에 노 방향을 더한 새 방향
-		Raft->WindStrength *= PaddleForce;
-	
-		// UE_LOG(LogTemp, Warning, TEXT("플레이어 방향: %s"), *PlayerForwardVector.ToString());
-		// UE_LOG(LogTemp, Warning, TEXT("최종 이동 방향: %s"),*(Raft->WindDirection .ToString()));
-	
+		const FRotator PlayerRotator = Player->GetActorRotation();
+		PaddleVelocity = FRotator(0.0f, PlayerRotator.Yaw,0.0f).Vector();
+		
+		PaddlingTimeline->PlayFromStart();
 		bIsPaddling= true;
 	}
+}
+
+void APaddleTest::OnPaddlingPlayCallback(float Output)
+{
+	if (!GetPlayerRaft()) return;
+	Raft->AddActorLocalOffset(PaddleVelocity * Output);
 }
 
 void APaddleTest::PaddlingEnd()
 {
 	UE_LOG(LogTemp, Warning, TEXT("paddling stop"));
-	if (IsValid(Raft))
-	{
-		Raft->WindDirection = WindOriginDir; //바람 방향 되돌리기
-		Raft->WindStrength = WindOriginStrength; //바람 힘 되돌리기
-	}
-
 	bIsPaddling= false;
+	PaddlingTimeline->Stop();
+}
+
+void APaddleTest::OnPaddlingFinish()
+{
 }
 
 bool APaddleTest::GetPlayerRaft()
@@ -85,7 +87,7 @@ bool APaddleTest::GetPlayerRaft()
 			return true;
 		}
 	}
-	UE_LOG(LogTemp,Warning,TEXT("배를 안 타고 있어요. 노는 작동하지 않아요."));
+	// UE_LOG(LogTemp,Warning,TEXT("배를 안 타고 있어요. 노는 작동하지 않아요."));
 	return false;
 }
 

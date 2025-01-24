@@ -1,5 +1,6 @@
 ﻿#include "InventoryComponent.h"
 
+#include "BuildingComponent.h"
 #include "EnhancedInputComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/ItemInfoData.h"
@@ -25,6 +26,8 @@ void UInventoryComponent::BeginPlay()
 			, this, &ThisClass::ToggleInventory);
 			EnhancedInputComponent->BindAction(ChangeHotSlotAction, ETriggerEvent::Triggered
 			, this, &ThisClass::ChangeHotSlot);
+			EnhancedInputComponent->BindAction(SetHotSlotAction, ETriggerEvent::Triggered
+			, this, &ThisClass::SetHotSlot);
 			EnhancedInputComponent->BindAction(ItemDropAction, ETriggerEvent::Triggered
 			, this, &ThisClass::DropItem);
 		}
@@ -54,6 +57,18 @@ void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 	// 실제 액터 반영
 	SetHotSlotItemToPlayer(PrevIndex, NextIndex);
 	SetHotSlotIndex(NextIndex);
+}
+
+void UInventoryComponent::SetHotSlot(const FInputActionValue& Value)
+{
+	// 기본 주입 값에 0을 넣어주면 동작하지 않는 문제로 0번 칸이 1부터 시작
+	const float NewValue = Value.Get<float>() - 1;
+	// UI 관련 변화
+	const uint8 PrevIndex = SelectedHotSlot;
+	
+	// 실제 액터 반영
+	SetHotSlotItemToPlayer(PrevIndex, NewValue);
+	SetHotSlotIndex(NewValue);
 }
 
 uint8 UInventoryComponent::GetNextSlot(const int8 MoveTo)
@@ -108,10 +123,10 @@ void UInventoryComponent::SetHotSlotItemToPlayer(const uint8 PrevIndex, const ui
 					PS->GetPlayerInventoryList()[NewIndex].GetId()
 				];
 			
-			Player->SetViewItemOnHand(ItemInfo.GetShowItemActor() ? ItemInfo.GetShowItemActor() : nullptr);
+			Player->SetViewItemOnHand(ItemInfo);
 		} else
 		{
-			Player->SetViewItemOnHand(nullptr);
+			Player->ClearViewItemOnHand();
 		}
 	}
 }
@@ -124,6 +139,11 @@ void UInventoryComponent::ToggleInventory()
 		{
 			return;
 		}
+
+		if (Player->GetBuildingComponent()->GetCanBuildMode())
+		{
+			return;
+		}
 		
 		if (!IsValid(EquipmentUI))
 		{
@@ -131,15 +151,24 @@ void UInventoryComponent::ToggleInventory()
 				Cast<ABasePlayerController>(Player->GetController()), EquipmentUIClass);
 		}
 
+		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
+		
 		// 인벤토리 실질적 토글
 		if (IsOpenInventory)
 		{
 			EquipmentUI->RemoveFromParent();
-			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
+			if (PC)
+			{
+				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
+				PC->RemoveDraggedSelectedSlot();
+			}
 		} else
 		{
 			EquipmentUI->AddToViewport();
-			Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
+			if (PC)
+			{
+				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
+			}
 		}
 
 		// 현재 인벤토리 상태 설정

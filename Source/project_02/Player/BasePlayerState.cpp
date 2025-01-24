@@ -6,10 +6,8 @@
 #include "project_02/Characters/Component/InventoryComponent.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Helper/ItemHelper.h"
-#include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/Inventory/InventoryHotSlot.h"
-#include "project_02/Widgets/Inventory/InventoryList.h"
 
 ABasePlayerState::ABasePlayerState()
 {
@@ -21,14 +19,39 @@ void ABasePlayerState::InitializeData()
 	const FItemMetaInfo EmptyItem;
 	PlayerInventoryList.Init(EmptyItem, GetTotalSlotCount());
 	
-	// TODO: 제거해야 할 테스트 코드
-	FItemMetaInfo NewItem;
-	NewItem.SetId(1);
-	NewItem.SetCurrentCount(1);
+	for (int i = 0; i < InitialItemList.Num(); i++)
+	{
+		FItemMetaInfo NewItem;
+		NewItem.SetId(InitialItemList[i]);
+		NewItem.SetCurrentCount(FItemHelper::GetItemInfoById(
+			GetWorld(), InitialItemList[i])
+			.GetMaxItemCount());
 
-	PlayerInventoryList[0] = NewItem;
+		PlayerInventoryList[i] = NewItem;
+	}
+	
+	UpdateCurrentRemainItemValue();
 }
 
+// TODO: 이건 내부 로직에서 아이템 변경될 때 마다 처리하기
+void ABasePlayerState::UpdateCurrentRemainItemValue()
+{
+	TMap<uint32, uint32> NewMap;
+	
+	for (int i = 0; i < InitialItemList.Num(); i++)
+	{
+		if (NewMap.Find(PlayerInventoryList[i].GetId())) 
+		{
+			NewMap[PlayerInventoryList[i].GetId()] += PlayerInventoryList[i].GetCurrentCount();
+		}
+		else
+		{
+			NewMap.Add(PlayerInventoryList[i].GetId(), PlayerInventoryList[i].GetCurrentCount());
+		}
+	}
+	CurrentRemainItemValue.Empty();
+	CurrentRemainItemValue.Append(NewMap); 
+}
 
 void ABasePlayerState::BeginPlay()
 {
@@ -60,7 +83,7 @@ void ABasePlayerState::SetPlayerHandItemByPS(const uint16 NewIndex)
 	{
 		if (Player->GetInventoryComponent()->GetSelectedHotSlotIndex() == NewIndex)
 		{
-			Player->SetViewItemOnHand(ItemInfoById.GetShowItemActor());
+			Player->SetViewItemOnHand(ItemInfoById);
 		}
 	}
 }
@@ -119,6 +142,7 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 		}
 	}
 
+	UpdateCurrentRemainItemValue();
 	return RemainCount > 0 ? RemainCount : 0;
 }
 
@@ -129,7 +153,8 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 	{
 		const FItemMetaInfo ClearItemMeta;
 		PlayerInventoryList[Index] = ClearItemMeta;
-		UpdateInventoryHotbar();
+		OnUpdateInventory();
+		UpdateCurrentRemainItemValue();
 		return true;
 	}
 	
@@ -146,7 +171,7 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 		PlayerInventoryList[Index].SetCurrentCount(PlayerInventoryList[Index].GetCurrentCount() - Count);
 	}
 	
-	UpdateInventoryHotbar();
+	OnUpdateInventory();
 	
 	return true;
 }
@@ -191,14 +216,72 @@ uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 	}
 
 	// UI 업데이트
-	UpdateInventoryHotbar();
+	OnUpdateInventory();
 	
 	return 0;
 }
 
-void ABasePlayerState::UpdateInventoryHotbar() const
+bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
+{
+	uint32 RemainNum = Count;
+	TArray<uint32> CanRemoveIndexList;
+	for (int i = 0; i < GetTotalSlotCount(); i++)
+	{
+		if (PlayerInventoryList[i].GetId() == Id)
+		{
+			CanRemoveIndexList.Add(i);
+			RemainNum = UKismetMathLibrary::Max(RemainNum - PlayerInventoryList[i].GetCurrentCount(), 0);
+		}
+
+		// RemainNum이 0보다 작거나 같다는 의미는 즉
+		// 더이상 탐색하지 않아도 전부 없앨 수 있다라는 의미다.
+		if (RemainNum <= 0)
+		{
+			break;
+		}
+	}
+
+	// 0보다 큰 상황이라면 사용하기에는 양이 부족하다라는 의미기에 false를 반환한다.
+	if (RemainNum > 0)
+	{
+		return false;
+	}
+	
+	// 다시 RemainNum을 돌려둔다. 재사용해서 갯수를 없애는 것에 실질적으로 이용함
+	RemainNum = Count;
+	for (const uint32 RemoveIndex : CanRemoveIndexList)
+	{
+		// 둘 중 더 작은 값을 없애준다. 만약 RemainNum이 10이고, 아이템의 현재 갯수가 7이라면
+		// 7개만 없애주고, 아이템 갯수가 13개면 10개만 없앤다.
+		const uint32 RemoveCount = UKismetMathLibrary::Min(PlayerInventoryList[RemoveIndex].GetCurrentCount(), RemainNum);
+
+		// 우선은 값 설정
+		PlayerInventoryList[RemoveIndex].SetCurrentCount(PlayerInventoryList[RemoveIndex].GetCurrentCount() - RemoveCount);
+		RemainNum -= RemoveCount;
+		
+		// 만약 슬롯이 현재 0개라면 슬롯 초기화를 진행한다.
+		if (PlayerInventoryList[RemoveIndex].GetCurrentCount() == 0)
+		{
+			const FItemMetaInfo ClearItemMeta;
+			PlayerInventoryList[RemoveIndex] = ClearItemMeta;
+		}
+
+		// 어차피 여기서 다 버려서 0이 될 수 밖에 없다.
+		if (RemainNum == 0)
+		{
+			OnUpdateInventory();
+			return true;
+		}
+	}
+
+	// 이건 혹시 모르는 예외 사항에 대한 처리
+	return false;
+}
+
+void ABasePlayerState::OnUpdateInventory()
 {
 	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetPlayerController());
 
+	UpdateCurrentRemainItemValue();
 	PC->GetPlayerUI()->GetInventoryHotSlot()->UpdateInventoryArray();
 }

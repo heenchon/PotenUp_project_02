@@ -11,6 +11,7 @@
 #include "Kismet/KismetInputLibrary.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Game/BaseGameInstance.h"
+#include "project_02/Player/BasePlayerController.h"
 #include "project_02/Player/BasePlayerState.h"
 
 FReply UInventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
@@ -51,6 +52,12 @@ void UInventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPo
 	{
 		static_cast<UInventorySlotDragDropOperation*>(OutOperation)->SetOriginWidget(this);
 		static_cast<UInventorySlotDragDropOperation*>(OutOperation)->SetIndex(Index);
+	}
+
+	// 현재 내가 선택중인 Drag Drop 관련 Slot 정보 넣어두기
+	if (ABasePlayerController* PC = Cast<ABasePlayerController>(GetOwningPlayer()))
+	{
+		PC->SetSelectedSlot(this);
 	}
 }
 
@@ -135,9 +142,11 @@ void UInventorySlot::SetSlotInfo(const FItemMetaInfo& ItemMetaInfo)
 }
 
 
-void UInventorySlot::SetThumbnail(const TSoftObjectPtr<UTexture2D> Thumbnail) const
+void UInventorySlot::SetThumbnail(const TSoftObjectPtr<UTexture2D>& Thumbnail) const
 {
-	ItemThumbnail.Get()->SetBrushFromTexture(Thumbnail.Get());
+	// 처음 로딩 시 반드시 동기적으로 로딩을 해줘야 한다.
+	UTexture2D* LoadedTexture = Thumbnail.LoadSynchronous();
+	ItemThumbnail.Get()->SetBrushFromTexture(LoadedTexture);
 }
 
 
@@ -156,4 +165,9 @@ void UInventorySlot::SetItemCount(const uint16 NewCount) const
 void UInventorySlot::SetItemCountText(const FText Text) const
 {
 	ItemCount->SetText(Text);
+}
+
+void UInventorySlot::RemoveDragDropSlot() const
+{
+	UWidgetBlueprintLibrary::CancelDragDrop();
 }

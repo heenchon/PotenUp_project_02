@@ -6,23 +6,30 @@
 #include "Component/SurvivalComponent.h"
 #include "Component/InventoryComponent.h"
 #include "Component/SwimmingComponent.h"
+#include "Component/BuildingComponent.h"
 #include "Components/BoxComponent.h"
+#include "project_02/Tool/InteractiveItem.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "project_02/HY/Trash/Trash.h"
 #include "project_02/Player/BasePlayerState.h"
-#include "project_02/Tool/HookRope.h"
 #include "project_02/HY/Paddle/PaddleTest.h"
 #include "project_02/HY/Raft/Raft.h"
-#include "project_02/HY/Raft/Sail.h"
 #include "project_02/Player/BasePlayerController.h"
+#include "project_02/HY/Objects/PlaceObjects.h"
+
+// TODO: 상민띠가 아이템 클래스 만들면 교체
+#include "project_02/HY/Items/Usable_Item.h"
+#include "project_02/HY/Objects/Sail.h"
+#include "project_02/Weapon/WeaponBase.h"
 
 APlayerCharacter::APlayerCharacter()
 {
 	SurvivalComponent = CreateDefaultSubobject<USurvivalComponent>("Survival Component");
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>("Inventory Component");
 	SwimmingComponent = CreateDefaultSubobject<USwimmingComponent>("Swimming Component");
+	BuildingComponent = CreateDefaultSubobject<UBuildingComponent>("Building Component");
 	
 	ChestBox = CreateDefaultSubobject<UBoxComponent>("Chest Box");
 	ChestBox->AttachToComponent(GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, "ChestSocket");
@@ -62,16 +69,20 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Started
 		, this, &ThisClass::OnInteractivePressed);
-		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Triggered
-		, this, &ThisClass::OnInteractiveHolding);
 		EnhancedInputComponent->BindAction(InteractiveInputAction, ETriggerEvent::Completed
 		, this, &ThisClass::OnInteractiveEnd);
 		
 		EnhancedInputComponent->BindAction(UseInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::UseItem);
+
+		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Started
+		, this, &ThisClass::RotatePressed);
+		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Triggered
+		, this, &ThisClass::RotateReleased);
 	}
 }
 
+// E키 사용
 void APlayerCharacter::UseItem()
 {
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
@@ -82,14 +93,43 @@ void APlayerCharacter::UseItem()
 		
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
+		return;
+	}
+
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(AInteractiveItem::StaticClass()))
+	{
+		AInteractiveItem* Item = static_cast<AInteractiveItem*>(FindDroppedActor);
+		Item->StartInteractive();
+		IsInteracting = true;
+		return;
 	}
 	
-	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(AUsable_Item::StaticClass()))
 	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
+		AUsable_Item* Item = static_cast<AUsable_Item*>(FindDroppedActor);
 		
-		Sail->SailToggle();
+		const uint32 RemainValue = PS->AddItem(Item->GetItemMetaInfo());
+		Item->UpdateItemInfo(RemainValue);
+		return;
 	}
+
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(APlaceObjects::StaticClass()))
+	{
+		APlaceObjects* PlaceObject = static_cast<APlaceObjects*>(FindDroppedActor);
+		
+		//TODO: InteractiveTool로 교체
+		if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
+		{
+			//삭제할 item info 전달하기
+			AUsable_Item* Item = static_cast<AUsable_Item*>(MainHandTool);
+			PlaceObject->Interact(Item, InventoryComponent->GetSelectedHotSlotIndex());
+			return;
+		}
+		
+		PlaceObject->Interact();
+		return;
+	}
+	
 
 	// UI 후처리
 	ABasePlayerController* PC = Cast<ABasePlayerController>(GetController());
@@ -97,65 +137,107 @@ void APlayerCharacter::UseItem()
 	PC->GetPlayerUI()->SetInteractiveUIStatus(FindDroppedActor);
 }
 
-// 특정 아이템을 손에 들거나 내려놓게 하는 함수
-void APlayerCharacter::SetViewItemOnHand(const TSubclassOf<AActor>& NewActorClass)
+void APlayerCharacter::ClearViewItemOnHand()
 {
-	if (TestInteractiveItem)
+	if (BuildingComponent->GetCanBuildMode())
 	{
-		TestInteractiveItem->Destroy();
+		BuildingComponent->SetBuildMode(false);
+		BuildingComponent->DeleteWireframe();
 	}
 	
-	if (NewActorClass)
+	if (MainHandTool)
 	{
-		TestInteractiveItem = GetWorld()->SpawnActor<AActor>(NewActorClass);
+		// 해제를 하고 제거해야 한다.
+		MainHandTool->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
+		MainHandTool->Destroy();
+		MainHandTool = nullptr;
+	}
+}
+
+// 특정 아이템을 손에 들거나 내려놓게 하는 함수
+void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
+{
+	// 우선 손에 든 아이템을 초기화 시킨다.
+	ClearViewItemOnHand();
+
+	// 만약 아이템 타입이 빌드 타입 즉 설치용 이라면
+	// 스폰 관련 없이 바로 설치 flow 로 넘어가게 된다.
+	if (NewItemInfo.GetItemType() == EItemType::Build)
+	{
+		BuildingComponent->SetBuildMode(true);
+		BuildingComponent->SetCustomBuildBlueprint(NewItemInfo.GetShowItemActor());
+		BuildingComponent->SetBuildType(EBuildType::Object);
+		return;
+	}
+
+	// 빌딩 모드가 아닌 경우 + 손에 들 아이템이 있는 경우에 대한 처리
+	if (NewItemInfo.GetShowItemActor())
+	{
+		MainHandTool = GetWorld()->SpawnActor<AActor>(NewItemInfo.GetShowItemActor());
+	}
 		
-		if (TestInteractiveItem)
+	if (MainHandTool)
+	{
+		const FString AttachSocket = NewItemInfo.GetOptionData().Find(EOptionDataKey::AttachSocket) ?
+			*NewItemInfo.GetOptionData().Find(EOptionDataKey::AttachSocket) : FString();
+		
+		MainHandTool->AttachToComponent(GetMesh(),
+			FAttachmentTransformRules::KeepRelativeTransform, FName(AttachSocket));
+		MainHandTool->SetOwner(this);
+
+		if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
 		{
-			TestInteractiveItem->AttachToComponent(GetMesh(),
-				FAttachmentTransformRules::KeepRelativeTransform, "InteractiveSocket");
-			TestInteractiveItem->SetOwner(this);
+			InteractiveItem->OnAttached();
 		}
 	}
 }
 
 void APlayerCharacter::OnInteractivePressed()
 {
-	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	if (InventoryComponent->GetIsOpenInventory())
 	{
-		ASail* Sail = static_cast<ASail*>(FindDroppedActor);
-		Sail->RotateInit(GetControlRotation().Yaw);
-		IsInteracting = true;
-	}
-}
-
-void APlayerCharacter::OnInteractiveHolding()
-{
-	if (IsBlockAction()) return;
-	
-	// TODO: 우선순위에 대한 로직 추가 필요
-	// 여기서부터 아래까지는 보통 상호작용에 대한 처리이기 때문에 우선순위가 매우 높다.
-	// 상호작용에 대해서는 HoldEnd에 대해서도 처리하지 않는 것이 원칙. 추후 컴포넌트화 필요
-	if (IsInteracting)
-	{
-		if (ASail* Sail = Cast<ASail>(FindDroppedActor))
-		{
-			Sail->RotateSail();
-		}
 		return;
 	}
 	
-	// 손에든 아이템을 실행시키는 방식임
-	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	// 이 방식으로 통일
+	if (AInteractiveItem* InteractiveItem = Cast<AInteractiveItem>(MainHandTool))
 	{
-		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingStart();
+		InteractiveItem->StartInteractive();
+		return;
+	}
+
+	if (AWeaponBase* Weapon = Cast<AWeaponBase>(MainHandTool))
+	{
+		Weapon->Attack();
 	}
 	
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
 	{
-		static_cast<AHookRope*>(TestInteractiveItem)->OnHoldInteractive();
+		static_cast<AUsable_Item*>(MainHandTool)->Use();
+	}
+
+	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
+	{
+		static_cast<APaddleTest*>(MainHandTool)->PaddlingStart();
 	}
 }
 
+void APlayerCharacter::RotatePressed()
+{
+	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ASail::StaticClass()))
+	{
+		Sail = static_cast<ASail*>(FindDroppedActor);
+		Sail->RotateInit(GetControlRotation().Yaw);
+	}
+}
+
+void APlayerCharacter::RotateReleased()
+{
+	if (Sail)
+	{
+		Sail->RotateStop();
+	}
+}
 void APlayerCharacter::OnInteractiveEnd()
 {
 	if (IsBlockAction()) return;
@@ -167,14 +249,14 @@ void APlayerCharacter::OnInteractiveEnd()
 	
 	IsInteracting = false;
 	
-	if (TestInteractiveItem && TestInteractiveItem.IsA(AHookRope::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(AInteractiveItem::StaticClass()))
 	{
-		static_cast<AHookRope*>(TestInteractiveItem)->OnEndInteractive();
+		static_cast<AInteractiveItem*>(MainHandTool)->EndInteractive();
 	}
 
-	if (TestInteractiveItem && TestInteractiveItem.IsA(APaddleTest::StaticClass()))
+	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
 	{
-		static_cast<APaddleTest*>(TestInteractiveItem)->PaddlingEnd();
+		static_cast<APaddleTest*>(MainHandTool)->PaddlingEnd();
 	}
 }
 
@@ -189,7 +271,7 @@ void APlayerCharacter::FindToUse()
 	FHitResult HitResult;
 	
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypesArray;
-	ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_GameTraceChannel1));
+	ObjectTypesArray.Add(UEngineTypes::ConvertToObjectType(ECC_EngineTraceChannel1));
 	
 	TArray<AActor*> ActorsToNotTargeting;
 	ActorsToNotTargeting.Add(this);
@@ -247,8 +329,10 @@ void APlayerCharacter::MoveTo(const FInputActionValue& Value)
 
 	    AddMovementInput(FinalValue);
 	}
-	
+
+	// TODO: 해당 부분 공통화 or 함수화 필요
 	FindToUse();
+	BuildingComponent->TraceGroundToBuild(CameraComponent->GetForwardVector());
 }
 
 void APlayerCharacter::Look(const FInputActionValue& Value)
@@ -264,7 +348,9 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 	// Pitch는 앞 뒤가 아닌 위 아래 회전이기 때문에 Y값을 넣어줌
 	AddControllerPitchInput(VectorValue.Y * - 0.5);
 	
+	// TODO: 해당 부분 공통화 or 함수화 필요
 	FindToUse();
+	BuildingComponent->TraceGroundToBuild(CameraComponent->GetForwardVector());
 }
 
 void APlayerCharacter::GoToUp(const FInputActionValue& Value)
@@ -297,3 +383,4 @@ bool APlayerCharacter::IsBlockAction() const
 {
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
 }
+

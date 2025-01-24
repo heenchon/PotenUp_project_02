@@ -4,6 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class UInventorySlot;
 class UPlayerRespawnUI;
 class UPlayerGameUI;
 
@@ -18,6 +19,13 @@ public:
 	void OnDied();
 	
 	void Respawn();
+
+	FORCEINLINE void SetSelectedSlot(const TObjectPtr<UInventorySlot>& NewSlot)
+	{
+		SelectedInventorySlot = NewSlot;
+	}
+	
+	void RemoveDraggedSelectedSlot();
 	
 protected:
 	virtual void BeginPlay() override;
@@ -34,4 +42,7 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<UPlayerRespawnUI> PlayerRespawnUI;
+	
+	UPROPERTY()
+	TObjectPtr<UInventorySlot> SelectedInventorySlot;
 };

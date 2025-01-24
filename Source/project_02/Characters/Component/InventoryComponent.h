@@ -30,15 +30,19 @@ protected:
 	virtual void BeginPlay() override;
 	
 private:
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> InventoryAction;
 	
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> ChangeHotSlotAction;
 	
-	UPROPERTY(EditAnywhere, Category = "Input"
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> SetHotSlotAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> ItemDropAction;
 	
@@ -61,6 +65,9 @@ private:
 	
 	UFUNCTION()
 	void ChangeHotSlot(const FInputActionValue& Value);
+	
+	UFUNCTION()
+	void SetHotSlot(const FInputActionValue& Value);
 	
 	UFUNCTION()
 	void DropItem();
