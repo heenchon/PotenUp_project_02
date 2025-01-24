@@ -33,6 +33,7 @@ public:
 	bool bIsWaiting;
 	bool bIsCharging;
 	float Power;
+	float MaxPower = 700.0f;
 
 protected:
 	// Called when the game starts or when spawned
