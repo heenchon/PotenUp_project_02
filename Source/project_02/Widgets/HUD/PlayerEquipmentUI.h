@@ -5,6 +5,7 @@
 #include "PlayerEquipmentUI.generated.h"
 
 
+class UCraftingList;
 class UInventoryList;
 
 UCLASS()
@@ -18,4 +19,7 @@ protected:
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UInventoryList> InventoryList;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UCraftingList> CraftingList;
 };

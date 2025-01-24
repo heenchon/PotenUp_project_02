@@ -4,6 +4,7 @@
 #include "GameFramework/Actor.h"
 #include "BuildingActor.generated.h"
 
+enum class EBlockType;
 enum class EBlockPos;
 class UBoxComponent;
 class UMaterialInterface;
@@ -17,6 +18,7 @@ public:
 	ABuildingActor();
 	
 	void SetWireframeMaterial(UMaterial* NewMaterial);
+	void SetWireframeMaterialForOption(const bool Option, UMaterial* SuccessMaterial, UMaterial* FailMaterial);
 	
 	void SetWireframe(const bool NewIsWireframe);
 
@@ -31,8 +33,11 @@ public:
 	FORCEINLINE void SetBuildPos(const FVector& NewValue) { BuildPos = NewValue; }
 	FORCEINLINE bool GetIsMain() const { return IsMain; }
 	FORCEINLINE TObjectPtr<ABuildingActor> GetMainBuild() const { return MainBuild; }
-	void SetDefaultMaterial();
+	FORCEINLINE EBlockType GetBlockType() const { return BlockType; }
+	FORCEINLINE uint32 GetConsumeCount() const { return ConsumeCount; }
 	FORCEINLINE TObjectPtr<UStaticMeshComponent> GetBodyMesh() const { return BodyMesh; }
+	
+	void SetDefaultMaterial();
 
 	void AttachWireframeToComponent(
 		ABuildingActor* TargetBlock,
@@ -53,6 +58,12 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
 	bool IsWireframe = true;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
+	EBlockType BlockType;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
+	uint32 ConsumeCount;
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<USceneComponent> RootComp;
