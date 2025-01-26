@@ -28,8 +28,8 @@ UBaseGameInstance::UBaseGameInstance()
 		
 		for (int i = 0; i < RowNames.Num(); i++)
 		{
-			CraftingInfoMap.Add(FCString::Atoi(*RowNames[i].ToString()),
-				*CraftingInfoDataTable.Object->FindRow<FCraftingData>(RowNames[i], ""));
+			const FCraftingData* Data = CraftingInfoDataTable.Object->FindRow<FCraftingData>(RowNames[i], "");
+			CraftingInfoMap.Add(FCString::Atoi(*RowNames[i].ToString()), *Data);
 		}
 	}
 }
