@@ -7,6 +7,7 @@
 #include "PlaceObjects.generated.h"
 
 class AUsable_Item;
+class ABuildingActor;
 class ABasePlayerState;
 
 UCLASS()
@@ -45,6 +46,7 @@ public:
 	virtual void Interact(AUsable_Item* input, int curItemIndex);
 	void ProcessStart();
 	virtual void ProcessComplete();
+	void UpdateBuildData(const ABuildingActor* ParentActor);
 
 	bool IsEnabled = false;
 	bool CanBuild = true;
@@ -52,10 +54,14 @@ public:
 	UPROPERTY()
 	TArray<TObjectPtr<UMaterialInterface>> OriginMaterials;
 	
-	FORCEINLINE void SetDefaultMaterial();
-	
+	void SetDefaultMaterial();
 	void SetWireframeMaterial(UMaterial* NewMaterial);
+	
+	FORCEINLINE uint32 GetId() const { return Id; }
 
+protected:
+	uint32 Id;
+	
 private:
 	UFUNCTION()
 	void OnBeginOverlapMesh(UPrimitiveComponent* OverlappedComponent,

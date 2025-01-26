@@ -16,6 +16,8 @@ AWaterPurifier::AWaterPurifier()
 	WaterMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WaterMesh"));
 	WaterMesh->SetupAttachment(Root);
 	WaterMesh->SetVisibility(false);
+
+	Id = 14;
 }
 
 // Called when the game starts or when spawned
