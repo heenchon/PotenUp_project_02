@@ -1,5 +1,7 @@
 ﻿#include "RaftGameState.h"
 
+#include "Objects/PlaceObjects.h"
+
 void ARaftGameState::SetWind(FVector newDir, float newStrength)
 {
 	WindDirection = newDir;
@@ -21,6 +23,23 @@ void ARaftGameState::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Bui
 		RaftBuildPointerData.Add(Pos, Build);
 	}
 }
+
+void ARaftGameState::UpdatePlacedObjectData(const FVector& Pos, const FPlacedObjectData& PlaceData, const bool IsRemove)
+{
+	if (IsRemove)
+	{
+		RaftPlacedObjectData.Remove(Pos);
+	} else
+	{
+		if (!RaftPlacedObjectData.Find(Pos))
+		{
+			RaftPlacedObjectData.Add(Pos);
+			
+		}
+		RaftPlacedObjectData[Pos].Add(PlaceData);
+	}
+}
+
 
 void ARaftGameState::BeginPlay()
 {

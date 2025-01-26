@@ -38,7 +38,17 @@ enum class EBlockType
 USTRUCT(BlueprintType)
 struct PROJECT_02_API FBuildData
 {
-	GENERATED_BODY()
+	GENERATED_USTRUCT_BODY()
 
 	EBlockType BlockType;
+};
+
+USTRUCT()
+struct PROJECT_02_API FPlacedObjectData
+{
+	GENERATED_USTRUCT_BODY()
+	
+	FVector RelativeLoc;
+
+	uint32 ObjectId;
 };

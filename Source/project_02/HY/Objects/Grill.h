@@ -30,6 +30,7 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	
 
 public:
 	virtual void Interact(AUsable_Item* input, int curItemIndex) override;

@@ -108,4 +108,8 @@ private:
 	uint32 GetBuildBlockType(const ABuildingActor* BuildingActor);
 
 	bool CanBuildBlockBuild(const ABuildingActor* BuildingActor);
+
+	void BuildAndUpdatePlacedObjectData();
+	
+	void BuildAndUpdateBuildingData();
 };

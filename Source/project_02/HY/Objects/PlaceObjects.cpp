@@ -5,6 +5,7 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingFloor.h"
+#include "project_02/HY/RaftGameState.h"
 #include "project_02/Player/BasePlayerState.h"
 
 // Sets default values
@@ -101,5 +102,13 @@ void APlaceObjects::OnEndOverlapMesh(UPrimitiveComponent* OverlappedComponent,
 	if (!OtherActor->IsA(ABuildingFloor::StaticClass()))
 	{
 		CanBuild = true;
+	}
+}
+
+void APlaceObjects::UpdateBuildData(const ABuildingActor* ParentActor)
+{
+	if (ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>())
+	{
+		GS->GetRaftBuildMetaData();
 	}
 }

@@ -9,6 +9,7 @@
 #include "project_02/Building/BuildingWall.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/DataTable/BuildData.h"
+#include "project_02/HY/RaftGameState.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
 #include "project_02/Player/BasePlayerState.h"
 
@@ -290,71 +291,11 @@ void UBuildingComponent::BuildWireframe()
 		return;	
 	}
 
-	// 단순 설치류 아이템이면 여기서 설치한다.
-	if (APlaceObjects* PlaceObject = Cast<APlaceObjects>(CurrentWireframeActor))
-	{
-		if (!PlaceObject->CanBuild)
-		{
-			return;
-		}
-
-		// 내가 손에 들고 있는 것을 대상으로 설치되기 때문에 하나를 버린다.
-		// 이 Component가 플레이어 대상으로 진행되기에 플레이어를 넣어둔다.
-		if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner()))
-		{
-			if (ABasePlayerState* PS = Cast<ABasePlayerState>(PlayerCharacter->GetPlayerState()))
-			{
-				PS->DropItem(PlayerCharacter->GetInventoryComponent()->GetSelectedHotSlotIndex(), 1);
-				SetBuildMode(false);
-			}
-		}
-
-		PlaceObject->SetDefaultMaterial();
-		PlaceObject->IsEnabled = true;
-		
-		CurrentWireframeActor = nullptr;
-		CurrentWireframeBox = nullptr;
-		CurrentHitActor = nullptr;
-		
-		return;
-	}
+	// 설치류 블럭에 대한 대응 처리
+	BuildAndUpdatePlacedObjectData();
 
 	// 설치류가 아닌 건축 블럭이라면 여기를 수행한다.
-	if (const ABuildingActor* NewBuildActor = Cast<ABuildingActor>(CurrentWireframeActor))
-	{
-		if (!CanBuildBlockBuild(NewBuildActor))
-		{
-			return;
-		}
-		
-		// 여기서는 Meta Data를 업데이트 처리한다.
-		if (ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
-		{
-			if (!CurrentWireframeBox)
-			{
-				return;
-			}
-
-			if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner()))
-			{
-				ABasePlayerState* PS = Cast<ABasePlayerState>(PlayerCharacter->GetPlayerState());
-				
-				if (!PS)
-				{
-					return;
-				}
-				
-				if (PS->RemoveItem(GetBuildBlockType(NewBuildActor), NewBuildActor->GetConsumeCount()))
-				{
-					ParentBuild->UpdateBuildData(CurrentWireframeBox, Cast<ABuildingActor>(CurrentWireframeActor));
-
-					CurrentWireframeActor = nullptr;
-					CurrentWireframeBox = nullptr;
-					CurrentHitActor = nullptr;
-				}
-			}
-		}
-	}
+	BuildAndUpdateBuildingData();
 }
 
 ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
@@ -430,7 +371,6 @@ bool UBuildingComponent::CanBuildBlockBuild(const ABuildingActor* BuildingActor)
 		// 전체 아이템 정보 에서 내가 원하는 아이템 타입 정보를 가져온다.
 		if (const uint32* Result = PS->GetCurrentRemainItemValue().Find(GetBuildBlockType(BuildingActor)))
 		{
-			UE_LOG(LogTemp, Display, TEXT("Result: %d"), *Result)
 			if (*Result >= BuildingActor->GetConsumeCount())
 			{
 				return true;
@@ -439,4 +379,91 @@ bool UBuildingComponent::CanBuildBlockBuild(const ABuildingActor* BuildingActor)
 	}
 	
 	return false;
+}
+
+void UBuildingComponent::BuildAndUpdatePlacedObjectData()
+{
+	// 단순 설치류 아이템이면 여기서 설치한다.
+	if (APlaceObjects* PlaceObject = Cast<APlaceObjects>(CurrentWireframeActor))
+	{
+		if (!PlaceObject->CanBuild)
+		{
+			return;
+		}
+
+		// 내가 손에 들고 있는 것을 대상으로 설치되기 때문에 하나를 버린다.
+		// 이 Component가 플레이어 대상으로 진행되기에 플레이어를 넣어둔다.
+		if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner()))
+		{
+			if (ABasePlayerState* PS = Cast<ABasePlayerState>(PlayerCharacter->GetPlayerState()))
+			{
+				PS->DropItem(PlayerCharacter->GetInventoryComponent()->GetSelectedHotSlotIndex(), 1);
+				SetBuildMode(false);
+			}
+		}
+
+		ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>();
+		if (!GS)
+		{
+			return;
+		}
+		
+		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
+		{
+			const FVector RelativeVector = PlaceObject->GetActorLocation() - ParentBuild->GetActorLocation();
+			
+			FPlacedObjectData NewData;
+			NewData.RelativeLoc = RelativeVector;
+			NewData.ObjectId = PlaceObject->GetId();
+			
+			GS->UpdatePlacedObjectData(ParentBuild->GetBuildPos(), NewData);
+		}
+
+		PlaceObject->SetDefaultMaterial();
+		PlaceObject->IsEnabled = true;
+		
+		CurrentWireframeActor = nullptr;
+		CurrentWireframeBox = nullptr;
+		CurrentHitActor = nullptr;
+	}
+}
+
+
+void UBuildingComponent::BuildAndUpdateBuildingData()
+{
+	if (const ABuildingActor* NewBuildActor = Cast<ABuildingActor>(CurrentWireframeActor))
+	{
+		if (!CanBuildBlockBuild(NewBuildActor))
+		{
+			return;
+		}
+		
+		// 여기서는 Meta Data를 업데이트 처리한다.
+		if (ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
+		{
+			if (!CurrentWireframeBox)
+			{
+				return;
+			}
+
+			if (const APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner()))
+			{
+				ABasePlayerState* PS = Cast<ABasePlayerState>(PlayerCharacter->GetPlayerState());
+				
+				if (!PS)
+				{
+					return;
+				}
+				
+				if (PS->RemoveItem(GetBuildBlockType(NewBuildActor), NewBuildActor->GetConsumeCount()))
+				{
+					ParentBuild->UpdateBuildData(CurrentWireframeBox, Cast<ABuildingActor>(CurrentWireframeActor));
+
+					CurrentWireframeActor = nullptr;
+					CurrentWireframeBox = nullptr;
+					CurrentHitActor = nullptr;
+				}
+			}
+		}
+	}
 }

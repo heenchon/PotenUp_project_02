@@ -13,6 +13,8 @@ AGrill::AGrill()
 	RawFoodMesh->SetupAttachment(StaticMesh);
 	RawFoodMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	RawFoodMesh->SetVisibility(false);
+
+	Id = 13;
 }
 
 

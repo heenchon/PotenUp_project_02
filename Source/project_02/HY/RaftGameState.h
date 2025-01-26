@@ -7,6 +7,7 @@
 #include "project_02/DataTable/BuildData.h"
 #include "RaftGameState.generated.h"
 
+class APlaceObjects;
 class ABuildingActor;
 
 UCLASS()
@@ -16,9 +17,11 @@ class PROJECT_02_API ARaftGameState : public AGameStateBase
 
 public:
 	void UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const bool IsRemove = false);
+	void UpdatePlacedObjectData(const FVector& Pos, const FPlacedObjectData& PlaceData, const bool IsRemove = false);
 
 	FORCEINLINE TMap<FVector, FBuildData> GetRaftBuildMetaData() const { return RaftBuildMetaData; }
 	FORCEINLINE TMap<FVector, ABuildingActor*> GetRaftBuildPointerData() const { return RaftBuildPointerData; }
+	FORCEINLINE TMap<FVector, TArray<FPlacedObjectData>> GetRaftPlacedObjectData() const { return RaftPlacedObjectData; }
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Wind")
 	FVector WindDirection = FVector(1, 0, 0);
@@ -40,4 +43,6 @@ private:
 	TMap<FVector, FBuildData> RaftBuildMetaData;
 	// 실제 게임 저장에는 영향 없는 별도의 데이터로 순수하게 건축물 pointer만 담는다.
 	TMap<FVector, ABuildingActor*> RaftBuildPointerData;
+
+	TMap<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData;
 };
