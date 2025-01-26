@@ -49,6 +49,11 @@ void UInventoryComponent::DropItem()
 
 void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 {
+	if (IsOpenInventory)
+	{
+		return;
+	}
+	
 	const float NewValue = Value.Get<float>();
 	// UI 관련 변화
 	const uint8 PrevIndex = SelectedHotSlot;
@@ -61,6 +66,11 @@ void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 
 void UInventoryComponent::SetHotSlot(const FInputActionValue& Value)
 {
+	if (IsOpenInventory)
+	{
+		return;
+	}
+	
 	// 기본 주입 값에 0을 넣어주면 동작하지 않는 문제로 0번 칸이 1부터 시작
 	const float NewValue = Value.Get<float>() - 1;
 	// UI 관련 변화
