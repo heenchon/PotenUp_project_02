@@ -11,7 +11,6 @@ void UCraftingInfo::NativeConstruct()
 
 void UCraftingInfo::InitializeData(const uint32 Id, const FItemInfoData& ItemInfoData)
 {
-	SetId(Id);
 	SetItemName(FText::FromString(ItemInfoData.GetDisplayName()));
 	SetItemThumbnail(ItemInfoData.GetThumbnail());
 }

@@ -25,20 +25,15 @@ void UCraftingDetail::UpdateRequireList()
 	if (GI->GetCraftingInfoMap().Find(CraftingId))
 	{
 		const FCraftingData CraftData = GI->GetCraftingInfoMap()[CraftingId];
-
-		if (CraftingDetailInfoClass)
+		
+		for (const TPair<uint32, uint32> NewRecipe : CraftData.Recipe.Array())
 		{
-			for (const TPair<uint32, uint32> NewRecipe : CraftData.Recipe.Array())
-			{
-				UE_LOG(LogTemp, Display, TEXT("테스트2 :%d, %d"), NewRecipe.Key, NewRecipe.Value);
-				
-				FItemHelper::GetItemInfoById(GetWorld(), NewRecipe.Key);
-				UCraftingDetailInfo* DetailInfo = CreateWidget<UCraftingDetailInfo>(
-					this, CraftingDetailInfoClass
-				);
-				
-				RequireList->AddChild(DetailInfo);
-			}
+			FItemHelper::GetItemInfoById(GetWorld(), NewRecipe.Key);
+			UCraftingDetailInfo* DetailInfo = CreateWidget<UCraftingDetailInfo>(
+				this, CraftingDetailInfoClass
+			);
+			DetailInfo->InitializeData(NewRecipe);
+			RequireList->AddChild(DetailInfo);
 		}
 	}
 }

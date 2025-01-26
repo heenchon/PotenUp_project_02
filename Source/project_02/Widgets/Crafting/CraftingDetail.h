@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "CraftingDetail.generated.h"
 
+class UButton;
 class UVerticalBox;
 class UCraftingDetailInfo;
 class UOverlay;
@@ -23,7 +24,10 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> RequireList;
 
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> ConfirmButton;
+
+	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UCraftingDetailInfo> CraftingDetailInfoClass;
 
 	uint32 CraftingId;

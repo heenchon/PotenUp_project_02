@@ -19,6 +19,7 @@ class PROJECT_02_API UCraftingInfo : public UUserWidget
 
 public:
 	FORCEINLINE void SetItemName(const FText& NewItemName) const { ItemName->SetText(NewItemName); }
+	FORCEINLINE TObjectPtr<UButton> GetInfoButton() { return InfoButton; }
 	void SetItemThumbnail(const TSoftObjectPtr<UTexture2D>& Thumbnail);
 	void InitializeData(const uint32 Id, const FItemInfoData& ItemInfoData);
 	FORCEINLINE void SetId(const uint32 NewId) { ItemId = NewId; }
