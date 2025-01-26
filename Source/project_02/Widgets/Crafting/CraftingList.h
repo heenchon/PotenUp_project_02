@@ -26,4 +26,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UCraftingInfo> CraftingInfoClass;
+
+	UFUNCTION()
+	void UpdateCraftingDetail(const uint32 ItemId);
 };
