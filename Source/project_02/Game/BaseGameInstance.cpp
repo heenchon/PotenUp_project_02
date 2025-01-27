@@ -24,13 +24,12 @@ UBaseGameInstance::UBaseGameInstance()
 	
 	if (CraftingInfoDataTable.Succeeded())
 	{
-		TArray<FCraftingData*> TempCraftingInfoList;
-		CraftingInfoDataTable.Object->GetAllRows<FCraftingData>(TEXT(""), TempCraftingInfoList);
 		TArray<FName> RowNames = CraftingInfoDataTable.Object->GetRowNames();
 		
-		for (int i = 0; i < TempCraftingInfoList.Num(); i++)
+		for (int i = 0; i < RowNames.Num(); i++)
 		{
-			CraftingInfoMap.Add(FCString::Atoi(*RowNames[i].ToString()), *TempCraftingInfoList[i]);
+			const FCraftingData* Data = CraftingInfoDataTable.Object->FindRow<FCraftingData>(RowNames[i], "");
+			CraftingInfoMap.Add(FCString::Atoi(*RowNames[i].ToString()), *Data);
 		}
 	}
 }

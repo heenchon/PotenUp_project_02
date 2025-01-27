@@ -10,8 +10,7 @@
 
 void UCraftingList::NativeOnInitialized()
 {
-	const UBaseGameInstance* GI =
-		static_cast<UBaseGameInstance*>(GetWorld()->GetGameInstance());
+	const UBaseGameInstance* GI = GetWorld()->GetGameInstance<UBaseGameInstance>();
 	
 	for (const TTuple<uint32, FCraftingData> CraftingInfoMap : GI->GetCraftingInfoMap())
 	{
@@ -26,12 +25,17 @@ void UCraftingList::NativeOnInitialized()
 		
 		if (UCraftingInfo* NewCraftingInfo = CreateWidget<UCraftingInfo>(this, CraftingInfoClass))
 		{
-			NewCraftingInfo->SetItemName(NewName);
-			NewCraftingInfo->SetItemThumbnail(ItemInfoData.GetThumbnail());
+			NewCraftingInfo->InitializeData(CraftingInfoMap.Key, ItemInfoData);
+			NewCraftingInfo->OnClickCraftingInfoById.AddDynamic(this, &ThisClass::UpdateCraftingDetail);
 			CraftingList->AddChild(NewCraftingInfo);
 		}
-
-		CraftingDetail->SetCraftingId(CraftingInfoMap.Key);
-		CraftingDetail->UpdateRequireList();
 	}
 }
+
+void UCraftingList::UpdateCraftingDetail(const uint32 ItemId)
+{
+	CraftingDetail->SetCraftingId(ItemId);
+	CraftingDetail->UpdateRequireList();
+	CraftingDetail->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+}
+

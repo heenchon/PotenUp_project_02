@@ -33,7 +33,15 @@ FReply UInventorySlot::NativeOnMouseButtonDown(const FGeometry& InGeometry, cons
 
 void UInventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent, UDragDropOperation*& OutOperation)
 {
-	if (IsDragUi) return;
+	if (IsDragUi)
+	{
+		return;
+	}
+	
+	if (SlotItemId == 0)
+	{
+		return;
+	}
 	
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 	
@@ -128,7 +136,7 @@ void UInventorySlot::SetIsDragged(const bool bIsDragged)
 void UInventorySlot::SetSelected(const bool bIsSelected) const
 {
 	SelectedBorder->SetVisibility(bIsSelected ?
-		ESlateVisibility::Visible : ESlateVisibility::Hidden);
+		ESlateVisibility::SelfHitTestInvisible : ESlateVisibility::Hidden);
 }
 
 
