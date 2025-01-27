@@ -45,8 +45,6 @@ void UInventorySlot::NativeOnDragDetected(const FGeometry& InGeometry, const FPo
 	
 	Super::NativeOnDragDetected(InGeometry, InMouseEvent, OutOperation);
 	
-	UE_LOG(LogTemp, Display, TEXT("드래그에 진입하다...%s"), *GetName())
-	
 	// 드래그를 위한 위젯 설정
 	DragItemWidget = CreateWidget<UInventorySlot>(this, DragItemWidgetClass);
 	DragItemWidget->SetThumbnail(ItemThumbnail->GetBrush().GetResourceObject());
@@ -103,8 +101,6 @@ bool UInventorySlot::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEv
 	// UI 자체에 비지니스 로직이 들어가면 안된다.
 	UInventorySlot* PrevInvSlot = static_cast<UInventorySlot*>(DropOperation->GetOriginWidget());
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetOwningPlayerPawn()->GetPlayerState());
-
-	UE_LOG(LogTemp, Display, TEXT("스왑 : %d, %d"), DropOperation->GetIndex(), Index)
 	
 	SetSlotInfo(PS->GetPlayerInventoryList()[DropOperation->GetIndex()]);
 	PrevInvSlot->SetSlotInfo(PS->GetPlayerInventoryList()[Index]);

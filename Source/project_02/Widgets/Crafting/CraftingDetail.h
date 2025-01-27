@@ -14,7 +14,7 @@ class PROJECT_02_API UCraftingDetail : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	void InitializeRequireList();
+	void UpdateRequireList();
 	FORCEINLINE void SetCraftingId(const uint32 NewId) { CraftingId = NewId; }
 
 protected:

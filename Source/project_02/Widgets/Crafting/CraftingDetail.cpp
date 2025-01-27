@@ -14,7 +14,7 @@ void UCraftingDetail::NativeConstruct()
 	ConfirmButton->OnClicked.AddDynamic(this, &ThisClass::OnClickConfirmButton);
 }
 
-void UCraftingDetail::InitializeRequireList()
+void UCraftingDetail::UpdateRequireList()
 {
 	const UBaseGameInstance* GI = GetWorld()->GetGameInstance<UBaseGameInstance>();
 
@@ -81,7 +81,7 @@ void UCraftingDetail::OnClickConfirmButton()
 			}
 
 			// TODO: 이거는 지우고 다시 작성하는 방식이기 때문에 숫자만 바꾸는 방식을 고려해야함.
-			InitializeRequireList();
+			UpdateRequireList();
 		}
 	}
 }

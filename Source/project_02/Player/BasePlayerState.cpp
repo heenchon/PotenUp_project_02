@@ -50,7 +50,7 @@ void ABasePlayerState::UpdateCurrentRemainItemValue()
 {
 	TMap<uint32, uint32> NewMap;
 	
-	for (int i = 0; i < InitialItemList.Num(); i++)
+	for (int i = 0; i < PlayerInventoryList.Num(); i++)
 	{
 		if (NewMap.Find(PlayerInventoryList[i].GetId())) 
 		{
@@ -154,7 +154,7 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 		}
 	}
 
-	UpdateCurrentRemainItemValue();
+	OnUpdateInventory();
 	return RemainCount > 0 ? RemainCount : 0;
 }
 
@@ -166,7 +166,6 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 		const FItemMetaInfo ClearItemMeta;
 		PlayerInventoryList[Index] = ClearItemMeta;
 		OnUpdateInventory();
-		UpdateCurrentRemainItemValue();
 		return true;
 	}
 	
@@ -221,15 +220,15 @@ uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 		}
 	}
 
+	// UI 및 정보 업데이트
+	OnUpdateInventory();
+	
 	if (RemainResult > 0)
 	{
 		// TODO: 이후에 대한 처리 로직은 다른 곳에 이관해야 함
 		UE_LOG(LogTemp, Error, TEXT("인벤토리 초과함"))
 		return RemainResult;
 	}
-
-	// UI 업데이트
-	OnUpdateInventory();
 	
 	return 0;
 }
@@ -238,6 +237,7 @@ bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
 {
 	uint32 RemainNum = Count;
 	TArray<uint32> CanRemoveIndexList;
+	
 	for (int i = 0; i < GetTotalSlotCount(); i++)
 	{
 		if (PlayerInventoryList[i].GetId() == Id)
@@ -291,6 +291,7 @@ bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
 	return false;
 }
 
+// TODO: 이 함수가 여러번 호출될 수 있음. 차라리 모든 인벤 업데이트 이후 별도로 처리하는 것 또한 좋아보임
 void ABasePlayerState::OnUpdateInventory()
 {
 	if (ABasePlayerController* PC = Cast<ABasePlayerController>(GetPlayerController()))
