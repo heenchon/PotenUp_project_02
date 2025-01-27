@@ -20,17 +20,8 @@ void UInventoryList::SetInventoryArray(const uint8 NewCount)
 	}
 }
 
-
-void UInventoryList::NativePreConstruct()
+void UInventoryList::UpdateInventoryArray()
 {
-	SetInventoryArray(SlotCount);
-}
-
-void UInventoryList::NativeConstruct()
-{
-	// PreConstruct에서 진행하는 것은 개발용 툴이기에 의미 있지는 않다.
-	// 즉 SlotCount는 개발용 변수 값
-	ItemGridList->ClearChildren();
 	if (const ABasePlayerState* PS = Cast<ABasePlayerState>(GetOwningPlayerState()))
 	{
 		
@@ -44,4 +35,17 @@ void UInventoryList::NativeConstruct()
 			CurrentItemSlot->SetIndex(i);
 		}
 	}
+}
+
+void UInventoryList::NativePreConstruct()
+{
+	SetInventoryArray(SlotCount);
+}
+
+void UInventoryList::NativeConstruct()
+{
+	// PreConstruct에서 진행하는 것은 개발용 툴이기에 의미 있지는 않다.
+	// 즉 SlotCount는 개발용 변수 값
+	ItemGridList->ClearChildren();
+	UpdateInventoryArray();
 }

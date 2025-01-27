@@ -34,6 +34,8 @@ public:
 
 	FORCEINLINE TMap<uint32, uint32> GetCurrentRemainItemValue() const { return CurrentRemainItemValue; }
 
+	bool HasItemInInventory(const uint32 Id, const uint32 Count);
+	
 protected:
 	virtual void BeginPlay() override;
 	

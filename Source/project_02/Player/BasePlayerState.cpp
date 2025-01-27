@@ -6,8 +6,10 @@
 #include "project_02/Characters/Component/InventoryComponent.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/Helper/ItemHelper.h"
+#include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/Inventory/InventoryHotSlot.h"
+#include "project_02/Widgets/Inventory/InventoryList.h"
 
 ABasePlayerState::ABasePlayerState()
 {
@@ -31,6 +33,16 @@ void ABasePlayerState::InitializeData()
 	}
 	
 	UpdateCurrentRemainItemValue();
+}
+
+bool ABasePlayerState::HasItemInInventory(const uint32 Id, const uint32 Count)
+{
+	if (CurrentRemainItemValue.Find(Id))
+	{
+		return CurrentRemainItemValue[Id] >= Count;
+	}
+	
+	return false;
 }
 
 // TODO: 이건 내부 로직에서 아이템 변경될 때 마다 처리하기
@@ -88,7 +100,7 @@ void ABasePlayerState::SetPlayerHandItemByPS(const uint16 NewIndex)
 	}
 }
 
-
+// 특정 Index에 특정 아이템을 넣어둔다.
 uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo)
 {
 	const FItemInfoData& ItemInfoById = FItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
@@ -176,6 +188,7 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 	return true;
 }
 
+// 정해진 규칙에 의거해 아이템을 순서대로 넣어둔다.
 uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 {
 	const FItemInfoData& ItemInfoById = FItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
@@ -280,8 +293,16 @@ bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
 
 void ABasePlayerState::OnUpdateInventory()
 {
-	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetPlayerController());
+	if (ABasePlayerController* PC = Cast<ABasePlayerController>(GetPlayerController()))
+	{
+		PC->GetPlayerUI()->GetInventoryHotSlot()->UpdateInventoryArray();
+	}
+
+	if (const APlayerCharacter* Player = GetPawn<APlayerCharacter>())
+	{
+		Player->GetInventoryComponent()->GetInventoryUI()
+		->GetInventoryList()->UpdateInventoryArray();
+	}
 
 	UpdateCurrentRemainItemValue();
-	PC->GetPlayerUI()->GetInventoryHotSlot()->UpdateInventoryArray();
 }

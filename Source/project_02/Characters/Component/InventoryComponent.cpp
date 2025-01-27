@@ -159,6 +159,7 @@ void UInventoryComponent::ToggleInventory()
 		{
 			EquipmentUI = CreateWidget<UPlayerEquipmentUI>(
 				Cast<ABasePlayerController>(Player->GetController()), EquipmentUIClass);
+			EquipmentUI->AddToViewport();
 		}
 
 		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
@@ -166,7 +167,7 @@ void UInventoryComponent::ToggleInventory()
 		// 인벤토리 실질적 토글
 		if (IsOpenInventory)
 		{
-			EquipmentUI->RemoveFromParent();
+			EquipmentUI->SetVisibility(ESlateVisibility::Hidden);
 			if (PC)
 			{
 				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
@@ -174,7 +175,7 @@ void UInventoryComponent::ToggleInventory()
 			}
 		} else
 		{
-			EquipmentUI->AddToViewport();
+			EquipmentUI->SetVisibility(ESlateVisibility::Visible);
 			if (PC)
 			{
 				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);

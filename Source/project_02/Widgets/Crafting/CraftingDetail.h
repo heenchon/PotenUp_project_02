@@ -14,7 +14,7 @@ class PROJECT_02_API UCraftingDetail : public UUserWidget
 {
 	GENERATED_BODY()
 public:
-	void UpdateRequireList();
+	void InitializeRequireList();
 	FORCEINLINE void SetCraftingId(const uint32 NewId) { CraftingId = NewId; }
 
 protected:
@@ -31,4 +31,7 @@ private:
 	TSubclassOf<UCraftingDetailInfo> CraftingDetailInfoClass;
 
 	uint32 CraftingId;
+
+	UFUNCTION()
+	void OnClickConfirmButton();
 };
