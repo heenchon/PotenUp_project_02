@@ -99,10 +99,13 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> UseInputAction;
 
-	//희연
 	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> RotateInputAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> SaveInputAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Data"
 		, meta = (AllowPrivateAccess = true))
@@ -147,6 +150,9 @@ private:
 	void RotatePressed();
 	UFUNCTION()
 	void RotateReleased();
+
+	UFUNCTION()
+	void SaveGame();
 	
 	void FindToUse();
 	

@@ -24,6 +24,16 @@ void ABasePlayerController::BeginPlay()
 		PlayUI = CreateWidget<UPlayerGameUI>(this, PlayUIClass);
 		PlayUI->AddToViewport();
 	}
+	if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot("TestSlot", 0)))
+	{
+		RaftSaveGame->HealthInfo;
+		RaftSaveGame->LastPlayerTransform;
+		RaftSaveGame->RaftBuildMetaData;
+		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 성공하였습니다"))
+	} else
+	{
+		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 실패하였습니다"))
+	}
 }
 
 void ABasePlayerController::OnDied()
@@ -69,32 +79,35 @@ void ABasePlayerController::SaveGame()
 				PlayerInfo->GetSurvivalComponent()->GetHealthMap();
 			SaveGame->HungerInfo =
 				PlayerInfo->GetSurvivalComponent()->GetHungerMap();
-			SaveGame->ThirstInfo =
+			SaveGame->ThirstInfo = 
 				PlayerInfo->GetSurvivalComponent()->GetThirstMap();
-
-			FTransform TransformValue;
-			TransformValue.SetLocation(PlayerInfo->GetActorLocation());
-			TransformValue.SetRotation(PlayerInfo->GetActorRotation().Quaternion());
-			TransformValue.SetScale3D({1,1,1,});
-			
-			SaveGame->LastPlayerTransform = TransformValue;
+			SaveGame->LastPlayerTransform = PlayerInfo->GetActorTransform();
 		}
 
 		if (const ABasePlayerState* PS = GetPlayerState<ABasePlayerState>())
 		{
-			SaveGame->PlayerInventoryList =
-				PS->GetPlayerInventoryList();
+			SaveGame->PlayerInventoryList.Append(PS->GetPlayerInventoryList());
 		}
 
 		if (const ARaftGameState* GameState =
 			GetWorld()->GetGameState<ARaftGameState>())
 		{
-			SaveGame->RaftBuildMetaData =
-				GameState->GetRaftBuildMetaData();
-			SaveGame->RaftPlacedObjectMetaData =
-				GameState->GetRaftPlacedObjectData();
+			SaveGame->RaftBuildMetaData.Append(GameState->GetRaftBuildMetaData());
+			SaveGame->RaftPlacedObjectMetaData.Append(GameState->GetRaftPlacedObjectData());
 		}
 
-		UGameplayStatics::AsyncSaveGameToSlot(SaveGame, "TestSlot", 0);
+		if (UGameplayStatics::SaveGameToSlot(SaveGame, "TestSlot", 0))
+		{
+			if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot("TestSlot", 0)))
+			{
+				RaftSaveGame->HealthInfo;
+				RaftSaveGame->LastPlayerTransform;
+				RaftSaveGame->RaftBuildMetaData;
+				UE_LOG(LogTemp, Display, TEXT("데이터 로드에 성공하였습니다"))
+			} else
+			{
+				UE_LOG(LogTemp, Display, TEXT("데이터 로드에 실패하였습니다"))
+			}
+		}
 	}
 }

@@ -20,6 +20,7 @@
 #include "project_02/HY/Objects/PlaceObjects.h"
 
 // TODO: 상민띠가 아이템 클래스 만들면 교체
+#include "project_02/HY/RaftGameState.h"
 #include "project_02/HY/Items/Usable_Item.h"
 #include "project_02/HY/Objects/Sail.h"
 #include "project_02/Weapon/WeaponBase.h"
@@ -79,6 +80,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		, this, &ThisClass::RotatePressed);
 		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::RotateReleased);
+		
+		EnhancedInputComponent->BindAction(SaveInputAction, ETriggerEvent::Started
+		, this, &ThisClass::SaveGame);
 	}
 }
 
@@ -384,3 +388,10 @@ bool APlayerCharacter::IsBlockAction() const
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
 }
 
+void APlayerCharacter::SaveGame()
+{
+	if (ABasePlayerController* PC = GetController<ABasePlayerController>())
+	{
+		PC->SaveGame();
+	}
+}

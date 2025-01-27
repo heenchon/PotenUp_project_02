@@ -31,7 +31,7 @@ public:
 	
 protected:
 	virtual void BeginPlay() override;
-	
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "UI", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UPlayerGameUI> PlayUIClass;

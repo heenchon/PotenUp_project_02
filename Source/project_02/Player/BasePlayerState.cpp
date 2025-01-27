@@ -301,6 +301,11 @@ void ABasePlayerState::OnUpdateInventory()
 
 	if (const APlayerCharacter* Player = GetPawn<APlayerCharacter>())
 	{
+		if (!Player->GetInventoryComponent()->GetInventoryUI())
+		{
+			return;
+		}
+		
 		Player->GetInventoryComponent()->GetInventoryUI()
 		->GetInventoryList()->UpdateInventoryArray();
 	}
