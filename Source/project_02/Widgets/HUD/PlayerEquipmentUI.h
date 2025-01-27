@@ -5,7 +5,6 @@
 #include "project_02/Widgets/Crafting/CraftingList.h"
 #include "PlayerEquipmentUI.generated.h"
 
-
 class UCraftingDetail;
 class UCraftingList;
 class UInventoryList;
