@@ -167,6 +167,7 @@ void UInventoryComponent::ToggleInventory()
 		// 인벤토리 실질적 토글
 		if (IsOpenInventory)
 		{
+			// TODO: 제거가 아닌 Hidden 처리할 것 이라면 Focus 관련 관리 추가할 필요 있음
 			EquipmentUI->SetVisibility(ESlateVisibility::Hidden);
 			if (PC)
 			{
@@ -175,7 +176,8 @@ void UInventoryComponent::ToggleInventory()
 			}
 		} else
 		{
-			EquipmentUI->SetVisibility(ESlateVisibility::Visible);
+			// 화면에 보이고 인터렉션 가능에, 레이어 밖으로 나가도 상호작용 가능하게 처리함.
+			EquipmentUI->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 			if (PC)
 			{
 				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
