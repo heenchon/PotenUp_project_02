@@ -26,6 +26,8 @@ public:
 	}
 	
 	void RemoveDraggedSelectedSlot();
+
+	void SaveGame();
 	
 protected:
 	virtual void BeginPlay() override;

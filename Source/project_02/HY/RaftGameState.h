@@ -32,7 +32,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Wind")
 	void SetWind(FVector newDir, float newStrength);
 
-
 protected:
 	virtual void BeginPlay() override;
 	
