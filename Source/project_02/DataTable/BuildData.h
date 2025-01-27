@@ -52,7 +52,7 @@ struct PROJECT_02_API FBuildData
 	EBlockCategory BlockCategory;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct PROJECT_02_API FPlacedObjectData
 {
 	GENERATED_USTRUCT_BODY()

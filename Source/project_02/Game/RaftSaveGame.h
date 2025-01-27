@@ -8,6 +8,14 @@
 #include "project_02/DataTable/ItemInfoData.h"
 #include "RaftSaveGame.generated.h"
 
+USTRUCT()
+struct FPlacedObjectDataArray
+{
+	GENERATED_BODY()
+
+	UPROPERTY()
+	TArray<FPlacedObjectData> ObjectArray;
+};
 
 UCLASS()
 class PROJECT_02_API URaftSaveGame : public USaveGame
@@ -19,20 +27,33 @@ class PROJECT_02_API URaftSaveGame : public USaveGame
 // 캡슐화를 위한 함수 정보보다 SaveGame 인스턴스는 순수한 객체 정보만
 // 담아둬서 불필요한 저장을 방지한다.
 public:
+	UPROPERTY()
 	FString MapName;
 
-	// Scale은 그냥 1,1,1 저장할 예정
+	UPROPERTY()
 	FTransform LastPlayerTransform;
 
-	// 체력, 허기, 갈증 정보 저장
-	TPair<uint8, uint8> HealthInfo;
-	TPair<uint8, uint8> HungerInfo;
-	TPair<uint8, uint8> ThirstInfo;
+	// 체력, 허기, 갈증 정보 저장UPROPERTY()
+	UPROPERTY()
+	uint8 MaxHealth;
+	UPROPERTY()
+	uint8 CurrentHealth;
+	UPROPERTY()
+	uint8 MaxHunger;
+	UPROPERTY()
+	uint8 CurrentHunger;
+	uint8 MaxThirst;
+	UPROPERTY()
+	uint8 CurrentThirst;
 
 	// 배 건축 정보 저장하기
+	UPROPERTY()
 	TMap<FVector, FBuildData> RaftBuildMetaData;
-	TMap<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectMetaData;
+	
+	UPROPERTY()
+	TMap<FVector, FPlacedObjectDataArray> RaftPlacedObjectMetaData;
 
 	// 플레이어 인벤토리 정보
+	UPROPERTY()
 	TArray<FItemMetaInfo> PlayerInventoryList;
 };

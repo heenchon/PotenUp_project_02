@@ -24,16 +24,6 @@ void ABasePlayerController::BeginPlay()
 		PlayUI = CreateWidget<UPlayerGameUI>(this, PlayUIClass);
 		PlayUI->AddToViewport();
 	}
-	if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot("TestSlot", 0)))
-	{
-		RaftSaveGame->HealthInfo;
-		RaftSaveGame->LastPlayerTransform;
-		RaftSaveGame->RaftBuildMetaData;
-		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 성공하였습니다"))
-	} else
-	{
-		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 실패하였습니다"))
-	}
 }
 
 void ABasePlayerController::OnDied()
@@ -75,13 +65,20 @@ void ABasePlayerController::SaveGame()
 
 		if (const APlayerCharacter* PlayerInfo = GetPawn<APlayerCharacter>())
 		{
-			SaveGame->HealthInfo =
-				PlayerInfo->GetSurvivalComponent()->GetHealthMap();
-			SaveGame->HungerInfo =
-				PlayerInfo->GetSurvivalComponent()->GetHungerMap();
-			SaveGame->ThirstInfo = 
-				PlayerInfo->GetSurvivalComponent()->GetThirstMap();
-			SaveGame->LastPlayerTransform = PlayerInfo->GetActorTransform();
+			SaveGame->CurrentHealth =
+				PlayerInfo->GetSurvivalComponent()->GetHealthMap().Key;
+			SaveGame->MaxHealth =
+				PlayerInfo->GetSurvivalComponent()->GetHealthMap().Value;
+			
+			SaveGame->CurrentHunger =
+				PlayerInfo->GetSurvivalComponent()->GetHungerMap().Key;
+			SaveGame->MaxHunger =
+				PlayerInfo->GetSurvivalComponent()->GetHungerMap().Value;
+			
+			SaveGame->CurrentThirst =
+				PlayerInfo->GetSurvivalComponent()->GetThirstMap().Key;
+			SaveGame->MaxThirst =
+				PlayerInfo->GetSurvivalComponent()->GetThirstMap().Value;
 		}
 
 		if (const ABasePlayerState* PS = GetPlayerState<ABasePlayerState>())
@@ -93,14 +90,19 @@ void ABasePlayerController::SaveGame()
 			GetWorld()->GetGameState<ARaftGameState>())
 		{
 			SaveGame->RaftBuildMetaData.Append(GameState->GetRaftBuildMetaData());
-			SaveGame->RaftPlacedObjectMetaData.Append(GameState->GetRaftPlacedObjectData());
+
+			for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : GameState->GetRaftPlacedObjectData())
+			{
+				FPlacedObjectDataArray DataArray;
+				DataArray.ObjectArray.Append(RaftPlacedObjectData.Value);
+				SaveGame->RaftPlacedObjectMetaData.Add(RaftPlacedObjectData.Key, DataArray);
+			}
 		}
 
 		if (UGameplayStatics::SaveGameToSlot(SaveGame, "TestSlot", 0))
 		{
 			if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot("TestSlot", 0)))
 			{
-				RaftSaveGame->HealthInfo;
 				RaftSaveGame->LastPlayerTransform;
 				RaftSaveGame->RaftBuildMetaData;
 				UE_LOG(LogTemp, Display, TEXT("데이터 로드에 성공하였습니다"))
