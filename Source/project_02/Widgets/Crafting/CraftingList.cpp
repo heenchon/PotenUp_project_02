@@ -36,6 +36,6 @@ void UCraftingList::UpdateCraftingDetail(const uint32 ItemId)
 {
 	CraftingDetail->SetCraftingId(ItemId);
 	CraftingDetail->InitializeRequireList();
-	CraftingDetail->SetVisibility(ESlateVisibility::Visible);
+	CraftingDetail->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 }
 
