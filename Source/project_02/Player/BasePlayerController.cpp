@@ -38,10 +38,10 @@ void ABasePlayerController::InitializeData()
 	
 	if (RecentSaveData->IsAlreadyStart)
 	{
-		SpawnTransform.SetLocation(FVector(0, 0, 100));
+		SpawnTransform = RecentSaveData->LastPlayerTransform;
 	} else
 	{
-		SpawnTransform = RecentSaveData->LastPlayerTransform;
+		SpawnTransform.SetLocation(FVector(0, 0, 150));
 	}
 	
 	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnTransform))
@@ -149,24 +149,6 @@ void ABasePlayerController::LoadGame()
 				SaveGame->MaxThirst =
 					PlayerInfo->GetSurvivalComponent()->GetThirstMap().Value;
 			}
-
-			if (const ABasePlayerState* PS = GetPlayerState<ABasePlayerState>())
-			{
-				SaveGame->PlayerInventoryList.Append(PS->GetPlayerInventoryList());
-			}
-
-			if (const ARaftGameState* GameState =
-				GetWorld()->GetGameState<ARaftGameState>())
-			{
-				SaveGame->RaftBuildMetaData.Append(Raft->GetRaftBuildMetaData());
-
-				for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : Raft->GetRaftPlacedObjectData())
-				{
-					FPlacedObjectDataArray DataArray;
-					DataArray.ObjectArray.Append(RaftPlacedObjectData.Value);
-					SaveGame->RaftPlacedObjectMetaData.Add(RaftPlacedObjectData.Key, DataArray);
-				}
-			}
 		
 			UGameplayStatics::SaveGameToSlot(SaveGame, GetWorld()->GetAuthGameMode<ARaftGameMode>()->GetMapName(), 0);
 			// 이동 연산자로 방금 저장한 정보를 다시 불러옴
@@ -204,6 +186,8 @@ void ABasePlayerController::SaveGame()
 				PlayerInfo->GetSurvivalComponent()->GetThirstMap().Key;
 			SaveGame->MaxThirst =
 				PlayerInfo->GetSurvivalComponent()->GetThirstMap().Value;
+
+			SaveGame->LastPlayerTransform = PlayerInfo->GetActorTransform();
 		}
 
 		if (const ABasePlayerState* PS = GetPlayerState<ABasePlayerState>())
@@ -211,17 +195,14 @@ void ABasePlayerController::SaveGame()
 			SaveGame->PlayerInventoryList.Append(PS->GetPlayerInventoryList());
 		}
 
-		if (const ARaftGameState* GameState =
-			GetWorld()->GetGameState<ARaftGameState>())
-		{
-			SaveGame->RaftBuildMetaData.Append(Raft->GetRaftBuildMetaData());
+		SaveGame->LastRaftTransform = Raft->GetActorTransform();
+		SaveGame->RaftBuildMetaData.Append(Raft->GetRaftBuildMetaData());
 
-			for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : Raft->GetRaftPlacedObjectData())
-			{
-				FPlacedObjectDataArray DataArray;
-				DataArray.ObjectArray.Append(RaftPlacedObjectData.Value);
-				SaveGame->RaftPlacedObjectMetaData.Add(RaftPlacedObjectData.Key, DataArray);
-			}
+		for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : Raft->GetRaftPlacedObjectData())
+		{
+			FPlacedObjectDataArray DataArray;
+			DataArray.ObjectArray.Append(RaftPlacedObjectData.Value);
+			SaveGame->RaftPlacedObjectMetaData.Add(RaftPlacedObjectData.Key, DataArray);
 		}
 		
 		UGameplayStatics::SaveGameToSlot(SaveGame, GetWorld()->GetAuthGameMode<ARaftGameMode>()->GetMapName(), 0);

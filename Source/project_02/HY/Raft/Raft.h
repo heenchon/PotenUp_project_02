@@ -39,11 +39,9 @@ public:
 	void UpdatePlacedObjectData(const FVector& Pos, const FPlacedObjectData& PlaceData, const bool IsRemove = false);
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void SpawnSailActor();
 
@@ -59,4 +57,6 @@ private:
 	TMap<FVector, ABuildingActor*> RaftBuildPointerData;
 
 	TMap<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData;
+
+	void InitializeData();
 };

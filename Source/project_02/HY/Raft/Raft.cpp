@@ -3,9 +3,12 @@
 #include "BuoyancyComponent.h"
 #include "../RaftGameState.h"
 #include "../Objects/Sail.h"
+#include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
+#include "project_02/Game/RaftSaveGame.h"
+#include "project_02/Player/BasePlayerController.h"
 
 ARaft::ARaft()
 {
@@ -42,13 +45,8 @@ void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
 	StaticMesh->SetHiddenInGame(true);
-	
-	if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
-	{
-		MainFloor = NewMainFloor;
-		MainFloor->SetCenter();
-		MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-	}
+
+	InitializeData();
 	
 	SpawnSailActor();
 }
@@ -114,5 +112,32 @@ void ARaft::UpdatePlacedObjectData(const FVector& Pos, const FPlacedObjectData& 
 			
 		}
 		RaftPlacedObjectData[Pos].Add(PlaceData);
+	}
+}
+
+void ARaft::InitializeData()
+{
+	if (ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	{
+		// 처음 시작인 경우는 새로 만들기만 해준다.
+		if (!PC->GetRecentSaveData()->IsAlreadyStart)
+		{
+			// 초기 값 설정. 임시 값
+			SetActorLocation(FVector(0, 0, 100));
+			if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
+			{
+				MainFloor = NewMainFloor;
+				MainFloor->SetCenter();
+				MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+			}
+			return;
+		}
+
+		SetActorTransform(PC->GetRecentSaveData()->LastRaftTransform);
+		// 처음 시작이 아닌 경우는 전부 빌딩을 실행한다.
+		for (TTuple<FVector, FBuildData> BuildData : PC->GetRecentSaveData()->RaftBuildMetaData)
+		{
+			UE_LOG(LogTemp, Display, TEXT("%s"), *BuildData.Key.ToString());
+		}
 	}
 }
