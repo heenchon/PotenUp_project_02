@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainUI.generated.h"
 
+class UOverlay;
 class UButton;
 
 UCLASS()
@@ -16,8 +17,23 @@ protected:
 	
 private:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UButton> StartGameButton;
+	TObjectPtr<UButton> NewGameButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> ContinueGameButton;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> QuitGameButton;
+
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UOverlay> SubModuleOverlay;
+
+	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UUserWidget> SubWidgetClass;
 	
 	UFUNCTION()
-	void OnClickStartGameButton();
+	void OnClickNewGameButton();
+
+	UFUNCTION()
+	void OnClickContinueGameButton();
 };
