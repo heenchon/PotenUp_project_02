@@ -3,8 +3,9 @@
 #include "Components/Button.h"
 #include "Components/EditableTextBox.h"
 #include "Components/TextBlock.h"
-#include "project_02/Game/BaseGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "project_02/Game/RaftGameMode.h"
+#include "project_02/Game/RaftSaveList.h"
 
 void UCreateNewMap::NativeConstruct()
 {
@@ -29,9 +30,15 @@ void UCreateNewMap::OnCommitText(const FText& Text,
 	// 그렇기 때문에 우선적으로 Enter 처리되는 그 상황에만 관련된 내용을 처리한다.
 	if (CommitMethod == ETextCommit::Type::OnEnter)
 	{
-		const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
-
-		const bool IsFindDuplicatedMap = GI->GetSaveDataList().IndexOfByPredicate([&](const FSaveData& Data)
+		const URaftSaveList* SaveData = Cast<URaftSaveList>(
+					UGameplayStatics::LoadGameFromSlot("SaveList", 0));
+		if (!SaveData)
+		{
+			WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			return;
+		}
+		
+		const bool IsFindDuplicatedMap = SaveData->MapNameList.IndexOfByPredicate([&](const FSaveData& Data)
 		{
 			return Data.MapName == Text.ToString();
 		}) != -1;
@@ -48,9 +55,15 @@ void UCreateNewMap::OnCommitText(const FText& Text,
 
 void UCreateNewMap::OnClickConfirm()
 {
-	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+	const URaftSaveList* SaveData = Cast<URaftSaveList>(
+					UGameplayStatics::LoadGameFromSlot("SaveList", 0));
+	if (!SaveData)
+	{
+		WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		return;
+	}
 	
-	const bool IsFindDuplicatedMap = GI->GetSaveDataList().IndexOfByPredicate([&](const FSaveData& Data)
+	const bool IsFindDuplicatedMap = SaveData->MapNameList.IndexOfByPredicate([&](const FSaveData& Data)
 	{
 		return Data.MapName == MapNameInput->GetText().ToString();
 	}) != -1;

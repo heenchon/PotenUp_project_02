@@ -4,6 +4,8 @@
 #include "Blueprint/UserWidget.h"
 #include "MainUI.generated.h"
 
+class USelectMapList;
+class UCreateNewMap;
 class UOverlay;
 class UButton;
 
@@ -29,7 +31,10 @@ private:
 	TObjectPtr<UOverlay> SubModuleOverlay;
 
 	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
-	TSubclassOf<UUserWidget> SubWidgetClass;
+	TSubclassOf<UCreateNewMap> CreateNewMapClass;
+	
+	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<USelectMapList> SelectMapListClass;
 	
 	UFUNCTION()
 	void OnClickNewGameButton();

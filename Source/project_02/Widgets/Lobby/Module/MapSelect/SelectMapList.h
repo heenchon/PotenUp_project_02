@@ -4,8 +4,8 @@
 #include "Blueprint/UserWidget.h"
 #include "SelectMapList.generated.h"
 
+class UScrollBox;
 class USelectMapInfo;
-class UVerticalBox;
 
 UCLASS()
 class PROJECT_02_API USelectMapList : public UUserWidget
@@ -17,7 +17,7 @@ protected:
 	
 private:
 	UPROPERTY(meta = (BindWidget))
-	TObjectPtr<UVerticalBox> RequireList;
+	TObjectPtr<UScrollBox> RequireList;
 
 	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
 	TSubclassOf<USelectMapInfo> SelectInfoClass;

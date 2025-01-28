@@ -2,7 +2,8 @@
 
 #include "Components/Button.h"
 #include "Components/Overlay.h"
-#include "project_02/Game/RaftGameMode.h"
+#include "Module/MapCreate/CreateNewMap.h"
+#include "Module/MapSelect/SelectMapList.h"
 
 void UMainUI::NativeConstruct()
 {
@@ -16,12 +17,14 @@ void UMainUI::NativeConstruct()
 
 void UMainUI::OnClickNewGameButton()
 {
-	UUserWidget* NewWidget = CreateWidget(this, SubWidgetClass);
+	UCreateNewMap* NewWidget = CreateWidget<UCreateNewMap>(this, CreateNewMapClass);
+	SubModuleOverlay->ClearChildren();
 	SubModuleOverlay->AddChild(NewWidget);
 }
 
 void UMainUI::OnClickContinueGameButton()
 {
-	GetWorld()->GetAuthGameMode<ARaftGameMode>()->StartPlayGame("TestSlot");
-	RemoveFromParent();
+	USelectMapList* NewWidget = CreateWidget<USelectMapList>(this, SelectMapListClass);
+	SubModuleOverlay->ClearChildren();
+	SubModuleOverlay->AddChild(NewWidget);
 }

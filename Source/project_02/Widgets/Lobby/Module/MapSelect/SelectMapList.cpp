@@ -1,19 +1,21 @@
 ﻿#include "SelectMapList.h"
 
 #include "SelectMapInfo.h"
-#include "Components/VerticalBox.h"
-#include "project_02/Game/BaseGameInstance.h"
+#include "Components/ScrollBox.h"
+#include "Kismet/GameplayStatics.h"
+#include "project_02/Game/RaftSaveList.h"
 
 void USelectMapList::NativeConstruct()
 {
-	const UBaseGameInstance* GI = GetWorld()->GetGameInstance<UBaseGameInstance>();
+	const URaftSaveList* SaveData = Cast<URaftSaveList>(
+				UGameplayStatics::LoadGameFromSlot("SaveList", 0));
 
-	if (!GI)
+	if (!SaveData)
 	{
 		return;
 	}
 
-	for (const FSaveData& SaveGameData : GI->GetSaveDataList())
+	for (const FSaveData& SaveGameData : SaveData->MapNameList)
 	{
 		USelectMapInfo* MapInfo = CreateWidget<USelectMapInfo>(
 			this, SelectInfoClass);
