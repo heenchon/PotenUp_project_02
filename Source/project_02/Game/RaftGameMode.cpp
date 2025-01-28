@@ -26,7 +26,6 @@ void ARaftGameMode::GoToMainLevel()
 	
 	// 메인 UI는 그냥 비동기로 UnLoad해도 문제는 없어보인다.
 	UGameplayStatics::UnloadStreamLevel(GetWorld(), "MainLevel", FLatentActionInfo(), false);
-	
 }
 
 void ARaftGameMode::OnLevelLoadComplete()
