@@ -41,7 +41,7 @@ void ABasePlayerController::InitializeData()
 		SpawnTransform = RecentSaveData->LastPlayerTransform;
 	} else
 	{
-		SpawnTransform.SetLocation(FVector(0, 0, 150));
+		SpawnTransform.SetLocation(PrevPawn->GetActorLocation());
 	}
 	
 	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnTransform))

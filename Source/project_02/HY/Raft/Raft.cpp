@@ -51,7 +51,6 @@ void ARaft::BeginPlay()
 	SpawnSailActor();
 }
 
-// Called every frame
 void ARaft::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -70,7 +69,6 @@ void ARaft::SpawnSailActor()
 		sail->SetRaft(this);
 	}
 }
-
 
 void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const bool IsRemove)
 {
@@ -123,7 +121,7 @@ void ARaft::InitializeData()
 		if (!PC->GetRecentSaveData()->IsAlreadyStart)
 		{
 			// 초기 값 설정. 임시 값
-			SetActorLocation(FVector(0, 0, 100));
+			SetActorLocation(PC->GetPawn()->GetActorLocation());
 			if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
 			{
 				MainFloor = NewMainFloor;
