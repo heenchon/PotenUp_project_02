@@ -13,7 +13,7 @@ class PROJECT_02_API UMainUI : public UUserWidget
 	GENERATED_BODY()
 	
 protected:
-	virtual void NativeOnInitialized() override;
+	virtual void NativeConstruct() override;
 	
 private:
 	UPROPERTY(meta = (BindWidget))

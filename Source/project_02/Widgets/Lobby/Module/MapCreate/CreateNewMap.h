@@ -5,6 +5,8 @@
 #include "CreateNewMap.generated.h"
 
 
+class UButton;
+class UTextBlock;
 class UEditableTextBox;
 
 UCLASS()
@@ -18,7 +20,19 @@ protected:
 private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UEditableTextBox> MapNameInput;
+	
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UTextBlock> WarningText;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> ConfirmButton;
+	
 	UFUNCTION()
 	void OnCommitText(const FText& Text, ETextCommit::Type CommitMethod);
+	
+	UFUNCTION()
+	void OnChangeText(const FText& Text);
+
+	UFUNCTION()
+	void OnClickConfirm();
 };

@@ -4,8 +4,10 @@
 #include "Components/Overlay.h"
 #include "project_02/Game/RaftGameMode.h"
 
-void UMainUI::NativeOnInitialized()
+void UMainUI::NativeConstruct()
 {
+	Super::NativeConstruct();
+	
 	NewGameButton->OnClicked.AddDynamic(
 	this, &ThisClass::OnClickNewGameButton);
 	ContinueGameButton->OnClicked.AddDynamic(
@@ -14,12 +16,12 @@ void UMainUI::NativeOnInitialized()
 
 void UMainUI::OnClickNewGameButton()
 {
-	GetWorld()->GetAuthGameMode<ARaftGameMode>()->GoToMainLevel();
-	RemoveFromParent();
+	UUserWidget* NewWidget = CreateWidget(this, SubWidgetClass);
+	SubModuleOverlay->AddChild(NewWidget);
 }
 
 void UMainUI::OnClickContinueGameButton()
 {
-	UUserWidget* NewWidget = CreateWidget(this, SubWidgetClass);
-	SubModuleOverlay->AddChild(NewWidget);
+	GetWorld()->GetAuthGameMode<ARaftGameMode>()->StartPlayGame("TestSlot");
+	RemoveFromParent();
 }

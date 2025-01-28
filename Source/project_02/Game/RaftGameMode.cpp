@@ -10,8 +10,9 @@ void ARaftGameMode::BeginPlay()
 	true, true, FLatentActionInfo());
 }
 
-void ARaftGameMode::GoToMainLevel()
+void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 {
+	MapName = NewMapName;
 	
 	IsLoading = true;
 	
@@ -35,4 +36,3 @@ void ARaftGameMode::OnLevelLoadComplete()
 	
 	IsLoading = false;
 }
-
