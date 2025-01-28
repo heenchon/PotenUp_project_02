@@ -41,6 +41,6 @@ void UBaseGameInstance::Init()
 	if (const URaftSaveList* RaftSaveList = Cast<URaftSaveList>(
 		UGameplayStatics::LoadGameFromSlot("SaveList", 0)))
 	{
-		SaveNameList = RaftSaveList->MapNameList;
+		SaveDataList = RaftSaveList->MapNameList;
 	}
 }

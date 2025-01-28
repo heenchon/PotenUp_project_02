@@ -13,11 +13,11 @@ void USelectMapList::NativeConstruct()
 		return;
 	}
 
-	for (const FString& SaveGameName : GI->GetSaveNameList())
+	for (const FSaveData& SaveGameData : GI->GetSaveDataList())
 	{
 		USelectMapInfo* MapInfo = CreateWidget<USelectMapInfo>(
 			this, SelectInfoClass);
-		MapInfo->SetMapName(SaveGameName);
+		MapInfo->SetMapName(SaveGameData.MapName);
 
 		RequireList->AddChild(MapInfo);
 	}

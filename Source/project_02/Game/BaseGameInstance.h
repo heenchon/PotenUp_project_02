@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include "CoreMinimal.h"
+#include "RaftSaveList.h"
 #include "Engine/GameInstance.h"
 #include "project_02/DataTable/CraftingData.h"
 #include "project_02/DataTable/ItemInfoData.h"
@@ -14,7 +15,7 @@ class PROJECT_02_API UBaseGameInstance : public UGameInstance
 	UBaseGameInstance();
 
 public:
-	FORCEINLINE TArray<FString> GetSaveNameList() const{ return SaveNameList; };
+	FORCEINLINE TArray<FSaveData> GetSaveDataList() const{ return SaveDataList; }
 	FORCEINLINE TArray<FItemInfoData> GetItemInfoList() const{ return ItemInfoList; }
 	FORCEINLINE TMap<uint32, FCraftingData> GetCraftingInfoMap() const{ return CraftingInfoMap; }
 
@@ -26,7 +27,7 @@ private:
 	TArray<FItemInfoData> ItemInfoList;
 	
 	UPROPERTY()
-	TArray<FString> SaveNameList;
+	TArray<FSaveData> SaveDataList;
 	
 	UPROPERTY()
 	TMap<uint32, FCraftingData> CraftingInfoMap;

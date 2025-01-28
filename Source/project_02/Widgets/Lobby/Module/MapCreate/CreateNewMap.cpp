@@ -31,12 +31,17 @@ void UCreateNewMap::OnCommitText(const FText& Text,
 	{
 		const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
 
-		if (GI->GetSaveNameList().Find(Text.ToString()) == -1)
+		const bool IsFindDuplicatedMap = GI->GetSaveDataList().IndexOfByPredicate([&](const FSaveData& Data)
 		{
-			WarningText->SetVisibility(ESlateVisibility::Hidden);
-		} else
+			return Data.MapName == Text.ToString();
+		}) != -1;
+		
+		if (IsFindDuplicatedMap)
 		{
 			WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+		} else
+		{
+			WarningText->SetVisibility(ESlateVisibility::Hidden);
 		}
 	}
 }
@@ -44,9 +49,17 @@ void UCreateNewMap::OnCommitText(const FText& Text,
 void UCreateNewMap::OnClickConfirm()
 {
 	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
-
+	
+	const bool IsFindDuplicatedMap = GI->GetSaveDataList().IndexOfByPredicate([&](const FSaveData& Data)
+	{
+		return Data.MapName == MapNameInput->GetText().ToString();
+	}) != -1;
+	
 	// 확정 시에도 재검증은 해주면 좋다.
-	if (GI->GetSaveNameList().Find(MapNameInput->GetText().ToString()) == -1)
+	if (IsFindDuplicatedMap)
+	{
+		WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+	} else
 	{
 		ARaftGameMode* GM = GetWorld()->GetAuthGameMode<ARaftGameMode>();
 		if (!GM)
@@ -54,8 +67,5 @@ void UCreateNewMap::OnClickConfirm()
 			return;
 		}
 		GM->StartPlayGame(MapNameInput->GetText().ToString());
-	} else
-	{
-		WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
 }
