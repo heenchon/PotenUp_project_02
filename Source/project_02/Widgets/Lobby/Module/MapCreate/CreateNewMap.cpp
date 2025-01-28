@@ -57,6 +57,8 @@ void UCreateNewMap::OnClickConfirm()
 {
 	const URaftSaveList* SaveData = Cast<URaftSaveList>(
 					UGameplayStatics::LoadGameFromSlot("SaveList", 0));
+
+	// 데이터 없으면 그냥 새로 만들고 바로 시작함
 	if (!SaveData)
 	{
 		ARaftGameMode* GM = GetWorld()->GetAuthGameMode<ARaftGameMode>();
@@ -65,6 +67,7 @@ void UCreateNewMap::OnClickConfirm()
 			return;
 		}
 		GM->StartPlayGame(MapNameInput->GetText().ToString());
+		return;
 	}
 	
 	const bool IsFindDuplicatedMap = SaveData->MapNameList.IndexOfByPredicate([&](const FSaveData& Data)
