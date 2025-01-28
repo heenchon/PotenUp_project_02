@@ -55,6 +55,16 @@ void ABasePlayerController::RemoveDraggedSelectedSlot()
 
 void ABasePlayerController::SaveGame()
 {
+	if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot("TestSlot", 0)))
+	{
+		RaftSaveGame->LastPlayerTransform;
+		RaftSaveGame->RaftBuildMetaData;
+		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 성공하였습니다"))
+	} else
+	{
+		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 실패하였습니다"))
+	}
+	
 	if (URaftSaveGame* SaveGame = Cast<URaftSaveGame>(
 		UGameplayStatics::CreateSaveGameObject(URaftSaveGame::StaticClass())))
 	{
@@ -98,18 +108,7 @@ void ABasePlayerController::SaveGame()
 				SaveGame->RaftPlacedObjectMetaData.Add(RaftPlacedObjectData.Key, DataArray);
 			}
 		}
-
-		if (UGameplayStatics::SaveGameToSlot(SaveGame, "TestSlot", 0))
-		{
-			if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot("TestSlot", 0)))
-			{
-				RaftSaveGame->LastPlayerTransform;
-				RaftSaveGame->RaftBuildMetaData;
-				UE_LOG(LogTemp, Display, TEXT("데이터 로드에 성공하였습니다"))
-			} else
-			{
-				UE_LOG(LogTemp, Display, TEXT("데이터 로드에 실패하였습니다"))
-			}
-		}
+		
+		UGameplayStatics::SaveGameToSlot(SaveGame, "TestSlot", 0);
 	}
 }
