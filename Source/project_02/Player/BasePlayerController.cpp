@@ -27,6 +27,12 @@ void ABasePlayerController::Initialize()
 
 	InitializeData();
 	SpawnRaft();
+
+	// 상어 스폰 로직 임시용
+	if (ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>())
+	{
+		GS->SpawnShark();
+	}
 }
 
 void ABasePlayerController::InitializeData()

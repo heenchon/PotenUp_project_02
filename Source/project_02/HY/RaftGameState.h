@@ -2,9 +2,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameStateBase.h"
-#include "project_02/DataTable/BuildData.h"
 #include "RaftGameState.generated.h"
 
+class ASharkAI;
 class APlaceObjects;
 class ABuildingActor;
 
@@ -22,4 +22,13 @@ public:
 	
 	UFUNCTION(BlueprintCallable, Category = "Wind")
 	void SetWind(FVector newDir, float newStrength);
+
+	void SpawnShark();
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ASharkAI> SharkClass;
+
+	UPROPERTY()
+	TObjectPtr<ASharkAI> Shark;
 };
