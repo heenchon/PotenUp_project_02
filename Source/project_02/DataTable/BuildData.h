@@ -48,7 +48,10 @@ struct PROJECT_02_API FBuildData
 {
 	GENERATED_USTRUCT_BODY()
 
+	UPROPERTY()
 	EBlockType BlockType;
+	
+	UPROPERTY()
 	EBlockCategory BlockCategory;
 };
 
@@ -57,7 +60,9 @@ struct PROJECT_02_API FPlacedObjectData
 {
 	GENERATED_USTRUCT_BODY()
 	
+	UPROPERTY()
 	FVector RelativeLoc;
 
+	UPROPERTY()
 	uint32 ObjectId;
 };
