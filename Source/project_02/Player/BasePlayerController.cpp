@@ -20,10 +20,15 @@ void ABasePlayerController::Initialize()
 	{
 		PS->InitializeData();
 	}
-	
-	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass))
+
+	APawn* PrevPawn = GetPawn();
+	const FVector SpawnPoint(0,0, 100);
+	const FRotator SpawnRotation(0,0,0);
+	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnPoint, SpawnRotation))
 	{
 		Possess(PlayerPawn);
+		// 이전 Pawn은 제거한다.
+		PrevPawn->Destroy();
 	
 		if (PlayUIClass)
 		{

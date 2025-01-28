@@ -17,4 +17,7 @@ protected:
 
 private:
 	bool IsLoading = false;
+
+	UFUNCTION()
+	void OnLevelLoadComplete();
 };
