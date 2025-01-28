@@ -14,8 +14,9 @@ class PROJECT_02_API UBaseGameInstance : public UGameInstance
 	UBaseGameInstance();
 
 public:
-	FORCEINLINE TArray<FItemInfoData> GetItemInfoList() const{ return ItemInfoList; };
-	FORCEINLINE TMap<uint32, FCraftingData> GetCraftingInfoMap() const{ return CraftingInfoMap; };
+	FORCEINLINE TArray<FString> GetSaveNameList() const{ return SaveNameList; };
+	FORCEINLINE TArray<FItemInfoData> GetItemInfoList() const{ return ItemInfoList; }
+	FORCEINLINE TMap<uint32, FCraftingData> GetCraftingInfoMap() const{ return CraftingInfoMap; }
 
 protected:
 	virtual void Init() override;
