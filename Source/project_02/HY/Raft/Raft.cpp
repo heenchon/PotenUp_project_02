@@ -1,16 +1,17 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "Raft.h"
 
-
-#include "Raft.h"
-#include "project_02/Building/BuildingActor.h"
+#include "BuoyancyComponent.h"
 #include "../RaftGameState.h"
 #include "../Objects/Sail.h"
+#include "Kismet/GameplayStatics.h"
+#include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
+#include "project_02/Building/BuildingWall.h"
+#include "project_02/Game/RaftSaveGame.h"
+#include "project_02/Player/BasePlayerController.h"
 
-// Sets default values
 ARaft::ARaft()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RaftMesh"));
@@ -44,13 +45,8 @@ void ARaft::BeginPlay()
 {
 	Super::BeginPlay();
 	StaticMesh->SetHiddenInGame(true);
-	
-	if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
-	{
-		MainFloor = NewMainFloor;
-		MainFloor->SetCenter();
-		MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
-	}
+
+	InitializeData();
 	
 	SpawnSailActor();
 }
@@ -72,5 +68,76 @@ void ARaft::SpawnSailActor()
 	{
 		sail->AttachToActor(MainFloor, FAttachmentTransformRules::KeepRelativeTransform);
 		sail->SetRaft(this);
+	}
+}
+
+
+void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const bool IsRemove)
+{
+	if (IsRemove)
+	{
+		RaftBuildMetaData.Remove(Pos);
+		RaftBuildPointerData.Remove(Pos);
+	} else
+	{
+		FBuildData BuildData;
+		BuildData.BlockType = EBlockType::Wood;
+		BuildData.BlockCategory = EBlockCategory::Undefined;
+		
+		if (Build->IsA(ABuildingFloor::StaticClass()))
+		{
+			BuildData.BlockCategory = EBlockCategory::Floor;
+		}
+		
+		if (Build->IsA(ABuildingWall::StaticClass()))
+		{
+			BuildData.BlockCategory = EBlockCategory::Wall;
+		}
+		// TODO: 현재는 단순 추가이지만 추후 업데이트 로직도 넣을 필요가 있다.
+		RaftBuildMetaData.Add(Pos, BuildData);
+		RaftBuildPointerData.Add(Pos, Build);
+	}
+}
+
+void ARaft::UpdatePlacedObjectData(const FVector& Pos, const FPlacedObjectData& PlaceData, const bool IsRemove)
+{
+	if (IsRemove)
+	{
+		RaftPlacedObjectData.Remove(Pos);
+	} else
+	{
+		if (!RaftPlacedObjectData.Find(Pos))
+		{
+			RaftPlacedObjectData.Add(Pos);
+			
+		}
+		RaftPlacedObjectData[Pos].Add(PlaceData);
+	}
+}
+
+void ARaft::InitializeData()
+{
+	if (ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	{
+		// 처음 시작인 경우는 새로 만들기만 해준다.
+		if (!PC->GetRecentSaveData()->IsAlreadyStart)
+		{
+			// 초기 값 설정. 임시 값
+			SetActorLocation(FVector(0, 0, 100));
+			if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
+			{
+				MainFloor = NewMainFloor;
+				MainFloor->SetCenter();
+				MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+			}
+			return;
+		}
+
+		SetActorTransform(PC->GetRecentSaveData()->LastRaftTransform);
+		// 처음 시작이 아닌 경우는 전부 빌딩을 실행한다.
+		for (TTuple<FVector, FBuildData> BuildData : PC->GetRecentSaveData()->RaftBuildMetaData)
+		{
+			UE_LOG(LogTemp, Display, TEXT("%s"), *BuildData.Key.ToString());
+		}
 	}
 }

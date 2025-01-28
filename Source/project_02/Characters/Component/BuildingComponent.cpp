@@ -9,8 +9,9 @@
 #include "project_02/Building/BuildingWall.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/DataTable/BuildData.h"
-#include "project_02/HY/RaftGameState.h"
+#include "project_02/HY/Raft/Raft.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
+#include "project_02/Player/BasePlayerController.h"
 #include "project_02/Player/BasePlayerState.h"
 
 UBuildingComponent::UBuildingComponent()
@@ -18,9 +19,8 @@ UBuildingComponent::UBuildingComponent()
 	
 }
 
-void UBuildingComponent::BeginPlay()
+void UBuildingComponent::Initialize()
 {
-	Super::BeginPlay();
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Player->InputComponent))
@@ -402,21 +402,23 @@ void UBuildingComponent::BuildAndUpdatePlacedObjectData()
 			}
 		}
 
-		ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>();
-		if (!GS)
+		if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 		{
-			return;
-		}
-		
-		if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
-		{
-			const FVector RelativeVector = PlaceObject->GetActorLocation() - ParentBuild->GetActorLocation();
+			if (!PC->GetPlayerRaft())
+			{
+				return;	
+			}
 			
-			FPlacedObjectData NewData;
-			NewData.RelativeLoc = RelativeVector;
-			NewData.ObjectId = PlaceObject->GetId();
+			if (const ABuildingActor* ParentBuild = Cast<ABuildingActor>(CurrentHitActor))
+			{
+				const FVector RelativeVector = PlaceObject->GetActorLocation() - ParentBuild->GetActorLocation();
 			
-			GS->UpdatePlacedObjectData(ParentBuild->GetBuildPos(), NewData);
+				FPlacedObjectData NewData;
+				NewData.RelativeLoc = RelativeVector;
+				NewData.ObjectId = PlaceObject->GetId();
+			
+				PC->GetPlayerRaft()->UpdatePlacedObjectData(ParentBuild->GetBuildPos(), NewData);
+			}
 		}
 
 		PlaceObject->SetDefaultMaterial();

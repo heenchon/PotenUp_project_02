@@ -4,9 +4,13 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class ARaft;
+class APlayerCharacter;
+class UMainUI;
+class URaftSaveGame;
+class UPlayerGameUI;
 class UInventorySlot;
 class UPlayerRespawnUI;
-class UPlayerGameUI;
 
 UCLASS()
 class PROJECT_02_API ABasePlayerController : public APlayerController
@@ -15,6 +19,9 @@ class PROJECT_02_API ABasePlayerController : public APlayerController
 
 public:
 	FORCEINLINE TObjectPtr<UPlayerGameUI> GetPlayerUI() { return PlayUI; }
+	FORCEINLINE TObjectPtr<UMainUI> GetMainUI() { return MainUI; }
+	FORCEINLINE TObjectPtr<URaftSaveGame> GetRecentSaveData() { return RecentSaveData; }
+	FORCEINLINE TObjectPtr<ARaft> GetPlayerRaft() const { return Raft; }
 
 	void OnDied();
 	
@@ -26,23 +33,50 @@ public:
 	}
 	
 	void RemoveDraggedSelectedSlot();
-	
-protected:
-	virtual void BeginPlay() override;
-	
-private:
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta = (AllowPrivateAccess = true))
-	TSubclassOf<UPlayerGameUI> PlayUIClass;
 
+	void SaveGame();
+	
+	void LoadGame();
+
+	void Initialize();
+
+	void ShowMainUI();
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Player", meta = (AllowPrivateAccess = true))
+	TSubclassOf<APlayerCharacter> PlayerClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UMainUI> MainUIClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UPlayerGameUI> PlayUIClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UPlayerRespawnUI> PlayerRespawnUIClass;
+
+	UPROPERTY()
+	TObjectPtr<UMainUI> MainUI;
+	
 	UPROPERTY()
 	TObjectPtr<UPlayerGameUI> PlayUI;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta = (AllowPrivateAccess = true))
-	TSubclassOf<UPlayerRespawnUI> PlayerRespawnUIClass;
-
 	UPROPERTY()
 	TObjectPtr<UPlayerRespawnUI> PlayerRespawnUI;
 	
 	UPROPERTY()
 	TObjectPtr<UInventorySlot> SelectedInventorySlot;
+
+	UPROPERTY()
+	TObjectPtr<URaftSaveGame> RecentSaveData;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ARaft> RaftClass;
+
+	UPROPERTY()
+	TObjectPtr<ARaft> Raft;
+
+	void InitializeData();
+
+	void SpawnRaft();
 };

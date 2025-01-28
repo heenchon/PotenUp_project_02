@@ -41,13 +41,20 @@ APlayerCharacter::APlayerCharacter()
 	CameraComponent->SetupAttachment(SpringArm);
 }
 
-void APlayerCharacter::BeginPlay()
+void APlayerCharacter::PossessedBy(AController* NewController)
 {
-	Super::BeginPlay();
+	Super::PossessedBy(NewController);
+	
+	const APlayerController* PC = Cast<APlayerController>(NewController);
+	
+	if (!PC)
+	{
+		return;
+	}
 	
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-				GetLocalViewingPlayerController()->GetLocalPlayer()))
+				PC->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
@@ -79,7 +86,17 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		, this, &ThisClass::RotatePressed);
 		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::RotateReleased);
+		
+		EnhancedInputComponent->BindAction(SaveInputAction, ETriggerEvent::Started
+		, this, &ThisClass::SaveGame);
 	}
+
+	// Input 관련 정보도 여기 들어있기 때문에 초기 세팅을
+	// SetupPlayerInputComponent 시점에서 같이 처리해준다. (좋은 코드 방식은 아닌 것 같음 - 명시적이지 않다)
+	BuildingComponent->Initialize();
+	InventoryComponent->Initialize();
+	SurvivalComponent->Initialize();
+	SwimmingComponent->Initialize();
 }
 
 // E키 사용
@@ -384,3 +401,10 @@ bool APlayerCharacter::IsBlockAction() const
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
 }
 
+void APlayerCharacter::SaveGame()
+{
+	if (ABasePlayerController* PC = GetController<ABasePlayerController>())
+	{
+		PC->SaveGame();
+	}
+}

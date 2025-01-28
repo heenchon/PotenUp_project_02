@@ -1,5 +1,7 @@
 ﻿#include "BaseGameInstance.h"
 
+#include "RaftSaveList.h"
+#include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/CraftingData.h"
 #include "project_02/DataTable/ItemInfoData.h"
 
@@ -36,5 +38,4 @@ UBaseGameInstance::UBaseGameInstance()
 
 void UBaseGameInstance::Init()
 {
-	
 }

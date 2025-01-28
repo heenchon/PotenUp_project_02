@@ -12,10 +12,8 @@ USwimmingComponent::USwimmingComponent()
 	DivingTimeline = CreateDefaultSubobject<UTimelineComponent>(TEXT("Diving Timeline Component"));
 }
 
-void USwimmingComponent::BeginPlay()
+void USwimmingComponent::Initialize()
 {
-	Super::BeginPlay();
-
 	// 여기서 실패하면 어떤 것도 할 수 없다.
 	if (GetOwner()->IsA(APlayerCharacter::StaticClass()))
 	{

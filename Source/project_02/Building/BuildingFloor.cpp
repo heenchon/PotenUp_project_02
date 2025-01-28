@@ -2,9 +2,12 @@
 
 #include "BuildingWall.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/BuildData.h"
 #include "project_02/Helper/EnumHelper.h"
 #include "project_02/HY/RaftGameState.h"
+#include "project_02/Player/BasePlayerController.h"
+#include "project_02/HY/Raft/Raft.h"
 
 // Sets default values
 ABuildingFloor::ABuildingFloor()
@@ -109,8 +112,12 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 {
 	Super::UpdateBuildData(TargetComp, ChildBuild);
 
-	if (ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
+	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
+		if (!PC->GetPlayerRaft())
+		{
+			return;
+		}
 		FVector NewPos = GetBuildPos();
 		
 		if (TargetComp == RightBodyBox)
@@ -155,7 +162,7 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 
 		// 자식에게 새로운 좌표값 지정
 		ChildBuild->SetBuildPos(NewPos);
-		RaftGameState->UpdateBuildMetaData(NewPos, ChildBuild);
+		PC->GetPlayerRaft()->UpdateBuildMetaData(NewPos, ChildBuild);
 		
 		if (ABuildingFloor* ChildFloor = Cast<ABuildingFloor>(ChildBuild))
 		{
@@ -167,16 +174,25 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 void ABuildingFloor::SetCenter()
 {
 	Super::SetCenter();
-	if (ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
+	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
-		RaftGameState->UpdateBuildMetaData(GetBuildPos(), this);
+		if (!PC->GetPlayerRaft())
+		{
+			return;
+		}
+		PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this);
 	}
 }
 
 void ABuildingFloor::UpdateWireframeBoxInfo()
 {
-	if (const ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
+	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
+		if (!PC->GetPlayerRaft())
+		{
+			return;
+		}
+		
 		constexpr int MoveToX[4] = { 0, 0, 1, -1 };
 		constexpr int MoveToY[4] = { 1, -1, 0, 0 };
 		constexpr EBlockPos MoveTo[4] = { EBlockPos::East,
@@ -194,7 +210,7 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 			TempPos.Y += MoveToY[i];
 
 			// 데이터에 존재하면 검색 트리에 추가
-			if (RaftGameState->GetRaftBuildMetaData().Find(TempPos))
+			if (PC->GetPlayerRaft()->GetRaftBuildMetaData().Find(TempPos))
 			{
 				SearchVectorList.Add(TempPos);
 			}
@@ -210,13 +226,13 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 				TempPos.X += MoveToX[i];
 				TempPos.Y += MoveToY[i];
 
-				const ABuildingActor* FoundBuild = RaftGameState->GetRaftBuildPointerData().FindRef(TempPos);
+				const ABuildingActor* FoundBuild = PC->GetPlayerRaft()->GetRaftBuildPointerData().FindRef(TempPos);
 				const bool IsAlreadyBound = IsValid(FoundBuild);
 			
 				UE_LOG(LogTemp, Display, TEXT("%s 탐색 결과: %d"),
 					*FEnumHelper::GetClassEnumKeyAsString(MoveTo[i]), IsAlreadyBound)
 
-				ABuildingActor* SetBuild = RaftGameState->GetRaftBuildPointerData().FindRef(SearchPos);
+				ABuildingActor* SetBuild = PC->GetPlayerRaft()->GetRaftBuildPointerData().FindRef(SearchPos);
 				if (const ABuildingFloor* SearchBuildFloorResult = Cast<ABuildingFloor>(SetBuild))
 				{
 					if (MoveTo[i] == EBlockPos::East)

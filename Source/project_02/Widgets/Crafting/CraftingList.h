@@ -5,7 +5,6 @@
 #include "Blueprint/UserWidget.h"
 #include "CraftingList.generated.h"
 
-
 class UButton;
 class UCraftingDetail;
 class UCraftingInfo;

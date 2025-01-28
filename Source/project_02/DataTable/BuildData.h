@@ -35,20 +35,34 @@ enum class EBlockType
 	Wood,
 };
 
+UENUM()
+enum class EBlockCategory
+{
+	Undefined,
+	Floor,
+	Wall,
+};
+
 USTRUCT(BlueprintType)
 struct PROJECT_02_API FBuildData
 {
 	GENERATED_USTRUCT_BODY()
 
+	UPROPERTY()
 	EBlockType BlockType;
+	
+	UPROPERTY()
+	EBlockCategory BlockCategory;
 };
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct PROJECT_02_API FPlacedObjectData
 {
 	GENERATED_USTRUCT_BODY()
 	
+	UPROPERTY()
 	FVector RelativeLoc;
 
+	UPROPERTY()
 	uint32 ObjectId;
 };

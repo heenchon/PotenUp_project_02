@@ -5,6 +5,7 @@
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Characters/Component/InventoryComponent.h"
 #include "project_02/DataTable/ItemInfoData.h"
+#include "project_02/Game/RaftSaveGame.h"
 #include "project_02/Helper/ItemHelper.h"
 #include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
@@ -18,8 +19,25 @@ ABasePlayerState::ABasePlayerState()
 
 void ABasePlayerState::InitializeData()
 {
+	// 아래 부터는 게임을 처음 시작한 경우 초기 아이템을 지급하는 로직
 	const FItemMetaInfo EmptyItem;
 	PlayerInventoryList.Init(EmptyItem, GetTotalSlotCount());
+	
+	if (ABasePlayerController* PC = Cast<ABasePlayerController>(GetPlayerController()))
+	{
+		if (PC->GetRecentSaveData()->IsAlreadyStart)
+		{
+			// 순회를 돌면서 값을 복사해서 넣어둔다.
+			for (int i = 0; i < PC->GetRecentSaveData()->PlayerInventoryList.Num(); i++)
+			{
+				// 복사해서 넣어주는 것이 좋다.
+				PlayerInventoryList[i] = PC->GetRecentSaveData()->PlayerInventoryList[i];
+			}
+			
+			UpdateCurrentRemainItemValue();
+			return;
+		}
+	}
 	
 	for (int i = 0; i < InitialItemList.Num(); i++)
 	{
@@ -63,10 +81,6 @@ void ABasePlayerState::UpdateCurrentRemainItemValue()
 	}
 	CurrentRemainItemValue.Empty();
 	CurrentRemainItemValue.Append(NewMap); 
-}
-
-void ABasePlayerState::BeginPlay()
-{
 }
 
 void ABasePlayerState::SwapItemInInventory(const uint16 Prev, const uint16 Next)
@@ -301,6 +315,11 @@ void ABasePlayerState::OnUpdateInventory()
 
 	if (const APlayerCharacter* Player = GetPawn<APlayerCharacter>())
 	{
+		if (!Player->GetInventoryComponent()->GetInventoryUI())
+		{
+			return;
+		}
+		
 		Player->GetInventoryComponent()->GetInventoryUI()
 		->GetInventoryList()->UpdateInventoryArray();
 	}
