@@ -23,4 +23,8 @@ private:
 
 	UFUNCTION()
 	void OnLevelLoadComplete();
+
+	void SaveMapNameList();
+
+	void MoveToGame();
 };

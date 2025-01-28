@@ -17,15 +17,21 @@ void ABasePlayerController::Initialize()
 {
 	// 초기화 시에는 마우스 커서 없애는 작업 수행
 	SetShowMouseCursor(false);
+	LoadGame();
 	
 	if (ABasePlayerState* PS = GetPlayerState<ABasePlayerState>())
 	{
 		PS->InitializeData();
 	}
 
+	if (ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>())
+	{
+	}
+
 	APawn* PrevPawn = GetPawn();
 	const FVector SpawnPoint(0,0, 100);
 	const FRotator SpawnRotation(0,0,0);
+	
 	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnPoint, SpawnRotation))
 	{
 		Possess(PlayerPawn);
@@ -82,27 +88,79 @@ void ABasePlayerController::RemoveDraggedSelectedSlot()
 	}
 }
 
-void ABasePlayerController::SaveGame()
+// 데이터를 로드함.
+void ABasePlayerController::LoadGame()
 {
-	if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot(
+	// 로드된 데이터 정보가 있는 경우
+	if (URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot(
 		GetWorld()->GetAuthGameMode<ARaftGameMode>()->GetMapName(), 0)))
 	{
-		RaftSaveGame->LastPlayerTransform;
-		RaftSaveGame->RaftBuildMetaData;
-		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 성공하였습니다"))
+		// 이동연산자를 활용해 값만 넣어주고, 이전 값은 제거해준다
+		RecentSaveData = MoveTemp(RaftSaveGame);
 	} else
 	{
-		UE_LOG(LogTemp, Display, TEXT("데이터 로드에 실패하였습니다"))
+		// 실패 시 새로운 데이터 저장
+		if (URaftSaveGame* SaveGame = Cast<URaftSaveGame>(
+		UGameplayStatics::CreateSaveGameObject(URaftSaveGame::StaticClass())))
+		{
+			FAsyncSaveGameToSlotDelegate SavedDelegate;
+
+			if (const APlayerCharacter* PlayerInfo = GetPawn<APlayerCharacter>())
+			{
+				SaveGame->CurrentHealth =
+					PlayerInfo->GetSurvivalComponent()->GetHealthMap().Key;
+				SaveGame->MaxHealth =
+					PlayerInfo->GetSurvivalComponent()->GetHealthMap().Value;
+			
+				SaveGame->CurrentHunger =
+					PlayerInfo->GetSurvivalComponent()->GetHungerMap().Key;
+				SaveGame->MaxHunger =
+					PlayerInfo->GetSurvivalComponent()->GetHungerMap().Value;
+			
+				SaveGame->CurrentThirst =
+					PlayerInfo->GetSurvivalComponent()->GetThirstMap().Key;
+				SaveGame->MaxThirst =
+					PlayerInfo->GetSurvivalComponent()->GetThirstMap().Value;
+			}
+
+			if (const ABasePlayerState* PS = GetPlayerState<ABasePlayerState>())
+			{
+				SaveGame->PlayerInventoryList.Append(PS->GetPlayerInventoryList());
+			}
+
+			if (const ARaftGameState* GameState =
+				GetWorld()->GetGameState<ARaftGameState>())
+			{
+				SaveGame->RaftBuildMetaData.Append(GameState->GetRaftBuildMetaData());
+
+				for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : GameState->GetRaftPlacedObjectData())
+				{
+					FPlacedObjectDataArray DataArray;
+					DataArray.ObjectArray.Append(RaftPlacedObjectData.Value);
+					SaveGame->RaftPlacedObjectMetaData.Add(RaftPlacedObjectData.Key, DataArray);
+				}
+			}
+		
+			UGameplayStatics::SaveGameToSlot(SaveGame, GetWorld()->GetAuthGameMode<ARaftGameMode>()->GetMapName(), 0);
+			// 이동 연산자로 방금 저장한 정보를 다시 불러옴
+			RecentSaveData = MoveTemp(SaveGame);
+		}
 	}
-	
+}
+
+// 데이터를 새로 저장함, 이 코드는 보통 게임 시작 전이 아닌 인게임 중 사용된다.
+void ABasePlayerController::SaveGame()
+{
+	// 기존 정보를 무시하고 데이터를 새로 저장함
 	if (URaftSaveGame* SaveGame = Cast<URaftSaveGame>(
 		UGameplayStatics::CreateSaveGameObject(URaftSaveGame::StaticClass())))
 	{
 		FAsyncSaveGameToSlotDelegate SavedDelegate;
 
-		// TODO: 테스트를 위한 하드코딩은 제거할 필요가 있음
-		SaveGame->MapName = "TestMap";
-
+		// 여기는 임시로 하드코딩 처럼 들어가는데, 한번 저장할 때는 무조건 튜토리얼 완료,
+		// 즉 게임 시작을 이미 하였음을 의미한다.
+		SaveGame->IsAlreadyStart = true;
+		
 		if (const APlayerCharacter* PlayerInfo = GetPawn<APlayerCharacter>())
 		{
 			SaveGame->CurrentHealth =
@@ -140,5 +198,7 @@ void ABasePlayerController::SaveGame()
 		}
 		
 		UGameplayStatics::SaveGameToSlot(SaveGame, GetWorld()->GetAuthGameMode<ARaftGameMode>()->GetMapName(), 0);
+		// 이동 연산자 사용
+		RecentSaveData = MoveTemp(SaveGame);
 	}
 }

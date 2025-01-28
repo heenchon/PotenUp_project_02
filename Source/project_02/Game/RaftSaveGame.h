@@ -28,9 +28,6 @@ class PROJECT_02_API URaftSaveGame : public USaveGame
 // 담아둬서 불필요한 저장을 방지한다.
 public:
 	UPROPERTY()
-	FString MapName;
-
-	UPROPERTY()
 	FTransform LastPlayerTransform;
 
 	UPROPERTY()
@@ -59,4 +56,8 @@ public:
 	// 플레이어 인벤토리 정보
 	UPROPERTY()
 	TArray<FItemMetaInfo> PlayerInventoryList;
+
+	// 게임을 시작했다라는 뜻으로 초기 시작인지 아닌지를 구분하는 코드
+	UPROPERTY()
+	bool IsAlreadyStart;
 };

@@ -19,10 +19,31 @@ void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 	MapName = NewMapName;
 	IsLoading = true;
 
+	SaveMapNameList();
+	MoveToGame();
+}
+
+void ARaftGameMode::MoveToGame()
+{
+	FLatentActionInfo LatentInfo;
+	LatentInfo.CallbackTarget = this;
+	LatentInfo.ExecutionFunction = FName("OnLevelLoadComplete");
+	LatentInfo.Linkage = 0;
+	
+	// 동기 처리기 때문에 이 동작이 완료되지 않는 이상 아래 로직이 수행되지 않는다.
+	UGameplayStatics::LoadStreamLevel(GetWorld(), "Ocean_Test",
+	true, true, LatentInfo);
+	
+	// 메인 UI는 그냥 비동기로 UnLoad해도 문제는 없어보인다.
+	UGameplayStatics::UnloadStreamLevel(GetWorld(), "MainLevel", FLatentActionInfo(), false);
+}
+
+
+void ARaftGameMode::SaveMapNameList()
+{
 	if (URaftSaveList* NewSaveGame = Cast<URaftSaveList>(
 		UGameplayStatics::CreateSaveGameObject(URaftSaveList::StaticClass())))
 	{
-		
 		const URaftSaveList* SaveData = Cast<URaftSaveList>(
 						UGameplayStatics::LoadGameFromSlot("SaveList", 0));
 
@@ -33,7 +54,7 @@ void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 		{
 			const int32 FindDuplicatedMapIndex = SaveData->MapNameList.IndexOfByPredicate([&](const FSaveData& Data)
 				{
-					return Data.MapName == NewMapName;
+					return Data.MapName == MapName;
 				});
 
 			// 이미 있는 정보면 그냥 바로 저장한다.
@@ -51,7 +72,7 @@ void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 		if (!IsUpdate)
 		{
 			FSaveData NewSaveData;
-			NewSaveData.MapName = NewMapName;
+			NewSaveData.MapName = MapName;
 			NewSaveData.LastPlayDateTime = FDateTime::Now();
 
 			if (SaveData)
@@ -62,18 +83,6 @@ void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 		
 			UGameplayStatics::SaveGameToSlot(NewSaveGame, "SaveList", 0);
 		}
-		
-		FLatentActionInfo LatentInfo;
-		LatentInfo.CallbackTarget = this;
-		LatentInfo.ExecutionFunction = FName("OnLevelLoadComplete");
-		LatentInfo.Linkage = 0;
-	
-		// 동기 처리기 때문에 이 동작이 완료되지 않는 이상 아래 로직이 수행되지 않는다.
-		UGameplayStatics::LoadStreamLevel(GetWorld(), "Ocean_Test",
-		true, true, LatentInfo);
-	
-		// 메인 UI는 그냥 비동기로 UnLoad해도 문제는 없어보인다.
-		UGameplayStatics::UnloadStreamLevel(GetWorld(), "MainLevel", FLatentActionInfo(), false);
 	}
 }
 

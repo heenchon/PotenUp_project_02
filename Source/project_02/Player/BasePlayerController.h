@@ -4,6 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class URaftSaveGame;
 class UMainUI;
 class APlayerCharacter;
 class UInventorySlot;
@@ -18,6 +19,7 @@ class PROJECT_02_API ABasePlayerController : public APlayerController
 public:
 	FORCEINLINE TObjectPtr<UPlayerGameUI> GetPlayerUI() { return PlayUI; }
 	FORCEINLINE TObjectPtr<UMainUI> GetMainUI() { return MainUI; }
+	FORCEINLINE TObjectPtr<URaftSaveGame> GetRecentSaveData() { return RecentSaveData; }
 
 	void OnDied();
 	
@@ -31,6 +33,8 @@ public:
 	void RemoveDraggedSelectedSlot();
 
 	void SaveGame();
+	
+	void LoadGame();
 
 	void Initialize();
 
@@ -60,4 +64,7 @@ private:
 	
 	UPROPERTY()
 	TObjectPtr<UInventorySlot> SelectedInventorySlot;
+
+	UPROPERTY()
+	TObjectPtr<URaftSaveGame> RecentSaveData;
 };
