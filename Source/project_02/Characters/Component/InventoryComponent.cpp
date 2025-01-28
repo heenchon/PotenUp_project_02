@@ -15,9 +15,8 @@ UInventoryComponent::UInventoryComponent()
 {
 }
 
-void UInventoryComponent::BeginPlay()
+void UInventoryComponent::Initialize()
 {
-	Super::BeginPlay();
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Player->InputComponent))

@@ -18,9 +18,8 @@ UBuildingComponent::UBuildingComponent()
 	
 }
 
-void UBuildingComponent::BeginPlay()
+void UBuildingComponent::Initialize()
 {
-	Super::BeginPlay();
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Player->InputComponent))

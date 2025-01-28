@@ -12,10 +12,8 @@ USurvivalComponent::USurvivalComponent()
 	
 }
 
-void USurvivalComponent::BeginPlay()
+void USurvivalComponent::Initialize()
 {
-	Super::BeginPlay();
-	
 	InitialSurvivalData();
 }
 

@@ -37,8 +37,7 @@ public:
 	
 	void InitialSurvivalData();
 	
-protected:
-	virtual void BeginPlay() override;
+	void Initialize();
 
 private:
 	bool IsDied = false;

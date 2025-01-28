@@ -36,9 +36,6 @@ public:
 
 	bool HasItemInInventory(const uint32 Id, const uint32 Count);
 	
-protected:
-	virtual void BeginPlay() override;
-	
 private:
 	TMap<uint32, uint32> CurrentRemainItemValue;
 	void UpdateCurrentRemainItemValue();

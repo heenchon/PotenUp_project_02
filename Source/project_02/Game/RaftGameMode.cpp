@@ -1,13 +1,14 @@
 ﻿#include "RaftGameMode.h"
 
 #include "Kismet/GameplayStatics.h"
-#include "project_02/HY/RaftGameState.h"
+#include "project_02/Player/BasePlayerController.h"
 
 void ARaftGameMode::BeginPlay()
 {
 	// 메인 화면 UI Level 노출 처리
 	UGameplayStatics::LoadStreamLevel(this, "MainLevel",
 		true, true, FLatentActionInfo());
+	UGameplayStatics::UnloadStreamLevel(this, "Ocean_Test", FLatentActionInfo(), false);
 }
 
 void ARaftGameMode::GoToMainLevel()
@@ -17,10 +18,12 @@ void ARaftGameMode::GoToMainLevel()
 	
 	IsLoading = true;
 	// 동기 처리기 때문에 이 동작이 완료되지 않는 이상 아래 로직이 수행되지 않는다.
-	UGameplayStatics::LoadStreamLevel(this, "MainLevel",
+	UGameplayStatics::LoadStreamLevel(this, "Ocean_Test",
 		true, true, FLatentActionInfo());
-
-	ARaftGameState* GS = GetGameState<ARaftGameState>();
+	
+	ABasePlayerController* MainPC = GetWorld()->GetFirstPlayerController<ABasePlayerController>();
+	MainPC->Initialize();
 	
 	IsLoading = false;
+
 }

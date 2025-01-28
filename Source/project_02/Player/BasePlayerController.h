@@ -4,6 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class APlayerCharacter;
 class UInventorySlot;
 class UPlayerRespawnUI;
 class UPlayerGameUI;
@@ -28,19 +29,22 @@ public:
 	void RemoveDraggedSelectedSlot();
 
 	void SaveGame();
-	
-protected:
-	virtual void BeginPlay() override;
+
+	void Initialize();
 
 private:
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Player", meta = (AllowPrivateAccess = true))
+	TSubclassOf<APlayerCharacter> PlayerClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UPlayerGameUI> PlayUIClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UPlayerRespawnUI> PlayerRespawnUIClass;
 
 	UPROPERTY()
 	TObjectPtr<UPlayerGameUI> PlayUI;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "UI", meta = (AllowPrivateAccess = true))
-	TSubclassOf<UPlayerRespawnUI> PlayerRespawnUIClass;
 
 	UPROPERTY()
 	TObjectPtr<UPlayerRespawnUI> PlayerRespawnUI;

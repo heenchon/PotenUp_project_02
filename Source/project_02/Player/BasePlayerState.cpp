@@ -65,10 +65,6 @@ void ABasePlayerState::UpdateCurrentRemainItemValue()
 	CurrentRemainItemValue.Append(NewMap); 
 }
 
-void ABasePlayerState::BeginPlay()
-{
-}
-
 void ABasePlayerState::SwapItemInInventory(const uint16 Prev, const uint16 Next)
 {
 	const FItemMetaInfo Temp = PlayerInventoryList[Prev];

@@ -20,7 +20,6 @@
 #include "project_02/HY/Objects/PlaceObjects.h"
 
 // TODO: 상민띠가 아이템 클래스 만들면 교체
-#include "project_02/HY/RaftGameState.h"
 #include "project_02/HY/Items/Usable_Item.h"
 #include "project_02/HY/Objects/Sail.h"
 #include "project_02/Weapon/WeaponBase.h"
@@ -42,9 +41,9 @@ APlayerCharacter::APlayerCharacter()
 	CameraComponent->SetupAttachment(SpringArm);
 }
 
-void APlayerCharacter::BeginPlay()
+void APlayerCharacter::PossessedBy(AController* NewController)
 {
-	Super::BeginPlay();
+	Super::PossessedBy(NewController);
 	
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
@@ -52,6 +51,11 @@ void APlayerCharacter::BeginPlay()
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
+
+	BuildingComponent->Initialize();
+	InventoryComponent->Initialize();
+	SurvivalComponent->Initialize();
+	SwimmingComponent->Initialize();
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

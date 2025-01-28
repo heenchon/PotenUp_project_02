@@ -26,8 +26,7 @@ public:
 
 	void SetHotSlotItemToPlayer(const uint8 PrevIndex, const uint8 NewIndex);
 
-protected:
-	virtual void BeginPlay() override;
+	void Initialize();
 	
 private:
 	UPROPERTY(EditAnywhere, Category = "Options|Input"

@@ -28,8 +28,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsSwimMode_BP() const { return IsSwimMode; }
 
-protected:
-	virtual void BeginPlay() override;
+	void Initialize();
 
 private:
 	// 물 속에 들어갈 때 그 물의 높이

@@ -40,8 +40,7 @@ public:
 	void ClearWireframe();
 	void DeleteWireframe();
 
-protected:
-	virtual void BeginPlay() override;
+	void Initialize();
 
 private:
 	UPROPERTY()
