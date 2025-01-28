@@ -27,6 +27,12 @@ void ABasePlayerController::Initialize()
 
 	InitializeData();
 	SpawnRaft();
+
+	// 상어 스폰 로직 임시용
+	if (ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>())
+	{
+		GS->SpawnShark();
+	}
 }
 
 void ABasePlayerController::InitializeData()
@@ -41,7 +47,7 @@ void ABasePlayerController::InitializeData()
 		SpawnTransform = RecentSaveData->LastPlayerTransform;
 	} else
 	{
-		SpawnTransform.SetLocation(FVector(0, 0, 150));
+		SpawnTransform.SetLocation(PrevPawn->GetActorLocation());
 	}
 	
 	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnTransform))
