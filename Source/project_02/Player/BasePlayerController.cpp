@@ -12,6 +12,7 @@
 #include "project_02/Widgets/Inventory/Module/InventorySlot.h"
 #include "project_02/Game/RaftSaveGame.h"
 #include "project_02/HY/RaftGameState.h"
+#include "project_02/HY/Raft/Raft.h"
 
 void ABasePlayerController::Initialize()
 {
@@ -24,15 +25,26 @@ void ABasePlayerController::Initialize()
 		PS->InitializeData();
 	}
 
-	if (ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>())
-	{
-	}
+	InitializeData();
+	SpawnRaft();
+}
 
+void ABasePlayerController::InitializeData()
+{
+	// 플레이어 스폰 로직
 	APawn* PrevPawn = GetPawn();
-	const FVector SpawnPoint(0,0, 100);
-	const FRotator SpawnRotation(0,0,0);
+
+	FTransform SpawnTransform;
 	
-	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnPoint, SpawnRotation))
+	if (RecentSaveData->IsAlreadyStart)
+	{
+		SpawnTransform.SetLocation(FVector(0, 0, 100));
+	} else
+	{
+		SpawnTransform = RecentSaveData->LastPlayerTransform;
+	}
+	
+	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnTransform))
 	{
 		Possess(PlayerPawn);
 		// 이전 Pawn은 제거한다.
@@ -50,6 +62,21 @@ void ABasePlayerController::Initialize()
 		}
 	}
 }
+
+void ABasePlayerController::SpawnRaft()
+{
+	// 배가 이미 있으면 아무것도 하지 않는다.
+	if (IsValid(Raft))
+	{
+		return;
+	}
+	
+	if (RaftClass)
+	{
+		Raft = GetWorld()->SpawnActor<ARaft>(RaftClass);
+	}
+}
+
 
 void ABasePlayerController::ShowMainUI()
 {
@@ -131,9 +158,9 @@ void ABasePlayerController::LoadGame()
 			if (const ARaftGameState* GameState =
 				GetWorld()->GetGameState<ARaftGameState>())
 			{
-				SaveGame->RaftBuildMetaData.Append(GameState->GetRaftBuildMetaData());
+				SaveGame->RaftBuildMetaData.Append(Raft->GetRaftBuildMetaData());
 
-				for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : GameState->GetRaftPlacedObjectData())
+				for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : Raft->GetRaftPlacedObjectData())
 				{
 					FPlacedObjectDataArray DataArray;
 					DataArray.ObjectArray.Append(RaftPlacedObjectData.Value);
@@ -187,9 +214,9 @@ void ABasePlayerController::SaveGame()
 		if (const ARaftGameState* GameState =
 			GetWorld()->GetGameState<ARaftGameState>())
 		{
-			SaveGame->RaftBuildMetaData.Append(GameState->GetRaftBuildMetaData());
+			SaveGame->RaftBuildMetaData.Append(Raft->GetRaftBuildMetaData());
 
-			for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : GameState->GetRaftPlacedObjectData())
+			for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : Raft->GetRaftPlacedObjectData())
 			{
 				FPlacedObjectDataArray DataArray;
 				DataArray.ObjectArray.Append(RaftPlacedObjectData.Value);

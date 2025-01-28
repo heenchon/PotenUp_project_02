@@ -46,7 +46,6 @@ public:
 	virtual void Interact(AUsable_Item* input, int curItemIndex);
 	void ProcessStart();
 	virtual void ProcessComplete();
-	void UpdateBuildData(const ABuildingActor* ParentActor);
 
 	bool IsEnabled = false;
 	bool CanBuild = true;

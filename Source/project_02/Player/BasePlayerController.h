@@ -4,12 +4,13 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
-class URaftSaveGame;
-class UMainUI;
+class ARaft;
 class APlayerCharacter;
+class UMainUI;
+class URaftSaveGame;
+class UPlayerGameUI;
 class UInventorySlot;
 class UPlayerRespawnUI;
-class UPlayerGameUI;
 
 UCLASS()
 class PROJECT_02_API ABasePlayerController : public APlayerController
@@ -20,6 +21,7 @@ public:
 	FORCEINLINE TObjectPtr<UPlayerGameUI> GetPlayerUI() { return PlayUI; }
 	FORCEINLINE TObjectPtr<UMainUI> GetMainUI() { return MainUI; }
 	FORCEINLINE TObjectPtr<URaftSaveGame> GetRecentSaveData() { return RecentSaveData; }
+	FORCEINLINE TObjectPtr<ARaft> GetPlayerRaft() const { return Raft; }
 
 	void OnDied();
 	
@@ -67,4 +69,14 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<URaftSaveGame> RecentSaveData;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ARaft> RaftClass;
+
+	UPROPERTY()
+	TObjectPtr<ARaft> Raft;
+
+	void InitializeData();
+
+	void SpawnRaft();
 };

@@ -2,8 +2,10 @@
 
 #include "BuildingFloor.h"
 #include "Components/BoxComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "project_02/HY/RaftGameState.h"
+#include "project_02/HY/Raft/Raft.h"
+#include "project_02/Player/BasePlayerController.h"
 
 
 ABuildingWall::ABuildingWall()
@@ -48,8 +50,13 @@ void ABuildingWall::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuil
 	Super::UpdateBuildData(TargetComp, ChildBuild);
 
 	// 여기서는 설치하면 무조건 바닥만 설치되기 때문에 바닥에 대한 대응만 해야한다.
-	if (ARaftGameState* RaftGameState = GetWorld()->GetGameState<ARaftGameState>())
+	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
+		if (!PC->GetPlayerRaft())
+		{
+			return;
+		}
+		
 		FVector NewPos = GetBuildPos();
 		// 벽은 그냥 한칸 위로 올라갔다고 가정하자
 		NewPos.Z += 1;
@@ -81,7 +88,7 @@ void ABuildingWall::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuil
 		}
 		UE_LOG(LogTemp, Display, TEXT("벽 기준으로 바닥 설치 완료: 좌표값: %s"), *NewPos.ToString())
 		ChildBuild->SetBuildPos(NewPos);
-		RaftGameState->UpdateBuildMetaData(NewPos, ChildBuild);
+		PC->GetPlayerRaft()->UpdateBuildMetaData(NewPos, ChildBuild);
 
 		// 어차피 벽이지만 그래도 재검증은 하는게 정신건강에 좋다.
 		if (ABuildingFloor* ChildFloor = Cast<ABuildingFloor>(ChildBuild))
