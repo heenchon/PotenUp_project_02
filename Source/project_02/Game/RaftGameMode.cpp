@@ -1,6 +1,5 @@
 ﻿#include "RaftGameMode.h"
 
-#include "BaseGameInstance.h"
 #include "RaftSaveList.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Player/BasePlayerController.h"
@@ -10,29 +9,55 @@ void ARaftGameMode::BeginPlay()
 	// 메인 화면 UI Level 노출 처리
 	UGameplayStatics::LoadStreamLevel(GetWorld(), "MainLevel",
 	true, true, FLatentActionInfo());
+	
+	ABasePlayerController* MainPC = GetWorld()->GetFirstPlayerController<ABasePlayerController>();
+	MainPC->ShowMainUI();
 }
 
 void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 {
 	MapName = NewMapName;
-	
 	IsLoading = true;
 
 	if (URaftSaveList* SaveGame = Cast<URaftSaveList>(
 		UGameplayStatics::CreateSaveGameObject(URaftSaveList::StaticClass())))
 	{
-		if (const URaftSaveList* SaveData = Cast<URaftSaveList>(UGameplayStatics::LoadGameFromSlot("SaveList", 0)))
+		
+		const URaftSaveList* SaveData = Cast<URaftSaveList>(
+						UGameplayStatics::LoadGameFromSlot("SaveList", 0));
+
+		bool IsUpdate = false;
+		
+		// 이미 세이브 정보가 있는 경우에 대한 대응
+		if (SaveData)
 		{
-			SaveGame->MapNameList.Append(SaveData->MapNameList);
+			const int32 FindDuplicatedMapIndex = SaveData->MapNameList.IndexOfByPredicate([&](const FSaveData& Data)
+				{
+					return Data.MapName == NewMapName;
+				});
+
+			// 이미 있는 정보면 그냥 바로 저장한다.
+			if (FindDuplicatedMapIndex != -1)
+			{
+				SaveGame->MapNameList[FindDuplicatedMapIndex].LastPlayDateTime = FDateTime::Now();
+				UGameplayStatics::SaveGameToSlot(SaveGame, "SaveList", 0);
+
+				IsUpdate = true;
+			}
 		}
+
+		// 없는 값이기 때문에 새로 만들때의 경우에 대한 대응
+		if (!IsUpdate)
+		{
+			FSaveData NewSaveData;
+			NewSaveData.MapName = NewMapName;
+			NewSaveData.LastPlayDateTime = FDateTime::Now();
 		
-		FSaveData NewSaveData;
-		NewSaveData.MapName = NewMapName;
-		NewSaveData.LastPlayDateTime = FDateTime::Now();
+			SaveGame->MapNameList.Add(NewSaveData);
+			SaveGame->MapNameList.Append(SaveData->MapNameList);
 		
-		SaveGame->MapNameList.Add(NewSaveData);
-		
-		UGameplayStatics::SaveGameToSlot(SaveGame, "SaveList", 0);
+			UGameplayStatics::SaveGameToSlot(SaveGame, "SaveList", 0);
+		}
 		
 		FLatentActionInfo LatentInfo;
 		LatentInfo.CallbackTarget = this;

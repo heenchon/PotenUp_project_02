@@ -4,6 +4,7 @@
 #include "GameFramework/PlayerController.h"
 #include "BasePlayerController.generated.h"
 
+class UMainUI;
 class APlayerCharacter;
 class UInventorySlot;
 class UPlayerRespawnUI;
@@ -16,6 +17,7 @@ class PROJECT_02_API ABasePlayerController : public APlayerController
 
 public:
 	FORCEINLINE TObjectPtr<UPlayerGameUI> GetPlayerUI() { return PlayUI; }
+	FORCEINLINE TObjectPtr<UMainUI> GetMainUI() { return MainUI; }
 
 	void OnDied();
 	
@@ -32,9 +34,14 @@ public:
 
 	void Initialize();
 
+	void ShowMainUI();
+
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Player", meta = (AllowPrivateAccess = true))
 	TSubclassOf<APlayerCharacter> PlayerClass;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UMainUI> MainUIClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UPlayerGameUI> PlayUIClass;
@@ -42,6 +49,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UPlayerRespawnUI> PlayerRespawnUIClass;
 
+	UPROPERTY()
+	TObjectPtr<UMainUI> MainUI;
+	
 	UPROPERTY()
 	TObjectPtr<UPlayerGameUI> PlayUI;
 	

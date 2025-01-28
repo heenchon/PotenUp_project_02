@@ -7,6 +7,7 @@
 #include "project_02/Characters/Component/SurvivalComponent.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/HUD/PlayerRespawnUI.h"
+#include "project_02/Widgets/Lobby/MainUI.h"
 #include "project_02/Widgets/Inventory/Module/InventorySlot.h"
 #include "project_02/Game/RaftSaveGame.h"
 #include "project_02/HY/RaftGameState.h"
@@ -29,6 +30,11 @@ void ABasePlayerController::Initialize()
 		Possess(PlayerPawn);
 		// 이전 Pawn은 제거한다.
 		PrevPawn->Destroy();
+
+		if (MainUI)
+		{
+			MainUI->RemoveFromParent();
+		}
 	
 		if (PlayUIClass)
 		{
@@ -38,6 +44,15 @@ void ABasePlayerController::Initialize()
 	}
 }
 
+void ABasePlayerController::ShowMainUI()
+{
+	if (MainUIClass)
+	{
+		MainUI = CreateWidget<UMainUI>(this, MainUIClass);
+		MainUI->AddToViewport();
+		SetShowMouseCursor(true);
+	}
+}
 
 void ABasePlayerController::OnDied()
 {
