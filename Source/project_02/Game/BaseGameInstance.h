@@ -25,5 +25,8 @@ private:
 	TArray<FItemInfoData> ItemInfoList;
 	
 	UPROPERTY()
+	TArray<FString> SaveNameList;
+	
+	UPROPERTY()
 	TMap<uint32, FCraftingData> CraftingInfoMap;
 };

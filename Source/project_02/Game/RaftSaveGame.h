@@ -33,6 +33,9 @@ public:
 	UPROPERTY()
 	FTransform LastPlayerTransform;
 
+	UPROPERTY()
+	FTransform LastRaftTransform;
+
 	// 체력, 허기, 갈증 정보 저장UPROPERTY()
 	UPROPERTY()
 	uint8 MaxHealth;

@@ -45,7 +45,6 @@ private:
 	UPROPERTY()
 	TObjectPtr<UPlayerGameUI> PlayUI;
 	
-
 	UPROPERTY()
 	TObjectPtr<UPlayerRespawnUI> PlayerRespawnUI;
 	
