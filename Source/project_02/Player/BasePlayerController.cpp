@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Characters/Component/SurvivalComponent.h"
+#include "project_02/Game/RaftGameMode.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/HUD/PlayerRespawnUI.h"
 #include "project_02/Widgets/Lobby/MainUI.h"
@@ -83,7 +84,8 @@ void ABasePlayerController::RemoveDraggedSelectedSlot()
 
 void ABasePlayerController::SaveGame()
 {
-	if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot("TestSlot", 0)))
+	if (const URaftSaveGame* RaftSaveGame = Cast<URaftSaveGame>(UGameplayStatics::LoadGameFromSlot(
+		GetWorld()->GetAuthGameMode<ARaftGameMode>()->GetMapName(), 0)))
 	{
 		RaftSaveGame->LastPlayerTransform;
 		RaftSaveGame->RaftBuildMetaData;
@@ -137,6 +139,6 @@ void ABasePlayerController::SaveGame()
 			}
 		}
 		
-		UGameplayStatics::SaveGameToSlot(SaveGame, "TestSlot", 0);
+		UGameplayStatics::SaveGameToSlot(SaveGame, GetWorld()->GetAuthGameMode<ARaftGameMode>()->GetMapName(), 0);
 	}
 }

@@ -19,7 +19,7 @@ void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 	MapName = NewMapName;
 	IsLoading = true;
 
-	if (URaftSaveList* SaveGame = Cast<URaftSaveList>(
+	if (URaftSaveList* NewSaveGame = Cast<URaftSaveList>(
 		UGameplayStatics::CreateSaveGameObject(URaftSaveList::StaticClass())))
 	{
 		
@@ -39,8 +39,9 @@ void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 			// 이미 있는 정보면 그냥 바로 저장한다.
 			if (FindDuplicatedMapIndex != -1)
 			{
-				SaveGame->MapNameList[FindDuplicatedMapIndex].LastPlayDateTime = FDateTime::Now();
-				UGameplayStatics::SaveGameToSlot(SaveGame, "SaveList", 0);
+				NewSaveGame->MapNameList.Append(SaveData->MapNameList);
+				NewSaveGame->MapNameList[FindDuplicatedMapIndex].LastPlayDateTime = FDateTime::Now();
+				UGameplayStatics::SaveGameToSlot(NewSaveGame, "SaveList", 0);
 
 				IsUpdate = true;
 			}
@@ -52,11 +53,14 @@ void ARaftGameMode::StartPlayGame(const FString& NewMapName)
 			FSaveData NewSaveData;
 			NewSaveData.MapName = NewMapName;
 			NewSaveData.LastPlayDateTime = FDateTime::Now();
+
+			if (SaveData)
+			{
+				NewSaveGame->MapNameList.Append(SaveData->MapNameList);
+			}
+			NewSaveGame->MapNameList.Add(NewSaveData);
 		
-			SaveGame->MapNameList.Add(NewSaveData);
-			SaveGame->MapNameList.Append(SaveData->MapNameList);
-		
-			UGameplayStatics::SaveGameToSlot(SaveGame, "SaveList", 0);
+			UGameplayStatics::SaveGameToSlot(NewSaveGame, "SaveList", 0);
 		}
 		
 		FLatentActionInfo LatentInfo;

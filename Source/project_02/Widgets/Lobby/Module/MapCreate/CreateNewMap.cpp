@@ -34,7 +34,7 @@ void UCreateNewMap::OnCommitText(const FText& Text,
 					UGameplayStatics::LoadGameFromSlot("SaveList", 0));
 		if (!SaveData)
 		{
-			WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
+			WarningText->SetVisibility(ESlateVisibility::Hidden);
 			return;
 		}
 		
@@ -59,8 +59,12 @@ void UCreateNewMap::OnClickConfirm()
 					UGameplayStatics::LoadGameFromSlot("SaveList", 0));
 	if (!SaveData)
 	{
-		WarningText->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
-		return;
+		ARaftGameMode* GM = GetWorld()->GetAuthGameMode<ARaftGameMode>();
+		if (!GM)
+		{
+			return;
+		}
+		GM->StartPlayGame(MapNameInput->GetText().ToString());
 	}
 	
 	const bool IsFindDuplicatedMap = SaveData->MapNameList.IndexOfByPredicate([&](const FSaveData& Data)
