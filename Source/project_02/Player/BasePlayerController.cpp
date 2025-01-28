@@ -13,25 +13,23 @@
 
 void ABasePlayerController::Initialize()
 {
-	UE_LOG(LogTemp, Display, TEXT("테스트 하이0"))
-	if (PlayerClass)
+	// 초기화 시에는 마우스 커서 없애는 작업 수행
+	SetShowMouseCursor(false);
+	
+	if (ABasePlayerState* PS = GetPlayerState<ABasePlayerState>())
 	{
-		
-		UE_LOG(LogTemp, Display, TEXT("테스트 하이1"))
-	}
-	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass))
-	{
-		UE_LOG(LogTemp, Display, TEXT("테스트 하이2"))
-		Possess(PlayerPawn);
+		PS->InitializeData();
 	}
 	
-	if (PlayUIClass)
+	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass))
 	{
-		ABasePlayerState* PS = GetPlayerState<ABasePlayerState>();
-		PS->InitializeData();
-		
-		PlayUI = CreateWidget<UPlayerGameUI>(this, PlayUIClass);
-		PlayUI->AddToViewport();
+		Possess(PlayerPawn);
+	
+		if (PlayUIClass)
+		{
+			PlayUI = CreateWidget<UPlayerGameUI>(this, PlayUIClass);
+			PlayUI->AddToViewport();
+		}
 	}
 }
 

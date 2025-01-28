@@ -45,17 +45,19 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	
+	const APlayerController* PC = Cast<APlayerController>(NewController);
+	
+	if (!PC)
+	{
+		return;
+	}
+	
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-				GetLocalViewingPlayerController()->GetLocalPlayer()))
+				PC->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
-
-	BuildingComponent->Initialize();
-	InventoryComponent->Initialize();
-	SurvivalComponent->Initialize();
-	SwimmingComponent->Initialize();
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -88,6 +90,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(SaveInputAction, ETriggerEvent::Started
 		, this, &ThisClass::SaveGame);
 	}
+
+	// Input 관련 정보도 여기 들어있기 때문에 초기 세팅을
+	// SetupPlayerInputComponent 시점에서 같이 처리해준다. (좋은 코드 방식은 아닌 것 같음 - 명시적이지 않다)
+	BuildingComponent->Initialize();
+	InventoryComponent->Initialize();
+	SurvivalComponent->Initialize();
+	SwimmingComponent->Initialize();
 }
 
 // E키 사용
