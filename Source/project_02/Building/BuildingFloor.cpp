@@ -180,6 +180,7 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 			return;
 		}
 		
+		UE_LOG(LogTemp, Display, TEXT("탐색 시작 좌표: %s"), *GetBuildPos().ToString())
 		constexpr int MoveToX[4] = { 0, 0, 1, -1 };
 		constexpr int MoveToY[4] = { 1, -1, 0, 0 };
 		constexpr EBlockPos MoveTo[4] = { EBlockPos::East,
@@ -206,7 +207,6 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 		// 검색할 노드들 순회
 		for (const FVector SearchPos : SearchVectorList)
 		{
-			UE_LOG(LogTemp, Display, TEXT("바닥 주변 탐색: %s"), *SearchPos.ToString())
 			for (int i = 0; i < 4; i++)
 			{
 				FVector TempPos = SearchPos;
@@ -267,19 +267,19 @@ void ABuildingFloor::OnWallBodyBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	}
 }
 
-TObjectPtr<UBoxComponent> ABuildingFloor::GetFloorBoxByDirection(const EBlockPos Direction)
+TObjectPtr<UBoxComponent> ABuildingFloor::GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse)
 {
 	if (Direction == EBlockPos::East)
 	{
-		return RightBodyBox;
+		return IsReverse ? LeftBodyBox : RightBodyBox;
 	}
 	if (Direction == EBlockPos::West)
 	{
-		return LeftBodyBox;
+		return IsReverse ? RightBodyBox : LeftBodyBox;
 	}
 	if (Direction == EBlockPos::South)
 	{
-		return SouthBodyBox;
+		return IsReverse ? NorthBodyBox : SouthBodyBox;
 	}
-	return NorthBodyBox;
+	return IsReverse ? SouthBodyBox : NorthBodyBox;
 }

@@ -17,7 +17,7 @@ public:
 	virtual void OnWireframeInactive() override;
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
 
-	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction);
+	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse = false);
 	
 	void UpdateWireframeBoxInfo();
 	
