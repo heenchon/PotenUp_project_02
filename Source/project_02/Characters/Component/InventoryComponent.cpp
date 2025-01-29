@@ -148,11 +148,6 @@ void UInventoryComponent::ToggleInventory()
 		{
 			return;
 		}
-
-		if (Player->GetBuildingComponent()->GetCanBuildMode())
-		{
-			return;
-		}
 		
 		if (!IsValid(EquipmentUI))
 		{
@@ -175,6 +170,11 @@ void UInventoryComponent::ToggleInventory()
 			}
 		} else
 		{
+			// 새로 인벤토리를 열 때 건축모드면 열지 않는다.
+			if (Player->GetBuildingComponent()->GetCanBuildMode())
+			{
+				return;
+			}
 			// 화면에 보이고 인터렉션 가능에, 레이어 밖으로 나가도 상호작용 가능하게 처리함.
 			EquipmentUI->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 			if (PC)
