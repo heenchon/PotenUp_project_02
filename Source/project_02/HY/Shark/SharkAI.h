@@ -7,7 +7,9 @@
 #include "ESharkState.h"
 #include "SharkAI.generated.h"
 
+class ABuildingFloor;
 class APlayerCharacter;
+class USwimmingComponent;
 
 UCLASS()
 class PROJECT_02_API ASharkAI : public AActor
@@ -21,28 +23,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AController> AIController;
-
-	UPROPERTY()
-	APawn* Player;
-	UPROPERTY()
-	AActor* Raft;
-	
-	//타겟 상태
-	UPROPERTY(EditAnywhere)
-	AActor* Target;
-	UPROPERTY()
-	class USwimmingComponent* SwimComponent;
-	
-	UPROPERTY()
-	ESharkState CurrentState;
-	ESharkState NextState;
-	float CurTimeforAttack;
-	float CurTimeforIdle;
-	float CurTimeforTurn;
-
-
 	//상어 속성
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkBasicSpeed = 1000.0f;
@@ -53,18 +33,37 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float IdleMoveDuration = 5.0f;
 
-	//Idle 상태 움직임
-	FVector StartLocation;
-	FVector TargetLocation;
-
 	//타겟 도달 감지 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float DetectionDistance = 400.0f;
 
 	//도망 거리 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float MaxDist = 4000.0f;
-	float MinDist = 2000.0f;
+	float MaxDist = 6000.0f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float MinDist = 3000.0f;
+
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<AController> AIController;
+
+	UPROPERTY()
+	APawn* Player;
+	UPROPERTY()
+	USwimmingComponent* SwimComponent;
+	UPROPERTY()
+	ABuildingFloor* Floor;
+	
+	UPROPERTY()
+	ESharkState CurrentState;
+	ESharkState NextState;
+	float CurTimeforAttack;
+	float CurTimeforIdle;
+	float CurTimeforTurn;
+	
+	//Idle 상태 Lerp 움직임용 위치값
+	FVector StartLocation;
+	FVector TargetLocation;
 	
 protected:
 	// Called when the game starts or when spawned
@@ -78,14 +77,19 @@ public:
 	void ChangeState(ESharkState newState);
 	//상태별 함수
 	void Idle(float DeltaTime);
-	void MoveToTarget(float DeltaTime);
-	void AttackPlayer(float DeltaTime);
+	void MoveToRaft(float DeltaTime);
 	void AttackRaft(float DeltaTime);
+	void MoveToPlayer(float DeltaTime);
+	void AttackPlayer(float DeltaTime);
 	void Runaway(float DeltaTime);
 	void Turning(float DeltaTime);
 	
 	FVector NewRunawayLocation(FVector originLoc, float maxDist, float minDist);
 	FVector NewIdleLocation();
+	
+private:
+	ABuildingFloor* GetFloor();
+	bool IsAttackableFloor(const TArray<FVector>& positionArr ,const FVector& floorPos);
 };
 
 

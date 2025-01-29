@@ -4,8 +4,12 @@
 #include "SharkAI.h"
 #include "Kismet/GameplayStatics.h"
 #include "SharkAIController.h"
-#include "project_02/Helper/EnumHelper.h"
+// #include "project_02/Helper/EnumHelper.h"
+#include "Algo/RandomShuffle.h"
+#include "project_02/Player/BasePlayerController.h"
 #include "project_02/Characters/Component/SwimmingComponent.h"
+#include "project_02/HY/Raft/Raft.h"
+#include "project_02/Building/BuildingFloor.h"
 
 // Sets default values
 ASharkAI::ASharkAI()
@@ -26,8 +30,6 @@ void ASharkAI::BeginPlay()
 	Player = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	SwimComponent = Player->FindComponentByClass<USwimmingComponent>();
 	
-	//TODO: 임시로 플레이어로 고정
-	Target = Player;
 	TargetLocation = NewIdleLocation();
 	NextState = ESharkState::Idle;
 	CurrentState = ESharkState::Turning;
@@ -45,11 +47,17 @@ void ASharkAI::Tick(float DeltaTime)
 	case ESharkState::Idle:
 		Idle(DeltaTime);
 		break;
-	case ESharkState::MoveToTarget:
-		MoveToTarget(DeltaTime);
+	case ESharkState::MoveToRaft:
+		MoveToRaft(DeltaTime);
+		break;
+	case ESharkState::AttackRaft:
+		AttackRaft(DeltaTime);
 		break;
 	case ESharkState::Turning:
 		Turning(DeltaTime);
+		break;
+	case ESharkState::MoveToPlayer:
+		MoveToPlayer(DeltaTime);
 		break;
 	case ESharkState::AttackPlayer:
 		AttackPlayer(DeltaTime);
@@ -64,7 +72,6 @@ void ASharkAI::Tick(float DeltaTime)
 
 void ASharkAI::ChangeState(ESharkState newState)
 {
-	// UE_LOG(LogTemp,Warning,TEXT("상어 상태 변경"));
 	CurrentState = newState;
 }
 
@@ -86,11 +93,12 @@ void ASharkAI::Idle(float DeltaTime)
 		ChangeState(ESharkState::Turning);
 	}
 
-	//플레이어가 물에 있으면 더 짧은 간격으로 공격
+	//플레이어가 물에 있으면 플레이어 공격
 	if (SwimComponent->GetIsSwimMode())
 	{
-		Target = Player;
-		CurTimeforAttack += DeltaTime*2;
+		TargetLocation = Player->GetActorLocation();
+		NextState = ESharkState::MoveToPlayer;
+		ChangeState(ESharkState::Turning);
 	}
 	else
 	{
@@ -100,46 +108,85 @@ void ASharkAI::Idle(float DeltaTime)
 	if (CurTimeforAttack > SharkAttackDuration)
 	{
 		CurTimeforAttack = 0.0f;
-		//TODO: 임시로 플레이어로 고정
-		TargetLocation = Player->GetActorLocation();
-		NextState = ESharkState::MoveToTarget;
+		Floor = GetFloor();
+
+		//공격할 수 있는 판자가 없으면 idle 진행
+		if (Floor == nullptr)
+		{
+			UE_LOG(LogTemp, Display, TEXT("공격할 판자 없음"));
+			TargetLocation = NewIdleLocation();
+			NextState = ESharkState::Idle;
+			ChangeState(ESharkState::Turning);
+			return;
+		}
+		UE_LOG(LogTemp, Display, TEXT("공격할 판자: %s"), *Floor->GetName());
+		TargetLocation = Floor->GetActorLocation();
+		NextState = ESharkState::MoveToRaft;
 		ChangeState(ESharkState::Turning);
 	}
 }
 
-void ASharkAI::MoveToTarget(float DeltaTime)
+void ASharkAI::MoveToRaft(float DeltaTime)
 {
 	// UE_LOG(LogTemp,Warning,TEXT("%s"), *(Target->GetActorLocation().ToString()));
-
 	FVector curLoc = GetActorLocation();
-	FVector dir = Target->GetActorLocation()-curLoc;
+	FVector targetLoc = Floor->GetActorLocation();
+	FVector dir = targetLoc-curLoc;
 	dir.Normalize();
 	SetActorLocation(dir*DeltaTime*SharkAttackSpeed + curLoc);
-	if (FVector::Dist(curLoc,Target->GetActorLocation()) < DetectionDistance)
+	if (FVector::Dist(curLoc,targetLoc) < DetectionDistance)
 	{
-		// UE_LOG(LogTemp,Warning,TEXT("타겟에 도착! Attack으로 변경"));
-		if (Target == Player) ChangeState(ESharkState::AttackPlayer);
-		else ChangeState(ESharkState::AttackRaft);
+		ChangeState(ESharkState::AttackRaft);
+	}
+}
+
+void ASharkAI::AttackRaft(float DeltaTime)
+{
+	UGameplayStatics::ApplyDamage(Floor, 1.0f,
+		nullptr, this, UDamageType::StaticClass());
+	//타이머로 배 파괴 함수 실행.
+	//배 파괴 함수가 3번 실행되면, Runaway
+	//만약 플레이어에게 공격을 3번 당하면, Runaway
+	TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
+	NextState = ESharkState::RunAway;
+	ChangeState(ESharkState::Turning);
+}
+
+void ASharkAI::MoveToPlayer(float DeltaTime)
+{
+	//수영을 취소하면 다시 idle로.
+	if (!SwimComponent->GetIsSwimMode())
+	{
+		UE_LOG(LogTemp, Display, TEXT("배 위로 도망쳣네?"));
+		TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
+		NextState = ESharkState::RunAway;
+		ChangeState(ESharkState::Turning);
+		return;
+	}
+	
+	FVector curLoc = GetActorLocation();
+	FVector targetLoc = Player->GetActorLocation();
+	FVector dir = targetLoc-curLoc;
+	dir.Normalize();
+	SetActorLocation(dir*DeltaTime*SharkAttackSpeed + curLoc);
+	
+	if (FVector::Dist(curLoc,targetLoc) < DetectionDistance)
+	{
+		ChangeState(ESharkState::AttackPlayer);
 	}
 }
 
 void ASharkAI::AttackPlayer(float DeltaTime)
 {
-	// UE_LOG(LogTemp,Warning, TEXT("플레이어 공격"))
 	UGameplayStatics::ApplyDamage(Player, 20.f,
 		nullptr, this, UDamageType::StaticClass());
 	TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 	NextState = ESharkState::RunAway;
 	ChangeState(ESharkState::Turning);
-	// UE_LOG(LogTemp,Warning, TEXT("도망갈 좌표: %s"),*RunLocation.ToString());
+	// UE_LOG(LogTemp,Display, TEXT("도망갈 좌표: %s"),*RunLocation.ToString());
 }
 
-void ASharkAI::AttackRaft(float DeltaTime)
-{
-	//타이머로 배 파괴 함수 실행.
-	//배 파괴 함수가 3번 실행되면, Runaway
-	//만약 플레이어에게 공격을 3번 당하면, Runaway 
-}
+
 
 void ASharkAI::Runaway(float DeltaTime)
 {
@@ -149,7 +196,7 @@ void ASharkAI::Runaway(float DeltaTime)
 	
 	if (FVector::Dist(GetActorLocation(),TargetLocation) < 10.0)
 	{
-		// UE_LOG(LogTemp,Warning,TEXT("도망완료 idle로 변경"));
+		// UE_LOG(LogTemp,Display,TEXT("도망완료 idle로 변경"));
 		TargetLocation = NewIdleLocation();
 		NextState = ESharkState::Idle;
 		ChangeState(ESharkState::Turning);
@@ -174,7 +221,7 @@ FVector ASharkAI::NewIdleLocation()
 	float angle = FMath::RandRange(0.0f, 360.0f);
 	FVector direction = FVector(FMath::Cos(FMath::DegreesToRadians(angle)), FMath::Sin(FMath::DegreesToRadians(angle)), 0.0f);
 	
-	FVector randomLoc = direction*1000.0f+Player->GetActorLocation();
+	FVector randomLoc = direction*2000.0f+Player->GetActorLocation();
 	randomLoc.Z = FMath::RandRange(-1000.0f,-100.0f); //높이 물속으로 제한
 	
 	// UE_LOG(LogTemp, Warning, TEXT("새 idle 위치: %s"), *TargetLocation.ToString());
@@ -200,3 +247,52 @@ void ASharkAI::Turning(float DeltaTime)
 	}
 }
 
+ABuildingFloor* ASharkAI::GetFloor()
+{
+	TArray<FVector> positionArr;
+	const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	ARaft* raft = PC->GetPlayerRaft();
+	raft->GetRaftBuildPointerData().GetKeys(positionArr);
+
+	Algo::RandomShuffle(positionArr);
+
+	for (FVector& pos : positionArr)
+	{
+		UE_LOG(LogTemp, Display, TEXT("X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
+	}
+	
+	for (FVector& pos : positionArr)
+	{
+		UE_LOG(LogTemp, Display, TEXT("X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
+		ABuildingFloor* floor = Cast<ABuildingFloor>(raft->GetRaftBuildPointerData()[pos]);
+		
+		if (floor->GetIsMain())
+		{
+			continue;
+		}
+		if (IsAttackableFloor(positionArr, pos))
+		{
+			return floor;
+		}
+	}
+	return nullptr;
+}
+
+bool ASharkAI::IsAttackableFloor(const TArray<FVector>& positionArr, const FVector& floorPos)
+{
+	FVector dirArr[] = {
+		FVector(0, -1, 0),  
+		FVector(1, 0, 0),  
+		FVector(-1, 0, 0), 
+		FVector(0, 1, 0) 
+	};
+
+	for (FVector& dir : dirArr)
+	{
+		if (positionArr.Contains(floorPos+dir))
+		{
+			return true;
+		}
+	}
+	return false;
+}
