@@ -21,7 +21,7 @@ ARaft::ARaft()
 	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
 	
 	RootComponent = StaticMesh;
-	StaticMesh->SetSimulatePhysics(false);
+	StaticMesh->SetSimulatePhysics(true);
 	StaticMesh->BodyInstance.bLockZRotation = true;
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Water/Caustics/Meshes/CausticsPreviewBase.CausticsPreviewBase'"));
@@ -143,12 +143,6 @@ void ARaft::InitializeData()
 	// 처음 게임을 플레이하는 경우에 데이터 Initialize
 	if (!PC->GetRecentSaveData()->IsAlreadyStart)
 	{
-		// 초기 값 설정. 임시 값
-		FVector InitialLocation = PC->GetPawn()->GetActorLocation();
-		InitialLocation.Z = 0;
-		SetActorLocation(InitialLocation);
-		StaticMesh->SetSimulatePhysics(true);
-		
 		// 루트인 가장 중앙은 무조건 하나 새로 만들고 시작한다.
 		if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(
 			FBuildingHelper::GetBuildingClass(GetWorld(), EBlockType::Wood, EBlockCategory::Floor)
@@ -171,8 +165,6 @@ void ARaft::InitializeData()
 		return MagnitudeA < MagnitudeB;
 	});
 	
-	SetActorTransform(PC->GetRecentSaveData()->LastRaftTransform);
-	StaticMesh->SetSimulatePhysics(true);
 	// 처음 시작이 아닌 경우는 전부 빌딩을 실행한다.
 	for (TTuple<FVector, FBuildData> BuildData : PC->GetRecentSaveData()->RaftBuildMetaData)
 	{
@@ -257,35 +249,37 @@ void ARaft::InitializeAttachWall(ABuildingActor* BuildActor)
 		return;
 	}
 	// 당장 와이어 프레임 상태는 해제한다.
-	NewWall->SetWireframe(false);
+	// NewWall->SetWireframe(false);
 	
 	// 부착시킬 앞 뒤로 이동 체크하기 위한 상수 값들
-	constexpr float CheckTo[2] = { 0.5, -0.5 };
-
-	if (UKismetMathLibrary::Fraction(NewWall->GetBuildPos().X) != 0)
+	constexpr float CheckToX[4] = { 0.5, -0.5, 0, 0 };
+	constexpr float CheckToY[4] = { 0, 0, 0.5, -0.5 };
+	constexpr EBlockPos MoveTo[4] = { EBlockPos::North,
+		EBlockPos::South, EBlockPos::East, EBlockPos::West };
+	
+	for (int i = 0; i < 4; i++)
 	{
-		for (int i = 0; i < 2; i++)
+		// 소숫점을 가져올 때 0이 된다는 것은 방향을 찾았다라는 의미다.
+		if (
+			UKismetMathLibrary::Fraction(NewWall->GetBuildPos().X + CheckToX[i]) == 0
+			&& UKismetMathLibrary::Fraction(NewWall->GetBuildPos().Y + CheckToY[i]) == 0
+		)
 		{
 			FVector TempPos = NewWall->GetBuildPos();
-			TempPos.X += CheckTo[i];
+			TempPos.X += CheckToX[i];
+			TempPos.Y += CheckToY[i];
 
 			if (GetRaftBuildPointerData().FindRef(TempPos))
 			{
-				UE_LOG(LogTemp, Display, TEXT("좌표 찾음 상하: %s"), *TempPos.ToString())
-			}
-		}
-	}
-
-	if (UKismetMathLibrary::Fraction(NewWall->GetBuildPos().Y) != 0)
-	{
-		for (int i = 0; i < 2; i++)
-		{
-			FVector TempPos = NewWall->GetBuildPos();
-			TempPos.Y += CheckTo[i];
-
-			if (GetRaftBuildPointerData().FindRef(TempPos))
-			{
-				UE_LOG(LogTemp, Display, TEXT("좌표 찾음 좌우: %s"), *TempPos.ToString())
+				ABuildingFloor* ParentFloor = Cast<ABuildingFloor>(GetRaftBuildPointerData()[TempPos]);
+					
+				// 주변에 부착할 부모 액터를 찾았으면, 그 액터의 상하좌우 중 부착할 컴포넌트 위치를
+				// 가져와서 World Location을 변경해준다.
+				// 다만 실제 부착할 액터는 방향의 반대 방향 소켓에 부착을 시켜줘야 한다.
+				NewWall->SetActorLocation(ParentFloor
+				->GetWallPlaceVectorByDirection(MoveTo[i], true)->GetComponentLocation());
+				NewWall->SetActorRotation(ParentFloor
+					->GetWallPlaceVectorByDirection(MoveTo[i], true)->GetComponentRotation());
 			}
 		}
 	}

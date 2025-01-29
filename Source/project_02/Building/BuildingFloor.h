@@ -18,6 +18,7 @@ public:
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
 
 	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse = false);
+	TObjectPtr<USceneComponent> GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse = false);
 	
 	void UpdateWireframeBoxInfo();
 	

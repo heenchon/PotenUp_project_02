@@ -25,8 +25,8 @@ void ABasePlayerController::Initialize()
 		PS->InitializeData();
 	}
 
-	InitializeData();
 	SpawnRaft();
+	InitializeData();
 
 	// 상어 스폰 로직 임시용
 	if (ARaftGameState* GS = GetWorld()->GetGameState<ARaftGameState>())
@@ -79,7 +79,15 @@ void ABasePlayerController::SpawnRaft()
 	
 	if (RaftClass)
 	{
-		Raft = GetWorld()->SpawnActor<ARaft>(RaftClass);
+		if (GetRecentSaveData()->IsAlreadyStart)
+		{
+			Raft = GetWorld()->SpawnActor<ARaft>(RaftClass, GetRecentSaveData()->LastRaftTransform);
+		} else
+		{
+			FVector InitialLocation = GetPawn()->GetActorLocation();
+			InitialLocation.Z = 0;
+			Raft = GetWorld()->SpawnActor<ARaft>(RaftClass, InitialLocation, FRotator::ZeroRotator);
+		}
 		Raft->Initialize();
 	}
 }

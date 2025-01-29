@@ -5,7 +5,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/BuildData.h"
 #include "project_02/Helper/EnumHelper.h"
-#include "project_02/HY/RaftGameState.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Raft/Raft.h"
 
@@ -43,39 +42,45 @@ ABuildingFloor::ABuildingFloor()
 	NorthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("North Wall Body Box");
 	NorthWallBodyBox->SetupAttachment(GetRootComponent());
 	NorthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	NorthWallBodyBox->SetRelativeLocation({0, -85.526552, 0});
-	NorthWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
-	NorthWallBodyBox->SetRelativeRotation({0, 0, 90});
+	NorthWallBodyBox->SetRelativeLocation({85.526552, 0, 0});
+	NorthWallBodyBox->SetRelativeScale3D({0.5, 1.75, 0.5});
 
 	NorthWallSceneVector = CreateDefaultSubobject<USceneComponent>("North Wall Scene Vector");
 	NorthWallSceneVector->SetupAttachment(GetRootComponent());
+	SouthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
+	SouthWallSceneVector->SetRelativeRotation({0, 90, 0});
 	
 	SouthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("South Wall Body Box");
 	SouthWallBodyBox->SetupAttachment(GetRootComponent());
 	SouthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	SouthWallBodyBox->SetRelativeLocation({0, 85.526552, 0});
-	SouthWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
-	NorthWallBodyBox->SetRelativeRotation({0, 0, 90});
+	SouthWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
+	SouthWallBodyBox->SetRelativeScale3D({0.5, 1.75, 0.5});
 
 	SouthWallSceneVector = CreateDefaultSubobject<USceneComponent>("South Wall Scene Vector");
 	SouthWallSceneVector->SetupAttachment(GetRootComponent());
+	SouthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
+	SouthWallSceneVector->SetRelativeRotation({0, 90, 0});
 	
 	EastWallBodyBox = CreateDefaultSubobject<UBoxComponent>("East Wall Body Box");
 	EastWallBodyBox->SetupAttachment(GetRootComponent());
 	EastWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	EastWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
-	EastWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+	EastWallBodyBox->SetRelativeLocation({0, 85.526552, 0});
+	EastWallBodyBox->SetRelativeScale3D({1.75, 0.5, 0.5});
 
 	EastWallSceneVector = CreateDefaultSubobject<USceneComponent>("East Wall Scene Vector");
 	EastWallSceneVector->SetupAttachment(GetRootComponent());
+	EastWallSceneVector->SetRelativeLocation({0, -85.526552, 120});
+	EastWallSceneVector->SetRelativeRotation({0, 0, 0});
 	
 	WestWallBodyBox = CreateDefaultSubobject<UBoxComponent>("West Wall Body Box");
 	WestWallBodyBox->SetupAttachment(GetRootComponent());
 	WestWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	WestWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
-	WestWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+	WestWallBodyBox->SetRelativeLocation({0, -85.526552, 0});
+	WestWallBodyBox->SetRelativeScale3D({1.75, 0.5, 0.5});
 
 	WestWallSceneVector = CreateDefaultSubobject<USceneComponent>("West Wall Scene Vector");
+	WestWallSceneVector->SetRelativeLocation({0, -85.526552, 120});
+	WestWallSceneVector->SetRelativeRotation({0, 0, 0});
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
 
@@ -282,4 +287,21 @@ TObjectPtr<UBoxComponent> ABuildingFloor::GetFloorBoxByDirection(const EBlockPos
 		return IsReverse ? NorthBodyBox : SouthBodyBox;
 	}
 	return IsReverse ? SouthBodyBox : NorthBodyBox;
+}
+
+TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse)
+{
+	if (Direction == EBlockPos::East)
+	{
+		return IsReverse ? WestWallSceneVector : EastWallSceneVector;
+	}
+	if (Direction == EBlockPos::West)
+	{
+		return IsReverse ? EastWallSceneVector : WestWallSceneVector;
+	}
+	if (Direction == EBlockPos::South)
+	{
+		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
+	}
+	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
 }
