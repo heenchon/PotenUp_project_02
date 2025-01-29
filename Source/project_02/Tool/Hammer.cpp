@@ -42,7 +42,7 @@ void AHammer::OnAttached()
 	{
 		Player->GetBuildingComponent()->SetBuildMode(true);
 		// 기본 값은 바닥으로 시작한다.
-		Player->GetBuildingComponent()->SetBuildType(EBuildType::Floor);
+		Player->GetBuildingComponent()->SetBuildType(EBlockCategory::Floor);
 	}
 }
 

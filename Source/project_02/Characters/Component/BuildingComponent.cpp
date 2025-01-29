@@ -9,6 +9,7 @@
 #include "project_02/Building/BuildingWall.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/DataTable/BuildData.h"
+#include "project_02/Helper/BuildingHelper.h"
 #include "project_02/HY/Raft/Raft.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
 #include "project_02/Player/BasePlayerController.h"
@@ -71,7 +72,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 			// 오브젝트 설치에 대한 최소한의 조건을 만족시킨다. 그리고 이 조건은 반드시 오브젝트 설치인 경우다.
 			if (HitResult.GetComponent()->IsA(UStaticMeshComponent::StaticClass())
 				&& HitResult.GetActor()->IsA(ABuildingFloor::StaticClass())
-				&& FrameType == EBuildType::Object)
+				&& FrameType == EBlockCategory::Object)
 			{
 				CreateWireframeForObject(HitResult);
 				return;
@@ -100,22 +101,16 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 {
 	CurrentWireframeBox = HitResult.GetComponent();
 
-	// 임시용 주석
-	if (!WireframeToFloorClass || !WireframeToWallClass)
-	{
-		return;
-	}
-
 	if (CurrentWireframeActor && CurrentWireframeActor.IsA(ABuildingActor::StaticClass()))
 	{
 		switch (FrameType)
 		{
-		case EBuildType::Floor:
+		case EBlockCategory::Floor:
 			{
 				ReattachFloor(HitResult);
 				break;
 			}
-		case EBuildType::Wall:
+		case EBlockCategory::Wall:
 			{
 				ReattachWall(HitResult);
 				break;
@@ -130,12 +125,12 @@ void UBuildingComponent::CreateWireframeForGrid(const FHitResult& HitResult)
 		// 없으면 새로 만든다. 바닥의 케이스
 		switch (FrameType)
 		{
-			case EBuildType::Floor:
+			case EBlockCategory::Floor:
 			{
 				SpawnFrameFloor(HitResult);
 				break;
 			}
-			case EBuildType::Wall:
+			case EBlockCategory::Wall:
 			{
 				SpawnFrameWall(HitResult);
 				break;
@@ -214,7 +209,10 @@ void UBuildingComponent::ReattachWall(const FHitResult& HitResult)
 
 void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 {
-	if (ABuildingFloor* NewWireframe = GetWorld()->SpawnActor<ABuildingFloor>(WireframeToFloorClass,
+	if (ABuildingFloor* NewWireframe = GetWorld()->SpawnActor<ABuildingFloor>(
+			// TODO: 나중에 Wood를 굳이 여기에 처리할 필요 없이 외부 변수를 연동해도 무방해보임
+			FBuildingHelper::GetBuildingClass(
+				GetWorld(), EBlockType::Wood, EBlockCategory::Floor),
 			HitResult.GetComponent()->GetComponentLocation(),
 			HitResult.GetComponent()->GetComponentRotation()))
 	{
@@ -244,7 +242,10 @@ void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 	FRotator NewRotation = HitResult.GetComponent()->GetComponentRotation();
 	NewRotation.Yaw += 90;
 	
-	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(WireframeToWallClass, NewLocation, NewRotation))
+	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(
+			FBuildingHelper::GetBuildingClass(
+				GetWorld(), EBlockType::Wood, EBlockCategory::Wall),
+				NewLocation, NewRotation))
 	{
 		// 우선 값은 바로 할당하기
 		NewWireframe->SetWireframe(true);
@@ -302,10 +303,10 @@ ETraceTypeQuery UBuildingComponent::GetCheckTraceChannel() const
 {
 	switch (FrameType)
 	{
-		case EBuildType::Wall:
+		case EBlockCategory::Wall:
 			return TraceTypeQuery5;
-		case EBuildType::Floor:
-		case EBuildType::Object:
+		case EBlockCategory::Floor:
+		case EBlockCategory::Object:
 		default:
 			return TraceTypeQuery4;
 	}
@@ -319,7 +320,7 @@ void UBuildingComponent::ChangeNextBuildAction()
 	}
 
 	// 커스텀 오브젝트인 경우는 상태가 변경되지 않는다.
-	if (FrameType == EBuildType::Object)
+	if (FrameType == EBlockCategory::Object)
 	{
 		return;
 	}
@@ -327,16 +328,16 @@ void UBuildingComponent::ChangeNextBuildAction()
 	// 변경 값에 관계 없이 초기화 과정은 거쳐준다.
 	DeleteWireframe();
 	
-	if (FrameType == EBuildType::Floor)
+	if (FrameType == EBlockCategory::Floor)
 	{
-		FrameType = EBuildType::Wall;
+		FrameType = EBlockCategory::Wall;
 	} else
 	{
-		FrameType = EBuildType::Floor;
+		FrameType = EBlockCategory::Floor;
 	}
 }
 
-void UBuildingComponent::SetBuildType(const EBuildType NewType)
+void UBuildingComponent::SetBuildType(const EBlockCategory NewType)
 {
 	DeleteWireframe();
 	FrameType = NewType;

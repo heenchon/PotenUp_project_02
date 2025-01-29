@@ -8,6 +8,7 @@
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
 #include "project_02/Game/RaftSaveGame.h"
+#include "project_02/Helper/BuildingHelper.h"
 #include "project_02/Player/BasePlayerController.h"
 
 ARaft::ARaft()
@@ -63,10 +64,10 @@ void ARaft::Tick(float DeltaTime)
 
 void ARaft::SpawnSailActor()
 {
-	if (ASail* sail = GetWorld()->SpawnActor<ASail>(ASail::StaticClass()))
+	if (ASail* Sail = GetWorld()->SpawnActor<ASail>(ASail::StaticClass()))
 	{
-		sail->AttachToActor(MainFloor, FAttachmentTransformRules::KeepRelativeTransform);
-		sail->SetRaft(this);
+		Sail->AttachToActor(RaftBuildPointerData[FVector::Zero()], FAttachmentTransformRules::KeepRelativeTransform);
+		Sail->SetRaft(this);
 	}
 }
 
@@ -117,24 +118,40 @@ void ARaft::InitializeData()
 {
 	if (ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
-		// 처음 시작인 경우는 새로 만들기만 해준다.
 		if (!PC->GetRecentSaveData()->IsAlreadyStart)
 		{
 			// 초기 값 설정. 임시 값
 			SetActorLocation(PC->GetPawn()->GetActorLocation());
-			if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(MainFloorClass))
+			
+			// 루트인 가장 중앙은 무조건 하나 새로 만들고 시작한다.
+			if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(
+				FBuildingHelper::GetBuildingClass(GetWorld(), EBlockType::Wood, EBlockCategory::Floor)
+			))
 			{
-				MainFloor = NewMainFloor;
-				MainFloor->SetCenter();
-				MainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+				RaftBuildPointerData.Add(FVector::Zero(), NewMainFloor);
+				NewMainFloor->SetCenter();
+				NewMainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 			}
+			
 			return;
 		}
 
+		// 처음 로드할 때 읽어오기 편하도록 처리함
+		// 정렬은 최대한 중앙에 가깝게 처리하기 위해서 X와 Y의 절대값이 최대한 작은 것을 기준으로 한다.
+		// ex. (1, 1), (-1, 1), (1, 2), (-1, 2) 같은 느낌으로...
+		PC->GetRecentSaveData()->RaftBuildMetaData.KeySort([](const FVector& A, const FVector& B)
+		{
+			return abs(A.X) < abs(B.X) && abs(A.Y) < abs(B.Y);
+		});
+		
 		SetActorTransform(PC->GetRecentSaveData()->LastRaftTransform);
 		// 처음 시작이 아닌 경우는 전부 빌딩을 실행한다.
 		for (TTuple<FVector, FBuildData> BuildData : PC->GetRecentSaveData()->RaftBuildMetaData)
 		{
+			if (BuildData.Value.BlockCategory == EBlockCategory::Floor)
+			{
+				GetWorld()->SpawnActor<ABuildingFloor>();
+			}
 			UE_LOG(LogTemp, Display, TEXT("%s"), *BuildData.Key.ToString());
 		}
 	}

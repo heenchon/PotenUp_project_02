@@ -23,9 +23,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UBuoyancyComponent* Buoyancy;
 
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<ABuildingFloor> MainFloorClass;
-
 	UPROPERTY()
 	class ARaftGameState* RaftGameState;
 	
@@ -46,9 +43,6 @@ public:
 	void SpawnSailActor();
 
 private:
-	UPROPERTY()
-	ABuildingActor* MainFloor;
-	
 	// 벽과 바닥 등 순수 건축물에 대한 정보 메타 데이터 값
 	// 벽의 경우는 바닥이 2, 3이라면 그 중간 2.5에 높이는 동일하게 가져간다.
 	// 즉 벽은 바닥과 바닥 사이의 정보를 검증하는 역할

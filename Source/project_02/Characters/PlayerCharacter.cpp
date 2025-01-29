@@ -183,7 +183,7 @@ void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
 	{
 		BuildingComponent->SetBuildMode(true);
 		BuildingComponent->SetCustomBuildBlueprint(NewItemInfo.GetShowItemActor());
-		BuildingComponent->SetBuildType(EBuildType::Object);
+		BuildingComponent->SetBuildType(EBlockCategory::Object);
 		return;
 	}
 
