@@ -176,12 +176,7 @@ void ARaft::InitializeData()
 			
 			if (ABuildingFloor* NewFloor = Cast<ABuildingFloor>(NewBuildingActor))
 			{
-				// 메인 빌드가 아니고, 중심 액터가 존재하는 경우에 대해서
-				// 와이어프레임 상태를 해제 처리한다.
-				if (!BuildData.Value.IsMain && CenterBuildActor)
-				{
-					NewFloor->SetWireframe(false);
-				}
+				NewFloor->SetWireframe(false);
 				
 				constexpr int8 CheckToX[4] = {1, -1, 0, 0};
 				constexpr int8 CheckToY[4] = {0, 0, 1, -1};

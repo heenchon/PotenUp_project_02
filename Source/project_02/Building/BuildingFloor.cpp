@@ -171,19 +171,6 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 	Super::UpdateBuildData(TargetComp, ChildBuild);
 }
 
-void ABuildingFloor::SetCenter()
-{
-	Super::SetCenter();
-	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
-	{
-		if (!PC->GetPlayerRaft())
-		{
-			return;
-		}
-		PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this);
-	}
-}
-
 void ABuildingFloor::UpdateWireframeBoxInfo()
 {
 	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
