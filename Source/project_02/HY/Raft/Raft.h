@@ -58,4 +58,8 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<ABuildingActor> CenterBuildActor;
+
+	void InitializeAttachFloor(ABuildingActor* BuildActor);
+	
+	void InitializeAttachWall(ABuildingActor* BuildActor);
 };

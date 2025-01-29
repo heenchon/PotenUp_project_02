@@ -61,10 +61,10 @@ void ABuildingWall::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuil
 		// 벽은 그냥 한칸 위로 올라갔다고 가정하자
 		NewPos.Z += 1;
 		// 현재 기준으로 좌, 우를 바라보는지, 상, 하를 바라보는지는 어떻게 계산할 것인가?
-		// TODO: 정보 저장에 필요한 데이터 여기에 잘 넣어두기
 		if (TargetComp == ForwardFloorBodyBox)
 		{
 			ForwardFloorBodyBox->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
+			// NewPos의 각 X, Y의 소수 자리만 Fraction으로 추출함
 			if (UKismetMathLibrary::Fraction(NewPos.X) != 0)
 			{
 				NewPos.X += 0.5;

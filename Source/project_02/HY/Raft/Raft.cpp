@@ -5,6 +5,7 @@
 #include "../Objects/Sail.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
@@ -20,7 +21,7 @@ ARaft::ARaft()
 	Buoyancy = CreateDefaultSubobject<UBuoyancyComponent>(TEXT("Buoyancy"));
 	
 	RootComponent = StaticMesh;
-	StaticMesh->SetSimulatePhysics(true);
+	StaticMesh->SetSimulatePhysics(false);
 	StaticMesh->BodyInstance.bLockZRotation = true;
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh>DefaultMesh(TEXT("/Script/Engine.StaticMesh'/Water/Caustics/Meshes/CausticsPreviewBase.CausticsPreviewBase'"));
@@ -143,7 +144,10 @@ void ARaft::InitializeData()
 	if (!PC->GetRecentSaveData()->IsAlreadyStart)
 	{
 		// 초기 값 설정. 임시 값
-		SetActorLocation(PC->GetPawn()->GetActorLocation());
+		FVector InitialLocation = PC->GetPawn()->GetActorLocation();
+		InitialLocation.Z = 0;
+		SetActorLocation(InitialLocation);
+		StaticMesh->SetSimulatePhysics(true);
 		
 		// 루트인 가장 중앙은 무조건 하나 새로 만들고 시작한다.
 		if (ABuildingFloor* NewMainFloor = GetWorld()->SpawnActor<ABuildingFloor>(
@@ -168,6 +172,7 @@ void ARaft::InitializeData()
 	});
 	
 	SetActorTransform(PC->GetRecentSaveData()->LastRaftTransform);
+	StaticMesh->SetSimulatePhysics(true);
 	// 처음 시작이 아닌 경우는 전부 빌딩을 실행한다.
 	for (TTuple<FVector, FBuildData> BuildData : PC->GetRecentSaveData()->RaftBuildMetaData)
 	{
@@ -181,47 +186,107 @@ void ARaft::InitializeData()
 		// 우선 메타 정보부터 다시 업데이트 처리를 한다.
 		UpdateBuildMetaData(BuildData.Key, NewBuildingActor, false, BuildData.Value.IsMain);
 
-		// 이게 바닥이라는 가정하에 처리 로직 추가
-		if (ABuildingFloor* NewFloor = Cast<ABuildingFloor>(NewBuildingActor))
+		if (BuildData.Value.IsMain)
 		{
-			// 당장 와이어 프레임 상태는 해제한다.
-			NewFloor->SetWireframe(false);
-
-			// 상하좌우 로 이동 체크하기 위한 상수 값들
-			constexpr int8 CheckToX[4] = {1, -1, 0, 0};
-			constexpr int8 CheckToY[4] = {0, 0, 1, -1};
-			constexpr EBlockPos MoveTo[4] = { EBlockPos::North,
-				EBlockPos::South, EBlockPos::East, EBlockPos::West };
-
-			// 상하좌우를 둘러보는 로직
-			for (int i = 0; i < 4; i++)
-			{
-				FVector TempPos = BuildData.Key;
-				TempPos.X += CheckToX[i];
-				TempPos.Y += CheckToY[i];
-
-				// 만약 상하좌우에 액터가 존재하는 경우에 대해서
-				if (GetRaftBuildPointerData().FindRef(TempPos))
-				{
-					// 무조건 해당되어야 한다. 예외처리를 하지 않은 이유는
-					// 해당되지 않으면 게임 데이터가 망가졌음을 의미하기 때문이다.
-					ABuildingFloor* ParentFloor = Cast<ABuildingFloor>(GetRaftBuildPointerData()[TempPos]);
-					
-					// 주변에 부착할 부모 액터를 찾았으면, 그 액터의 상하좌우 중 부착할 컴포넌트 위치를
-					// 가져와서 World Location을 변경해준다.
-					// 다만 실제 부착할 액터는 방향의 반대 방향 소켓에 부착을 시켜줘야 한다.
-					NewFloor->SetActorLocation(ParentFloor
-						->GetFloorBoxByDirection(MoveTo[i], true)->GetComponentLocation());
-
-					// 부착될 액터와 부착할 액터 둘다 검증을 해줘야 한다.
-					ParentFloor->UpdateWireframeBoxInfo();
-					NewFloor->UpdateWireframeBoxInfo();
-					// 하나라도 걸리면 더 이상 계산할 필요가 없다.
-					break;
-				}
-			}
+			NewBuildingActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
+		} else
+		{
+			NewBuildingActor->AttachToActor(CenterBuildActor, FAttachmentTransformRules::KeepWorldTransform);
 		}
 
+		// 이게 바닥이라는 가정하에 처리 로직 추가
+		InitializeAttachFloor(NewBuildingActor);
+
 		// 벽이라는 가정하에 처리하기.
+		InitializeAttachWall(NewBuildingActor);
+	}
+}
+
+void ARaft::InitializeAttachFloor(ABuildingActor* BuildActor)
+{
+	ABuildingFloor* NewFloor = Cast<ABuildingFloor>(BuildActor);
+	
+	if (!IsValid(NewFloor))
+	{
+		return;
+	}
+	// 당장 와이어 프레임 상태는 해제한다.
+	NewFloor->SetWireframe(false);
+
+	// 상하좌우 로 이동 체크하기 위한 상수 값들
+	constexpr int8 CheckToX[4] = {1, -1, 0, 0};
+	constexpr int8 CheckToY[4] = {0, 0, 1, -1};
+	constexpr EBlockPos MoveTo[4] = { EBlockPos::North,
+		EBlockPos::South, EBlockPos::East, EBlockPos::West };
+
+	// 상하좌우를 둘러보는 로직
+	for (int i = 0; i < 4; i++)
+	{
+		FVector TempPos = NewFloor->GetBuildPos();
+		TempPos.X += CheckToX[i];
+		TempPos.Y += CheckToY[i];
+
+		// 만약 상하좌우에 액터가 존재하는 경우에 대해서
+		if (GetRaftBuildPointerData().FindRef(TempPos))
+		{
+			// 무조건 해당되어야 한다. 예외처리를 하지 않은 이유는
+			// 해당되지 않으면 게임 데이터가 망가졌음을 의미하기 때문이다.
+			ABuildingFloor* ParentFloor = Cast<ABuildingFloor>(GetRaftBuildPointerData()[TempPos]);
+					
+			// 주변에 부착할 부모 액터를 찾았으면, 그 액터의 상하좌우 중 부착할 컴포넌트 위치를
+			// 가져와서 World Location을 변경해준다.
+			// 다만 실제 부착할 액터는 방향의 반대 방향 소켓에 부착을 시켜줘야 한다.
+			NewFloor->SetActorLocation(ParentFloor
+				->GetFloorBoxByDirection(MoveTo[i], true)->GetComponentLocation());
+
+			// 부착될 액터와 부착할 액터 둘다 검증을 해줘야 한다.
+			ParentFloor->UpdateWireframeBoxInfo();
+			NewFloor->UpdateWireframeBoxInfo();
+			// 하나라도 걸리면 더 이상 계산할 필요가 없다.
+			break;
+		}
+	}
+}
+
+void ARaft::InitializeAttachWall(ABuildingActor* BuildActor)
+{
+	ABuildingWall* NewWall = Cast<ABuildingWall>(BuildActor);
+	
+	if (!IsValid(NewWall))
+	{
+		return;
+	}
+	// 당장 와이어 프레임 상태는 해제한다.
+	NewWall->SetWireframe(false);
+	
+	// 부착시킬 앞 뒤로 이동 체크하기 위한 상수 값들
+	constexpr float CheckTo[2] = { 0.5, -0.5 };
+
+	if (UKismetMathLibrary::Fraction(NewWall->GetBuildPos().X) != 0)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			FVector TempPos = NewWall->GetBuildPos();
+			TempPos.X += CheckTo[i];
+
+			if (GetRaftBuildPointerData().FindRef(TempPos))
+			{
+				UE_LOG(LogTemp, Display, TEXT("좌표 찾음 상하: %s"), *TempPos.ToString())
+			}
+		}
+	}
+
+	if (UKismetMathLibrary::Fraction(NewWall->GetBuildPos().Y) != 0)
+	{
+		for (int i = 0; i < 2; i++)
+		{
+			FVector TempPos = NewWall->GetBuildPos();
+			TempPos.Y += CheckTo[i];
+
+			if (GetRaftBuildPointerData().FindRef(TempPos))
+			{
+				UE_LOG(LogTemp, Display, TEXT("좌표 찾음 좌우: %s"), *TempPos.ToString())
+			}
+		}
 	}
 }

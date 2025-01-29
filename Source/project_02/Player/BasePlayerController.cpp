@@ -202,7 +202,15 @@ void ABasePlayerController::SaveGame()
 			SaveGame->PlayerInventoryList.Append(PS->GetPlayerInventoryList());
 		}
 
+		FTransform SaveToTransform = Raft->GetActorTransform();
+		const FVector RaftSavedLocation = SaveToTransform.GetLocation();
+		// 높이의 경우 배가 물 속으로 들어가버리면 오류가 발생하기 때문에 무조건 높이를 0으로 고정해야 한다.
+		SaveToTransform.GetLocation().Set(RaftSavedLocation.X , RaftSavedLocation.Y, 0);
+		// Yaw를 제외한 나머지는 물 수위로 인한 흔들림이기 때문에 제외한다.
+		SaveToTransform.SetRotation(FQuat(FRotator(0, SaveToTransform.GetRotation().Rotator().Yaw,0)));
+		
 		SaveGame->LastRaftTransform = Raft->GetActorTransform();
+		
 		SaveGame->RaftBuildMetaData.Append(Raft->GetRaftBuildMetaData());
 
 		for (TTuple<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData : Raft->GetRaftPlacedObjectData())
