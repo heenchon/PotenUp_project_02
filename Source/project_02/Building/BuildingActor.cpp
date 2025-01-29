@@ -1,7 +1,5 @@
 ﻿#include "BuildingActor.h"
 
-#include "project_02/DataTable/BuildData.h"
-
 
 ABuildingActor::ABuildingActor()
 {

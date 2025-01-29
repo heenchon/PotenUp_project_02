@@ -32,8 +32,10 @@ public:
 	FORCEINLINE TMap<FVector, ABuildingActor*> GetRaftBuildPointerData() const { return RaftBuildPointerData; }
 	FORCEINLINE TMap<FVector, TArray<FPlacedObjectData>> GetRaftPlacedObjectData() const { return RaftPlacedObjectData; }
 	
-	void UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const bool IsRemove = false);
+	void UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const bool IsRemove = false, const bool IsCenter = false);
 	void UpdatePlacedObjectData(const FVector& Pos, const FPlacedObjectData& PlaceData, const bool IsRemove = false);
+
+	void Initialize();
 
 protected:
 	virtual void BeginPlay() override;
@@ -53,4 +55,7 @@ private:
 	TMap<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData;
 
 	void InitializeData();
+
+	UPROPERTY()
+	TObjectPtr<ABuildingActor> CenterBuildActor;
 };

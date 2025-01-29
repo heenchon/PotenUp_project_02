@@ -80,6 +80,7 @@ void ABasePlayerController::SpawnRaft()
 	if (RaftClass)
 	{
 		Raft = GetWorld()->SpawnActor<ARaft>(RaftClass);
+		Raft->Initialize();
 	}
 }
 

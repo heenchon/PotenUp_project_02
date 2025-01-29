@@ -18,7 +18,6 @@ public:
 	ABuildingActor();
 	
 	void SetWireframeMaterial(UMaterial* NewMaterial);
-	void SetWireframeMaterialForOption(const bool Option, UMaterial* SuccessMaterial, UMaterial* FailMaterial);
 	
 	void SetWireframe(const bool NewIsWireframe);
 

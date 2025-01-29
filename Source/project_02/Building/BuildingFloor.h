@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BuildingActor.h"
+#include "project_02/DataTable/BuildData.h"
 #include "BuildingFloor.generated.h"
 
 UCLASS()
@@ -16,6 +17,8 @@ public:
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
+
+	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction);
 	
 	void UpdateWireframeBoxInfo();
 	

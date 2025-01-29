@@ -3,6 +3,7 @@
 #include "BuoyancyComponent.h"
 #include "../RaftGameState.h"
 #include "../Objects/Sail.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
@@ -47,8 +48,11 @@ void ARaft::BeginPlay()
 	Super::BeginPlay();
 	StaticMesh->SetHiddenInGame(true);
 
+}
+
+void ARaft::Initialize()
+{
 	InitializeData();
-	
 	SpawnSailActor();
 }
 
@@ -71,7 +75,7 @@ void ARaft::SpawnSailActor()
 	}
 }
 
-void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const bool IsRemove)
+void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const bool IsRemove, const bool IsCenter)
 {
 	if (IsRemove)
 	{
@@ -82,6 +86,7 @@ void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const
 		FBuildData BuildData;
 		BuildData.BlockType = EBlockType::Wood;
 		BuildData.BlockCategory = EBlockCategory::Undefined;
+		BuildData.IsMain = IsCenter;
 		
 		if (Build->IsA(ABuildingFloor::StaticClass()))
 		{
@@ -95,6 +100,15 @@ void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const
 		// TODO: 현재는 단순 추가이지만 추후 업데이트 로직도 넣을 필요가 있다.
 		RaftBuildMetaData.Add(Pos, BuildData);
 		RaftBuildPointerData.Add(Pos, Build);
+
+		if (IsCenter)
+		{
+			Build->SetCenter();
+			CenterBuildActor = Build;
+		} else
+		{
+			Build->SetMainBuild(CenterBuildActor);
+		}
 	}
 }
 
@@ -118,6 +132,7 @@ void ARaft::InitializeData()
 {
 	if (ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
+		// 처음 게임을 플레이하는 경우에 데이터 Initialize
 		if (!PC->GetRecentSaveData()->IsAlreadyStart)
 		{
 			// 초기 값 설정. 임시 값
@@ -128,8 +143,7 @@ void ARaft::InitializeData()
 				FBuildingHelper::GetBuildingClass(GetWorld(), EBlockType::Wood, EBlockCategory::Floor)
 			))
 			{
-				RaftBuildPointerData.Add(FVector::Zero(), NewMainFloor);
-				NewMainFloor->SetCenter();
+				UpdateBuildMetaData(FVector::Zero(), NewMainFloor, false, true);
 				NewMainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 			}
 			
@@ -137,22 +151,60 @@ void ARaft::InitializeData()
 		}
 
 		// 처음 로드할 때 읽어오기 편하도록 처리함
-		// 정렬은 최대한 중앙에 가깝게 처리하기 위해서 X와 Y의 절대값이 최대한 작은 것을 기준으로 한다.
-		// ex. (1, 1), (-1, 1), (1, 2), (-1, 2) 같은 느낌으로...
+		// 최근 저장 정보를 기반으로 새로 실행 및 데이터 이전
 		PC->GetRecentSaveData()->RaftBuildMetaData.KeySort([](const FVector& A, const FVector& B)
 		{
-			return abs(A.X) < abs(B.X) && abs(A.Y) < abs(B.Y);
+			// 피타고라스 정리를 이용해서 대각선의 길이로 거리를 판별한다.
+			const float MagnitudeA = FMath::Sqrt(FMath::Square(A.X) + FMath::Square(A.Y));
+			const float MagnitudeB = FMath::Sqrt(FMath::Square(B.X) + FMath::Square(B.Y));
+			return MagnitudeA < MagnitudeB;
 		});
 		
 		SetActorTransform(PC->GetRecentSaveData()->LastRaftTransform);
 		// 처음 시작이 아닌 경우는 전부 빌딩을 실행한다.
 		for (TTuple<FVector, FBuildData> BuildData : PC->GetRecentSaveData()->RaftBuildMetaData)
 		{
-			if (BuildData.Value.BlockCategory == EBlockCategory::Floor)
+			// 일단 뭐든 데이터 기반으로 액터들 스폰 처리
+			ABuildingActor* NewBuildingActor =
+				GetWorld()->SpawnActor<ABuildingActor>(
+					FBuildingHelper::GetBuildingClass(GetWorld(),
+						BuildData.Value.BlockType,
+						BuildData.Value.BlockCategory), GetActorTransform());
+			// 처음에는 무조건 와이어프레임 상태이기 때문에 와이어프레임 상태를 종료해야 한다.
+			// 우선 메타 정보부터 다시 업데이트 처리를 한다.
+			UpdateBuildMetaData(BuildData.Key, NewBuildingActor, false, BuildData.Value.IsMain);
+			
+			if (ABuildingFloor* NewFloor = Cast<ABuildingFloor>(NewBuildingActor))
 			{
-				GetWorld()->SpawnActor<ABuildingFloor>();
+				// 메인 빌드가 아니고, 중심 액터가 존재하는 경우에 대해서
+				// 와이어프레임 상태를 해제 처리한다.
+				if (!BuildData.Value.IsMain && CenterBuildActor)
+				{
+					NewFloor->SetWireframe(false);
+				}
+				
+				constexpr int8 CheckToX[4] = {1, -1, 0, 0};
+				constexpr int8 CheckToY[4] = {0, 0, 1, -1};
+				constexpr EBlockPos MoveTo[4] = { EBlockPos::North,
+					EBlockPos::South, EBlockPos::East, EBlockPos::West };
+
+				for (int i = 0; i < 4; i++)
+				{
+					FVector TempPos = BuildData.Key;
+					TempPos.X += CheckToX[i];
+					TempPos.Y += CheckToY[i];
+
+					if (GetRaftBuildPointerData().FindRef(TempPos))
+					{
+						// 무조건 해당되어야 한다. 예외처리를 하지 않은 이유는
+						// 해당되지 않으면 게임 데이터가 망가졌음을 의미하기 때문이다.
+						ABuildingFloor* ParentFloor = Cast<ABuildingFloor>(GetRaftBuildPointerData()[TempPos]);
+						NewFloor->SetActorLocation(ParentFloor
+							->GetFloorBoxByDirection(MoveTo[i])->GetComponentLocation());
+						NewFloor->UpdateWireframeBoxInfo();
+					}
+				}
 			}
-			UE_LOG(LogTemp, Display, TEXT("%s"), *BuildData.Key.ToString());
 		}
 	}
 }

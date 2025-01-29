@@ -110,8 +110,6 @@ void ABuildingFloor::OnWireframeInactive()
 
 void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild)
 {
-	Super::UpdateBuildData(TargetComp, ChildBuild);
-
 	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
 		if (!PC->GetPlayerRaft())
@@ -169,6 +167,8 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 			ChildFloor->UpdateWireframeBoxInfo();
 		}
 	}
+	
+	Super::UpdateBuildData(TargetComp, ChildBuild);
 }
 
 void ABuildingFloor::SetCenter()
@@ -278,4 +278,21 @@ void ABuildingFloor::OnWallBodyBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	{
 		OverlappedComponent->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	}
+}
+
+TObjectPtr<UBoxComponent> ABuildingFloor::GetFloorBoxByDirection(const EBlockPos Direction)
+{
+	if (Direction == EBlockPos::East)
+	{
+		return RightBodyBox;
+	}
+	if (Direction == EBlockPos::West)
+	{
+		return LeftBodyBox;
+	}
+	if (Direction == EBlockPos::South)
+	{
+		return SouthBodyBox;
+	}
+	return NorthBodyBox;
 }

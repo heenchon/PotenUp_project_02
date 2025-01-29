@@ -56,6 +56,9 @@ struct PROJECT_02_API FBuildData
 	
 	UPROPERTY()
 	EBlockCategory BlockCategory;
+
+	UPROPERTY()
+	bool IsMain;
 };
 
 USTRUCT(BlueprintType)
