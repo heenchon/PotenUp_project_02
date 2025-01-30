@@ -3,13 +3,14 @@
 
 #include "SharkAI.h"
 #include "Kismet/GameplayStatics.h"
-#include "SharkAIController.h"
 // #include "project_02/Helper/EnumHelper.h"
 #include "Algo/RandomShuffle.h"
+#include "Components/CapsuleComponent.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/Characters/Component/SwimmingComponent.h"
 #include "project_02/HY/Raft/Raft.h"
 #include "project_02/Building/BuildingFloor.h"
+#include "project_02/Weapon/WeaponBase.h"
 
 // Sets default values
 ASharkAI::ASharkAI()
@@ -19,8 +20,10 @@ ASharkAI::ASharkAI()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	RootComponent = StaticMesh;
 	StaticMesh->SetCollisionEnabled(ECollisionEnabled::Type::QueryOnly);
-
-	AIController = ASharkAIController::StaticClass();
+	Capsule = CreateDefaultSubobject<UCapsuleComponent>(TEXT("Capsule"));
+	Capsule->SetupAttachment(RootComponent);
+	MouthPosition = CreateDefaultSubobject<USceneComponent>(TEXT("MouthPositionComp"));
+	MouthPosition->SetupAttachment(RootComponent);
 }
 
 // Called when the game starts or when spawned
@@ -29,10 +32,13 @@ void ASharkAI::BeginPlay()
 	Super::BeginPlay();
 	Player = Cast<APawn>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
 	SwimComponent = Player->FindComponentByClass<USwimmingComponent>();
+
+	Capsule->OnComponentBeginOverlap.AddDynamic(this,&ASharkAI::OnMyBeginOverlap);
 	
 	TargetLocation = NewIdleLocation();
 	NextState = ESharkState::Idle;
 	CurrentState = ESharkState::Turning;
+	
 }
 
 // Called every frame
@@ -67,6 +73,28 @@ void ASharkAI::Tick(float DeltaTime)
 		break;
 	default:
 		break;
+	}
+}
+
+void ASharkAI::OnMyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA(AWeaponBase::StaticClass()))
+	{
+		--HealthPoint;
+		if (CurrentState == ESharkState::AttackRaft)
+		{
+			++CurHitCount;
+			UE_LOG(LogTemp,Display,TEXT("%d대 맞음"), CurHitCount);
+			if (CurHitCount >= 3)
+			{
+				CurHitCount = 0;
+				GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
+				TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
+				NextState = ESharkState::RunAway;
+				ChangeState(ESharkState::Turning);
+			}
+		}
 	}
 }
 
@@ -119,7 +147,6 @@ void ASharkAI::Idle(float DeltaTime)
 			ChangeState(ESharkState::Turning);
 			return;
 		}
-		UE_LOG(LogTemp, Display, TEXT("공격할 판자: %s"), *Floor->GetName());
 		TargetLocation = Floor->GetActorLocation();
 		NextState = ESharkState::MoveToRaft;
 		ChangeState(ESharkState::Turning);
@@ -136,20 +163,33 @@ void ASharkAI::MoveToRaft(float DeltaTime)
 	SetActorLocation(dir*DeltaTime*SharkAttackSpeed + curLoc);
 	if (FVector::Dist(curLoc,targetLoc) < DetectionDistance)
 	{
+		//타이머로 배 파괴 함수 실행.
+		GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle,this,&ASharkAI::DamageFloor,FloorDestroyDuration,true);
+		SetActorRotation(BiteRotation);
 		ChangeState(ESharkState::AttackRaft);
 	}
 }
 
 void ASharkAI::AttackRaft(float DeltaTime)
 {
-	UGameplayStatics::ApplyDamage(Floor, 1.0f,
-		nullptr, this, UDamageType::StaticClass());
-	//타이머로 배 파괴 함수 실행.
-	//배 파괴 함수가 3번 실행되면, Runaway
-	//만약 플레이어에게 공격을 3번 당하면, Runaway
-	TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
-	NextState = ESharkState::RunAway;
-	ChangeState(ESharkState::Turning);
+	SetActorLocation(Floor->GetActorLocation() - MouthPosition->GetComponentLocation()+ GetActorLocation());
+}
+
+void ASharkAI::DamageFloor()
+{
+	Floor->DecreaseDurability();
+	
+	if (Floor->GetDurability() <= 0.0f)
+	{
+		//배가 부서지면, Runaway
+		Floor->Destroy();
+		GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
+		
+		TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
+		NextState = ESharkState::RunAway;
+		ChangeState(ESharkState::Turning);
+	}
+	
 }
 
 void ASharkAI::MoveToPlayer(float DeltaTime)
@@ -157,9 +197,9 @@ void ASharkAI::MoveToPlayer(float DeltaTime)
 	//수영을 취소하면 다시 idle로.
 	if (!SwimComponent->GetIsSwimMode())
 	{
-		UE_LOG(LogTemp, Display, TEXT("배 위로 도망쳣네?"));
-		TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
-		NextState = ESharkState::RunAway;
+		// UE_LOG(LogTemp, Display, TEXT("배 위로 도망쳣네?"));
+		TargetLocation = NewIdleLocation();
+		NextState = ESharkState::Idle;
 		ChangeState(ESharkState::Turning);
 		return;
 	}
@@ -178,7 +218,7 @@ void ASharkAI::MoveToPlayer(float DeltaTime)
 
 void ASharkAI::AttackPlayer(float DeltaTime)
 {
-	UGameplayStatics::ApplyDamage(Player, 20.f,
+	UGameplayStatics::ApplyDamage(Player, 10.f,
 		nullptr, this, UDamageType::StaticClass());
 	TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 	NextState = ESharkState::RunAway;
@@ -253,25 +293,17 @@ ABuildingFloor* ASharkAI::GetFloor()
 	const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	ARaft* raft = PC->GetPlayerRaft();
 	raft->GetRaftBuildPointerData().GetKeys(positionArr);
-
+	
 	Algo::RandomShuffle(positionArr);
 
+	//공격 가능한 판자 찾을 때까지 반복
 	for (FVector& pos : positionArr)
 	{
-		UE_LOG(LogTemp, Display, TEXT("X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
-	}
-	
-	for (FVector& pos : positionArr)
-	{
-		UE_LOG(LogTemp, Display, TEXT("X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
 		ABuildingFloor* floor = Cast<ABuildingFloor>(raft->GetRaftBuildPointerData()[pos]);
 		
-		if (floor->GetIsMain())
-		{
-			continue;
-		}
 		if (IsAttackableFloor(positionArr, pos))
 		{
+			UE_LOG(LogTemp, Display, TEXT("공격할 판자 pos X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
 			return floor;
 		}
 	}
@@ -280,19 +312,53 @@ ABuildingFloor* ASharkAI::GetFloor()
 
 bool ASharkAI::IsAttackableFloor(const TArray<FVector>& positionArr, const FVector& floorPos)
 {
+	//판자의 동서남북에 해당하는 위치에 다른 판자가 있는지 체크
 	FVector dirArr[] = {
-		FVector(0, -1, 0),  
-		FVector(1, 0, 0),  
 		FVector(-1, 0, 0), 
-		FVector(0, 1, 0) 
+		FVector(0, -1, 0),  
+		FVector(0, 1, 0), 
+		FVector(1, 0, 0)  
 	};
 
 	for (FVector& dir : dirArr)
 	{
-		if (positionArr.Contains(floorPos+dir))
+		//main판자는 항상 있는 것으로 판정
+		if (floorPos+dir == FVector(0, 0, 0))
 		{
+			continue;
+		}
+
+		//어느 한 방향에 판자가 없으면, 그 판자는 공격 가능
+		if (!positionArr.Contains(floorPos+dir))
+		{
+			//판자 공격할 때, 비어있는 방향으로부터 판자를 바라보도록 회전값 저장
+			SetBiteRotation(dir);
 			return true;
 		}
 	}
 	return false;
+}
+
+void ASharkAI::SetBiteRotation(const FVector& dir)
+{
+	if (dir == FVector(0, 1, 0)) 
+	{
+		// UE_LOG(LogTemp, Display, TEXT("동쪽이 비었음."));
+		BiteRotation = FRotator(30, -90, 0);
+	}
+	else if (dir == FVector(-1, 0, 0))
+	{
+		// UE_LOG(LogTemp, Display, TEXT("남쪽이 비었음."));
+		BiteRotation = FRotator(30, 0, 0);
+	}
+	else if (dir == FVector(1, 0, 0))
+	{
+		// UE_LOG(LogTemp, Display, TEXT("북쪽이 비었음."));
+		BiteRotation = FRotator(30, 180, 0);
+	}
+	else if (dir == FVector(0, -1, 0))
+	{
+		// UE_LOG(LogTemp, Display, TEXT("서쪽이 비었음."));
+		BiteRotation = FRotator(30, 90, 0);
+	}
 }
