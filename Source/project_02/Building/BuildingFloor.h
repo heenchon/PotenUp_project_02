@@ -19,6 +19,7 @@ public:
 
 	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse = false);
 	TObjectPtr<USceneComponent> GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse = false);
+	TObjectPtr<USceneComponent> GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse = false);
 	
 	void UpdateWireframeBoxInfo();
 	

@@ -47,8 +47,8 @@ ABuildingFloor::ABuildingFloor()
 
 	NorthWallSceneVector = CreateDefaultSubobject<USceneComponent>("North Wall Scene Vector");
 	NorthWallSceneVector->SetupAttachment(GetRootComponent());
-	SouthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
-	SouthWallSceneVector->SetRelativeRotation({0, 90, 0});
+	NorthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
+	NorthWallSceneVector->SetRelativeRotation({0, 90, 0});
 	
 	SouthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("South Wall Body Box");
 	SouthWallBodyBox->SetupAttachment(GetRootComponent());
@@ -300,6 +300,23 @@ TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByDirection(const 
 		return IsReverse ? EastWallSceneVector : WestWallSceneVector;
 	}
 	if (Direction == EBlockPos::South)
+	{
+		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
+	}
+	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
+}
+
+TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse)
+{
+	if (ComponentBox == EastWallBodyBox)
+	{
+		return IsReverse ? WestWallSceneVector : EastWallSceneVector;
+	}
+	if (ComponentBox == WestWallBodyBox)
+	{
+		return IsReverse ? EastWallSceneVector : WestWallSceneVector;
+	}
+	if (ComponentBox == SouthWallBodyBox)
 	{
 		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
 	}

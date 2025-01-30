@@ -236,16 +236,19 @@ void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 
 void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 {
-	FVector NewLocation = HitResult.GetComponent()->GetComponentLocation();
-	// TODO: 테스트용 하드코딩으로 추후 제거 필요 -> 설치 컴포넌트 위치를 Scene으로 이전
-	NewLocation.Z += 70;
-	FRotator NewRotation = HitResult.GetComponent()->GetComponentRotation();
-	NewRotation.Yaw += 90;
+	ABuildingFloor* ParentFloor = Cast<ABuildingFloor>(HitResult.GetActor());
+	if (!IsValid(ParentFloor))
+	{
+		return;
+	}
+	
+	const USceneComponent* Target =
+			ParentFloor->GetWallPlaceVectorByComponentBox(HitResult.GetComponent());
 	
 	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(
 			FBuildingHelper::GetBuildingClass(
 				GetWorld(), EBlockType::Wood, EBlockCategory::Wall),
-				NewLocation, NewRotation))
+				Target->GetComponentLocation(), Target->GetComponentRotation()))
 	{
 		// 우선 값은 바로 할당하기
 		NewWireframe->SetWireframe(true);
