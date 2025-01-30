@@ -4,8 +4,6 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/BuildData.h"
-#include "project_02/Helper/EnumHelper.h"
-#include "project_02/HY/RaftGameState.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Raft/Raft.h"
 
@@ -43,39 +41,45 @@ ABuildingFloor::ABuildingFloor()
 	NorthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("North Wall Body Box");
 	NorthWallBodyBox->SetupAttachment(GetRootComponent());
 	NorthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	NorthWallBodyBox->SetRelativeLocation({0, -85.526552, 0});
-	NorthWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
-	NorthWallBodyBox->SetRelativeRotation({0, 0, 90});
+	NorthWallBodyBox->SetRelativeLocation({85.526552, 0, 0});
+	NorthWallBodyBox->SetRelativeScale3D({0.5, 1.75, 0.5});
 
 	NorthWallSceneVector = CreateDefaultSubobject<USceneComponent>("North Wall Scene Vector");
 	NorthWallSceneVector->SetupAttachment(GetRootComponent());
+	NorthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
+	NorthWallSceneVector->SetRelativeRotation({0, -90, 0});
 	
 	SouthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("South Wall Body Box");
 	SouthWallBodyBox->SetupAttachment(GetRootComponent());
 	SouthWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	SouthWallBodyBox->SetRelativeLocation({0, 85.526552, 0});
-	SouthWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
-	NorthWallBodyBox->SetRelativeRotation({0, 0, 90});
+	SouthWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
+	SouthWallBodyBox->SetRelativeScale3D({0.5, 1.75, 0.5});
 
 	SouthWallSceneVector = CreateDefaultSubobject<USceneComponent>("South Wall Scene Vector");
 	SouthWallSceneVector->SetupAttachment(GetRootComponent());
+	SouthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
+	SouthWallSceneVector->SetRelativeRotation({0, -90, 0});
 	
 	EastWallBodyBox = CreateDefaultSubobject<UBoxComponent>("East Wall Body Box");
 	EastWallBodyBox->SetupAttachment(GetRootComponent());
 	EastWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	EastWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
-	EastWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+	EastWallBodyBox->SetRelativeLocation({0, 85.526552, 0});
+	EastWallBodyBox->SetRelativeScale3D({1.75, 0.5, 0.5});
 
 	EastWallSceneVector = CreateDefaultSubobject<USceneComponent>("East Wall Scene Vector");
 	EastWallSceneVector->SetupAttachment(GetRootComponent());
+	EastWallSceneVector->SetRelativeLocation({0, -85.526552, 120});
+	EastWallSceneVector->SetRelativeRotation({0, 180, 0});
 	
 	WestWallBodyBox = CreateDefaultSubobject<UBoxComponent>("West Wall Body Box");
 	WestWallBodyBox->SetupAttachment(GetRootComponent());
 	WestWallBodyBox->SetCollisionResponseToChannel(ECC_EngineTraceChannel3, ECR_Block);
-	WestWallBodyBox->SetRelativeLocation({-85.526552, 0, 0});
-	WestWallBodyBox->SetRelativeScale3D({0.5, 2.75, 0.5});
+	WestWallBodyBox->SetRelativeLocation({0, -85.526552, 0});
+	WestWallBodyBox->SetRelativeScale3D({1.75, 0.5, 0.5});
 
 	WestWallSceneVector = CreateDefaultSubobject<USceneComponent>("West Wall Scene Vector");
+	WestWallSceneVector->SetRelativeLocation({0, -85.526552, 120});
+	WestWallSceneVector->SetRelativeRotation({0, 180, 0});
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
 
@@ -110,8 +114,6 @@ void ABuildingFloor::OnWireframeInactive()
 
 void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild)
 {
-	Super::UpdateBuildData(TargetComp, ChildBuild);
-
 	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 	{
 		if (!PC->GetPlayerRaft())
@@ -169,19 +171,8 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 			ChildFloor->UpdateWireframeBoxInfo();
 		}
 	}
-}
-
-void ABuildingFloor::SetCenter()
-{
-	Super::SetCenter();
-	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
-	{
-		if (!PC->GetPlayerRaft())
-		{
-			return;
-		}
-		PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this);
-	}
+	
+	Super::UpdateBuildData(TargetComp, ChildBuild);
 }
 
 void ABuildingFloor::UpdateWireframeBoxInfo()
@@ -219,7 +210,6 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 		// 검색할 노드들 순회
 		for (const FVector SearchPos : SearchVectorList)
 		{
-			UE_LOG(LogTemp, Display, TEXT("바닥 주변 탐색: %s"), *SearchPos.ToString())
 			for (int i = 0; i < 4; i++)
 			{
 				FVector TempPos = SearchPos;
@@ -229,9 +219,6 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 				const ABuildingActor* FoundBuild = PC->GetPlayerRaft()->GetRaftBuildPointerData().FindRef(TempPos);
 				const bool IsAlreadyBound = IsValid(FoundBuild);
 			
-				UE_LOG(LogTemp, Display, TEXT("%s 탐색 결과: %d"),
-					*FEnumHelper::GetClassEnumKeyAsString(MoveTo[i]), IsAlreadyBound)
-
 				ABuildingActor* SetBuild = PC->GetPlayerRaft()->GetRaftBuildPointerData().FindRef(SearchPos);
 				if (const ABuildingFloor* SearchBuildFloorResult = Cast<ABuildingFloor>(SetBuild))
 				{
@@ -278,4 +265,55 @@ void ABuildingFloor::OnWallBodyBeginOverlap(UPrimitiveComponent* OverlappedCompo
 	{
 		OverlappedComponent->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	}
+}
+
+TObjectPtr<UBoxComponent> ABuildingFloor::GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse)
+{
+	if (Direction == EBlockPos::East)
+	{
+		return IsReverse ? LeftBodyBox : RightBodyBox;
+	}
+	if (Direction == EBlockPos::West)
+	{
+		return IsReverse ? RightBodyBox : LeftBodyBox;
+	}
+	if (Direction == EBlockPos::South)
+	{
+		return IsReverse ? NorthBodyBox : SouthBodyBox;
+	}
+	return IsReverse ? SouthBodyBox : NorthBodyBox;
+}
+
+TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse)
+{
+	if (Direction == EBlockPos::East)
+	{
+		return IsReverse ? WestWallSceneVector : EastWallSceneVector;
+	}
+	if (Direction == EBlockPos::West)
+	{
+		return IsReverse ? EastWallSceneVector : WestWallSceneVector;
+	}
+	if (Direction == EBlockPos::South)
+	{
+		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
+	}
+	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
+}
+
+TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse)
+{
+	if (ComponentBox == EastWallBodyBox)
+	{
+		return IsReverse ? WestWallSceneVector : EastWallSceneVector;
+	}
+	if (ComponentBox == WestWallBodyBox)
+	{
+		return IsReverse ? EastWallSceneVector : WestWallSceneVector;
+	}
+	if (ComponentBox == SouthWallBodyBox)
+	{
+		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
+	}
+	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
 }
