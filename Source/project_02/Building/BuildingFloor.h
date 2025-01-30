@@ -18,7 +18,9 @@ public:
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
 	
 	void UpdateWireframeBoxInfo();
-	
+	float GetDurability() const {return Durability;}
+	void DecreaseDurability();
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -62,4 +64,6 @@ private:
 		AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep,
 		const FHitResult& SweepResult);
+
+	float Durability = 3.0f;
 };

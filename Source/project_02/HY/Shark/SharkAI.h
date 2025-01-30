@@ -7,6 +7,8 @@
 #include "ESharkState.h"
 #include "SharkAI.generated.h"
 
+class UCapsuleComponent;
+class USceneComponent;
 class ABuildingFloor;
 class APlayerCharacter;
 class USwimmingComponent;
@@ -22,6 +24,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UStaticMeshComponent* StaticMesh;
+	UPROPERTY(EditAnywhere)
+	UCapsuleComponent* Capsule;
+	UPROPERTY(EditAnywhere)
+	USceneComponent* MouthPosition;
 
 	//상어 속성
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -31,7 +37,11 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkAttackDuration = 15.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float IdleMoveDuration = 5.0f;
+	float IdleMoveDuration = 7.0f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float FloorDestroyDuration = 5.0f;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	float HealthPoint = 20.0f;
 
 	//타겟 도달 감지 범위
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
@@ -43,10 +53,8 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float MinDist = 3000.0f;
 
-private:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI", meta = (AllowPrivateAccess = "true"))
-	TSubclassOf<AController> AIController;
 
+private:
 	UPROPERTY()
 	APawn* Player;
 	UPROPERTY()
@@ -54,16 +62,20 @@ private:
 	UPROPERTY()
 	ABuildingFloor* Floor;
 	
-	UPROPERTY()
 	ESharkState CurrentState;
 	ESharkState NextState;
+	
 	float CurTimeforAttack;
 	float CurTimeforIdle;
-	float CurTimeforTurn;
+	int CurHitCount = 0;
 	
 	//Idle 상태 Lerp 움직임용 위치값
 	FVector StartLocation;
 	FVector TargetLocation;
+
+	FTimerHandle DestroyTimerHandle;
+	FRotator BiteRotation = FRotator(0, 0, 0);
+
 	
 protected:
 	// Called when the game starts or when spawned
@@ -72,6 +84,8 @@ protected:
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+	UFUNCTION()
+	void OnMyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
 
 	//상태 전환
 	void ChangeState(ESharkState newState);
@@ -83,13 +97,14 @@ public:
 	void AttackPlayer(float DeltaTime);
 	void Runaway(float DeltaTime);
 	void Turning(float DeltaTime);
-	
+
+private:
 	FVector NewRunawayLocation(FVector originLoc, float maxDist, float minDist);
 	FVector NewIdleLocation();
-	
-private:
 	ABuildingFloor* GetFloor();
 	bool IsAttackableFloor(const TArray<FVector>& positionArr ,const FVector& floorPos);
+	void DamageFloor();
+	void SetBiteRotation(const FVector& dir);
 };
 
 

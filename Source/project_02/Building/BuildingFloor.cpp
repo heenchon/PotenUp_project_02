@@ -79,6 +79,20 @@ ABuildingFloor::ABuildingFloor()
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
 
+void ABuildingFloor::DecreaseDurability()
+{
+	--Durability;
+	UE_LOG(LogTemp, Display, TEXT("남은 내구도: %f"), Durability);
+	if (Durability <= 0)
+	{
+		if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+		{
+			UE_LOG(LogTemp,Display,TEXT("판자 데이터 삭제"));
+			PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this, true);
+		}
+	}
+}
+
 void ABuildingFloor::BeginPlay()
 {
 	Super::BeginPlay();
