@@ -3,22 +3,16 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "project_02/Building/BuildingActor.h"
+#include "project_02/DataTable/BuildData.h"
 #include "BuildingComponent.generated.h"
 
+enum class EBlockCategory;
 enum class EBlockType;
 class UInputAction;
 class ABuildingWall;
 class ABuildingFloor;
 class UBoxComponent;
 class ABuildingActor;
-
-UENUM()
-enum class EBuildType
-{
-	Floor,
-	Wall,
-	Object
-};
 
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
 class PROJECT_02_API UBuildingComponent : public UActorComponent
@@ -32,7 +26,7 @@ public:
 
 	void BuildWireframe();
 
-	void SetBuildType(const EBuildType NewType);
+	void SetBuildType(const EBlockCategory NewType);
 	FORCEINLINE bool GetCanBuildMode() const { return CanBuild; } 
 	FORCEINLINE void SetBuildMode(const bool NewMode) { CanBuild = NewMode; } 
 	FORCEINLINE void SetCustomBuildBlueprint(const TSubclassOf<AActor>& NewBlueprint) { CustomBuildItemClass = NewBlueprint; } 
@@ -45,12 +39,6 @@ public:
 private:
 	UPROPERTY()
 	TSubclassOf<AActor> CustomBuildItemClass;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Options|Building", meta = (AllowPrivateAccess = true))
-	TSubclassOf<ABuildingFloor> WireframeToFloorClass;
-	
-	UPROPERTY(EditDefaultsOnly, Category = "Options|Building", meta = (AllowPrivateAccess = true))
-	TSubclassOf<ABuildingWall> WireframeToWallClass;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Wireframe", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UMaterial> WireframeMaterial;
@@ -84,7 +72,7 @@ private:
 	UPROPERTY()
 	TObjectPtr<AActor> CurrentHitActor;
 	
-	EBuildType FrameType = EBuildType::Floor;
+	EBlockCategory FrameType = EBlockCategory::Floor;
 
 	ETraceTypeQuery GetCheckTraceChannel() const;
 	

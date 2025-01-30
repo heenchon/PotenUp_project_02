@@ -17,6 +17,8 @@
  * Value: BuildInfo 현재 설치된 구조물 정보 (ex. 구조물 타입, 설치된 블록 좌표 정보, 설치된 블록 좌표 기준으로 대략 어느정도 떨어져 있는지 정보)
 */
 
+class ABuildingActor;
+
 UENUM()
 enum class EBlockPos
 {
@@ -41,6 +43,7 @@ enum class EBlockCategory
 	Undefined,
 	Floor,
 	Wall,
+	Object
 };
 
 USTRUCT(BlueprintType)
@@ -53,6 +56,9 @@ struct PROJECT_02_API FBuildData
 	
 	UPROPERTY()
 	EBlockCategory BlockCategory;
+
+	UPROPERTY()
+	bool IsMain;
 };
 
 USTRUCT(BlueprintType)
@@ -65,4 +71,16 @@ struct PROJECT_02_API FPlacedObjectData
 
 	UPROPERTY()
 	uint32 ObjectId;
+};
+
+USTRUCT(BlueprintType)
+struct PROJECT_02_API FBuildingInfo : public FTableRowBase
+{
+	GENERATED_USTRUCT_BODY()
+
+	FORCEINLINE TSubclassOf<ABuildingActor> GetBuildClass() const { return BuildClass; }
+
+private:
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABuildingActor> BuildClass;
 };

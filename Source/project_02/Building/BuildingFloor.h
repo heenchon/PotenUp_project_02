@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BuildingActor.h"
+#include "project_02/DataTable/BuildData.h"
 #include "BuildingFloor.generated.h"
 
 UCLASS()
@@ -12,10 +13,13 @@ class PROJECT_02_API ABuildingFloor : public ABuildingActor
 public:
 	ABuildingFloor();
 	
-	virtual void SetCenter() override;
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
+
+	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse = false);
+	TObjectPtr<USceneComponent> GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse = false);
+	TObjectPtr<USceneComponent> GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse = false);
 	
 	void UpdateWireframeBoxInfo();
 	float GetDurability() const {return Durability;}

@@ -79,20 +79,6 @@ ABuildingFloor::ABuildingFloor()
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
 
-void ABuildingFloor::DecreaseDurability()
-{
-	--Durability;
-	UE_LOG(LogTemp, Display, TEXT("남은 내구도: %f"), Durability);
-	if (Durability <= 0)
-	{
-		if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
-		{
-			UE_LOG(LogTemp,Display,TEXT("판자 데이터 삭제"));
-			PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this, true);
-		}
-	}
-}
-
 void ABuildingFloor::BeginPlay()
 {
 	Super::BeginPlay();
@@ -293,3 +279,55 @@ void ABuildingFloor::OnWallBodyBeginOverlap(UPrimitiveComponent* OverlappedCompo
 		OverlappedComponent->SetCollisionEnabled(ECollisionEnabled::Type::NoCollision);
 	}
 }
+
+TObjectPtr<UBoxComponent> ABuildingFloor::GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse)
+{
+	if (Direction == EBlockPos::East)
+	{
+		return IsReverse ? LeftBodyBox : RightBodyBox;
+	}
+	if (Direction == EBlockPos::West)
+	{
+		return IsReverse ? RightBodyBox : LeftBodyBox;
+	}
+	if (Direction == EBlockPos::South)
+	{
+		return IsReverse ? NorthBodyBox : SouthBodyBox;
+	}
+	return IsReverse ? SouthBodyBox : NorthBodyBox;
+}
+
+TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse)
+{
+	if (Direction == EBlockPos::East)
+	{
+		return IsReverse ? WestWallSceneVector : EastWallSceneVector;
+	}
+	if (Direction == EBlockPos::West)
+	{
+		return IsReverse ? EastWallSceneVector : WestWallSceneVector;
+	}
+	if (Direction == EBlockPos::South)
+	{
+		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
+	}
+	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
+}
+
+TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse)
+{
+	if (ComponentBox == EastWallBodyBox)
+	{
+		return IsReverse ? WestWallSceneVector : EastWallSceneVector;
+	}
+	if (ComponentBox == WestWallBodyBox)
+	{
+		return IsReverse ? EastWallSceneVector : WestWallSceneVector;
+	}
+	if (ComponentBox == SouthWallBodyBox)
+	{
+		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
+	}
+	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
+}
+
