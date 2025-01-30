@@ -5,6 +5,7 @@
 #include "project_02/DataTable/BuildData.h"
 #include "Raft.generated.h"
 
+class ABuildingWall;
 class ABuildingFloor;
 class ABuildingActor;
 class UBuoyancyComponent;
@@ -59,7 +60,11 @@ private:
 	UPROPERTY()
 	TObjectPtr<ABuildingActor> CenterBuildActor;
 
-	void InitializeAttachFloor(ABuildingActor* BuildActor);
+	void InitializeAttachFloor(ABuildingFloor* NewFloor);
 	
-	void InitializeAttachWall(ABuildingActor* BuildActor);
+	void InitializeAttachWall(ABuildingWall* NewWall);
+
+	void EnqueueNextBuildData(const TMap<FVector, FBuildData>& RecentMap, ABuildingActor* Target, TQueue<FVector>& RaftBuildBfs);
+	
+	void EnqueueNextFloorDataByWall(const TMap<FVector, FBuildData>& RecentMap, ABuildingActor* Target, TQueue<FVector>& RaftBuildBfs);
 };

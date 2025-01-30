@@ -154,31 +154,40 @@ void ARaft::InitializeData()
 		
 		return;
 	}
+	TMap<FVector, FBuildData>& RecentSaveRaftMap = PC->GetRecentSaveData()->RaftBuildMetaData;
 
-	// 처음 로드할 때 읽어오기 편하도록 처리함
-	// 최근 저장 정보를 기반으로 새로 실행 및 데이터 이전
-	PC->GetRecentSaveData()->RaftBuildMetaData.KeySort([](const FVector& A, const FVector& B)
+	// BFS를 이용해서 순차적으로 적용한다.
+	TQueue<FVector> RaftBuildBfs;
+	// 가장 중심점은 Zero이기 때문에, Zero Vector를 중심으로 처리한다.
+	RaftBuildBfs.Enqueue(FVector::Zero());
+
+	// 비어있지 않는 이상 계속 순차적으로 적용시킨다.
+	while (!RaftBuildBfs.IsEmpty())
 	{
-		// 피타고라스 정리를 이용해서 대각선의 길이로 거리를 판별한다.
-		const float MagnitudeA = FMath::Sqrt(FMath::Square(A.X) + FMath::Square(A.Y));
-		const float MagnitudeB = FMath::Sqrt(FMath::Square(B.X) + FMath::Square(B.Y));
-		return MagnitudeA < MagnitudeB;
-	});
-	
-	// 처음 시작이 아닌 경우는 전부 빌딩을 실행한다.
-	for (TTuple<FVector, FBuildData> BuildData : PC->GetRecentSaveData()->RaftBuildMetaData)
-	{
-		// 일단 뭐든 데이터 기반으로 액터들 스폰 처리
+		const FVector& TopVector = *RaftBuildBfs.Peek();
+
+		// 중복값이 들어가는 경우가 생길 수 밖에 없는데, 그런 경우는 위에서 한번 다시 걸러준다.
+		if (GetRaftBuildPointerData().Find(TopVector))
+		{
+			RaftBuildBfs.Pop();
+			continue;
+		}
+		
+		UE_LOG(LogTemp, Display, TEXT("Search Start Test Raft: %s"), *TopVector.ToString())
+		// C++의 구조화된 바인딩으로 JS에서 구조분해할당과 동일한 기능이다.
+		// 역시 JS는 C++ 기반이 맞다...
+		auto [BlockType, BlockCategory, IsMain] = RecentSaveRaftMap[TopVector];
+
 		ABuildingActor* NewBuildingActor =
 			GetWorld()->SpawnActor<ABuildingActor>(
 				FBuildingHelper::GetBuildingClass(GetWorld(),
-					BuildData.Value.BlockType,
-					BuildData.Value.BlockCategory), GetActorTransform());
+					BlockType,
+					BlockCategory), GetActorTransform());
 		// 처음에는 무조건 와이어프레임 상태이기 때문에 와이어프레임 상태를 종료해야 한다.
 		// 우선 메타 정보부터 다시 업데이트 처리를 한다.
-		UpdateBuildMetaData(BuildData.Key, NewBuildingActor, false, BuildData.Value.IsMain);
+		UpdateBuildMetaData(TopVector, NewBuildingActor, false, IsMain);
 
-		if (BuildData.Value.IsMain)
+		if (IsMain)
 		{
 			NewBuildingActor->AttachToActor(this, FAttachmentTransformRules::KeepWorldTransform);
 		} else
@@ -186,22 +195,90 @@ void ARaft::InitializeData()
 			NewBuildingActor->AttachToActor(CenterBuildActor, FAttachmentTransformRules::KeepWorldTransform);
 		}
 
-		// 이게 바닥이라는 가정하에 처리 로직 추가
-		InitializeAttachFloor(NewBuildingActor);
-
-		// 벽이라는 가정하에 처리하기.
-		InitializeAttachWall(NewBuildingActor);
+		EnqueueNextBuildData(RecentSaveRaftMap, NewBuildingActor, RaftBuildBfs);
+		
+		EnqueueNextFloorDataByWall(RecentSaveRaftMap, NewBuildingActor, RaftBuildBfs);
+		
+		RaftBuildBfs.Pop();
 	}
 }
 
-void ARaft::InitializeAttachFloor(ABuildingActor* BuildActor)
+void ARaft::EnqueueNextFloorDataByWall(const TMap<FVector, FBuildData>& RecentMap, ABuildingActor* Target, TQueue<FVector>& RaftBuildBfs)
 {
-	ABuildingFloor* NewFloor = Cast<ABuildingFloor>(BuildActor);
+	const FVector& TopVector = *RaftBuildBfs.Peek();
 	
-	if (!IsValid(NewFloor))
+	if (ABuildingWall* NewBuildingWall = Cast<ABuildingWall>(Target))
 	{
-		return;
+		InitializeAttachWall(NewBuildingWall);
+			
+		constexpr float MoveTo[2] = { -0.5, 0.5 };
+			
+		if (FMath::Fractional(TopVector.X) != 0)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				FVector TempPos = TopVector;
+				TempPos.Z += 1;
+				TempPos.X += MoveTo[i];
+				if (RecentMap.Find(TempPos) && !GetRaftBuildPointerData().Find(TempPos))
+				{
+					RaftBuildBfs.Enqueue(TempPos);
+				}
+			}
+		}
+			
+		if (FMath::Fractional(TopVector.Y) != 0)
+		{
+			for (int i = 0; i < 2; i++)
+			{
+				FVector TempPos = TopVector;
+				TempPos.Z += 1;
+				TempPos.Y += MoveTo[i];
+				if (RecentMap.Find(TempPos) && !GetRaftBuildPointerData().Find(TempPos))
+				{
+					RaftBuildBfs.Enqueue(TempPos);
+				}
+			}
+		}
 	}
+}
+
+
+void ARaft::EnqueueNextBuildData(const TMap<FVector, FBuildData>& RecentMap, ABuildingActor* Target, TQueue<FVector>& RaftBuildBfs)
+{
+	const FVector& TopVector = *RaftBuildBfs.Peek();
+	
+	if (ABuildingFloor* NewBuildingFloor = Cast<ABuildingFloor>(Target))
+	{
+		// 우선 가져온 좌표를 기반으로 부착을 진행한다.
+		InitializeAttachFloor(NewBuildingFloor);
+
+		// 아래에서는 동일한 높이의 상하좌우 바닥 값에 대한 검증과
+		// 내 블럭을 기준으로 근처에 설치할 벽이 있는지 검증한다.
+		// 벽은 상하좌우 다 검사할 필요 없이, 상, 우 기준으로만 검증해도
+		// 어차피 어디선가 무조건 설치되기 때문에 무리할 필요 없이 처리해도 무방하다.
+		// 이 서비스에서 벽의 상하좌우에 대해 예민하게 처리하지 않기 때문이다.
+		// 오히려 중간 점이기 때문에 크게 신경쓸 필요가 없다.
+		constexpr float CheckToX[8] = { 1, -1, 0, 0, 0.5, -0.5, 0, 0 };
+		constexpr float CheckToY[8] = { 0, 0, 1, -1, 0, 0, 0.5, -0.5 };
+
+		for (int i = 0; i < 8; i++)
+		{
+			FVector TempPos = TopVector;
+			TempPos.X += CheckToX[i];
+			TempPos.Y += CheckToY[i];
+			// 최근 저장된 데이터에는 존재하지만, 현재 설치되지 않은 정보에 대해서 처리
+			if (RecentMap.Find(TempPos) && !GetRaftBuildPointerData().Find(TempPos))
+			{
+				RaftBuildBfs.Enqueue(TempPos);
+			}
+		}
+	}
+}
+
+
+void ARaft::InitializeAttachFloor(ABuildingFloor* NewFloor)
+{
 	// 당장 와이어 프레임 상태는 해제한다.
 	NewFloor->SetWireframe(false);
 
@@ -211,7 +288,8 @@ void ARaft::InitializeAttachFloor(ABuildingActor* BuildActor)
 	constexpr EBlockPos MoveTo[4] = { EBlockPos::North,
 		EBlockPos::South, EBlockPos::East, EBlockPos::West };
 
-	// 상하좌우를 둘러보는 로직
+	// 상하좌우를 둘러보는 로직 여기서 이미 발견된 경우
+	// 즉 부착할 바닥이 옆에 있는 경우라면 밑으로 내려가지않는다.
 	for (int i = 0; i < 4; i++)
 	{
 		FVector TempPos = NewFloor->GetBuildPos();
@@ -235,21 +313,41 @@ void ARaft::InitializeAttachFloor(ABuildingActor* BuildActor)
 			ParentFloor->UpdateWireframeBoxInfo();
 			NewFloor->UpdateWireframeBoxInfo();
 			// 하나라도 걸리면 더 이상 계산할 필요가 없다.
-			break;
+			return;
 		}
+	}
+
+	// 주변에 바닥이 없다면 벽에 부착을 해야만 한다.
+	constexpr float CheckToWallX[4] = { 0.5, -0.5, 0, 0 };
+	constexpr float CheckToWallY[4] = { 0, 0, 0.5, -0.5 };
+	constexpr EBlockPos MoveToWall[4] = { EBlockPos::North,
+		EBlockPos::South, EBlockPos::North, EBlockPos::South };
+
+	for (int i = 0; i < 4; i++)
+	{
+		// 현재 설치된 벽 정보를 찾는 것이 목적
+		FVector TempPos = NewFloor->GetBuildPos();
+		TempPos.X += CheckToWallX[i];
+		TempPos.Y += CheckToWallY[i];
+		TempPos.Z -= 1;
+
+		const ABuildingWall* TargetWall = Cast<ABuildingWall>(GetRaftBuildPointerData().FindRef(TempPos));
+		if (!TargetWall)
+		{
+			continue;
+		}
+
+		// Target이 있다라는 의미는 즉 벽이 있다라는 의미다.
+		// 즉 벽에 맞춰서 그 벽의 앞 뒤에 붙여주면 된다.
+		NewFloor->SetActorLocation(TargetWall
+			->GetBoxByDirection(MoveToWall[i], true)->GetComponentLocation());
 	}
 }
 
-void ARaft::InitializeAttachWall(ABuildingActor* BuildActor)
+void ARaft::InitializeAttachWall(ABuildingWall* NewWall)
 {
-	ABuildingWall* NewWall = Cast<ABuildingWall>(BuildActor);
-	
-	if (!IsValid(NewWall))
-	{
-		return;
-	}
 	// 당장 와이어 프레임 상태는 해제한다.
-	// NewWall->SetWireframe(false);
+	NewWall->SetWireframe(false);
 	
 	// 부착시킬 앞 뒤로 이동 체크하기 위한 상수 값들
 	constexpr float CheckToX[4] = { 0.5, -0.5, 0, 0 };
@@ -272,7 +370,6 @@ void ARaft::InitializeAttachWall(ABuildingActor* BuildActor)
 			if (GetRaftBuildPointerData().FindRef(TempPos))
 			{
 				ABuildingFloor* ParentFloor = Cast<ABuildingFloor>(GetRaftBuildPointerData()[TempPos]);
-					
 				// 주변에 부착할 부모 액터를 찾았으면, 그 액터의 상하좌우 중 부착할 컴포넌트 위치를
 				// 가져와서 World Location을 변경해준다.
 				// 다만 실제 부착할 액터는 방향의 반대 방향 소켓에 부착을 시켜줘야 한다.
@@ -280,6 +377,8 @@ void ARaft::InitializeAttachWall(ABuildingActor* BuildActor)
 				->GetWallPlaceVectorByDirection(MoveTo[i], true)->GetComponentLocation());
 				NewWall->SetActorRotation(ParentFloor
 					->GetWallPlaceVectorByDirection(MoveTo[i], true)->GetComponentRotation());
+				
+				ParentFloor->UpdateWireframeBoxInfo();
 			}
 		}
 	}

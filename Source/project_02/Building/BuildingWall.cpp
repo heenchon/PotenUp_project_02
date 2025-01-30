@@ -97,3 +97,13 @@ void ABuildingWall::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuil
 		}
 	}
 }
+
+TObjectPtr<UBoxComponent> ABuildingWall::GetBoxByDirection(
+	const EBlockPos Direction, const bool IsReverse) const
+{
+	if (Direction == EBlockPos::North)
+	{
+		return IsReverse ? BackwardFloorBodyBox : ForwardFloorBodyBox;
+	}
+	return IsReverse ? ForwardFloorBodyBox : BackwardFloorBodyBox;
+}
