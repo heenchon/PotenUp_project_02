@@ -252,6 +252,7 @@ void UBuildingComponent::SpawnFrameWall(const FHitResult& HitResult)
 	
 	const USceneComponent* Target =
 			ParentFloor->GetWallPlaceVectorByComponentBox(HitResult.GetComponent());
+	// 실제로 설치를 원활하게 하려면 반대로 설치하도록 해야한다.
 	
 	if (ABuildingWall* NewWireframe = GetWorld()->SpawnActor<ABuildingWall>(
 			FBuildingHelper::GetBuildingClass(

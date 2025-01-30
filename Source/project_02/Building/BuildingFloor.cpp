@@ -4,7 +4,6 @@
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/BuildData.h"
-#include "project_02/Helper/EnumHelper.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/HY/Raft/Raft.h"
 
@@ -48,7 +47,7 @@ ABuildingFloor::ABuildingFloor()
 	NorthWallSceneVector = CreateDefaultSubobject<USceneComponent>("North Wall Scene Vector");
 	NorthWallSceneVector->SetupAttachment(GetRootComponent());
 	NorthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
-	NorthWallSceneVector->SetRelativeRotation({0, 90, 0});
+	NorthWallSceneVector->SetRelativeRotation({0, -90, 0});
 	
 	SouthWallBodyBox = CreateDefaultSubobject<UBoxComponent>("South Wall Body Box");
 	SouthWallBodyBox->SetupAttachment(GetRootComponent());
@@ -59,7 +58,7 @@ ABuildingFloor::ABuildingFloor()
 	SouthWallSceneVector = CreateDefaultSubobject<USceneComponent>("South Wall Scene Vector");
 	SouthWallSceneVector->SetupAttachment(GetRootComponent());
 	SouthWallSceneVector->SetRelativeLocation({-85.526552, 0, 120});
-	SouthWallSceneVector->SetRelativeRotation({0, 90, 0});
+	SouthWallSceneVector->SetRelativeRotation({0, -90, 0});
 	
 	EastWallBodyBox = CreateDefaultSubobject<UBoxComponent>("East Wall Body Box");
 	EastWallBodyBox->SetupAttachment(GetRootComponent());
@@ -70,7 +69,7 @@ ABuildingFloor::ABuildingFloor()
 	EastWallSceneVector = CreateDefaultSubobject<USceneComponent>("East Wall Scene Vector");
 	EastWallSceneVector->SetupAttachment(GetRootComponent());
 	EastWallSceneVector->SetRelativeLocation({0, -85.526552, 120});
-	EastWallSceneVector->SetRelativeRotation({0, 0, 0});
+	EastWallSceneVector->SetRelativeRotation({0, 180, 0});
 	
 	WestWallBodyBox = CreateDefaultSubobject<UBoxComponent>("West Wall Body Box");
 	WestWallBodyBox->SetupAttachment(GetRootComponent());
@@ -80,7 +79,7 @@ ABuildingFloor::ABuildingFloor()
 
 	WestWallSceneVector = CreateDefaultSubobject<USceneComponent>("West Wall Scene Vector");
 	WestWallSceneVector->SetRelativeLocation({0, -85.526552, 120});
-	WestWallSceneVector->SetRelativeRotation({0, 0, 0});
+	WestWallSceneVector->SetRelativeRotation({0, 180, 0});
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
 
