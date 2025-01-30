@@ -185,7 +185,6 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 			return;
 		}
 		
-		UE_LOG(LogTemp, Display, TEXT("탐색 시작 좌표: %s"), *GetBuildPos().ToString())
 		constexpr int MoveToX[4] = { 0, 0, 1, -1 };
 		constexpr int MoveToY[4] = { 1, -1, 0, 0 };
 		constexpr EBlockPos MoveTo[4] = { EBlockPos::East,
@@ -221,9 +220,6 @@ void ABuildingFloor::UpdateWireframeBoxInfo()
 				const ABuildingActor* FoundBuild = PC->GetPlayerRaft()->GetRaftBuildPointerData().FindRef(TempPos);
 				const bool IsAlreadyBound = IsValid(FoundBuild);
 			
-				UE_LOG(LogTemp, Display, TEXT("%s 탐색 결과: %d"),
-					*FEnumHelper::GetClassEnumKeyAsString(MoveTo[i]), IsAlreadyBound)
-
 				ABuildingActor* SetBuild = PC->GetPlayerRaft()->GetRaftBuildPointerData().FindRef(SearchPos);
 				if (const ABuildingFloor* SearchBuildFloorResult = Cast<ABuildingFloor>(SetBuild))
 				{

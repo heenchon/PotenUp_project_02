@@ -331,7 +331,7 @@ void ARaft::InitializeAttachFloor(ABuildingFloor* NewFloor)
 		TempPos.Y += CheckToWallY[i];
 		TempPos.Z -= 1;
 
-		const ABuildingWall* TargetWall = Cast<ABuildingWall>(GetRaftBuildPointerData().FindRef(TempPos));
+		ABuildingWall* TargetWall = Cast<ABuildingWall>(GetRaftBuildPointerData().FindRef(TempPos));
 		if (!TargetWall)
 		{
 			continue;
@@ -341,6 +341,10 @@ void ARaft::InitializeAttachFloor(ABuildingFloor* NewFloor)
 		// 즉 벽에 맞춰서 그 벽의 앞 뒤에 붙여주면 된다.
 		NewFloor->SetActorLocation(TargetWall
 			->GetBoxByDirection(MoveToWall[i], true)->GetComponentLocation());
+		// 선택된 벽도 주변에 블록이 있는지 확인하고 업데이트 처리를 해줘야 한다.
+		TargetWall->UpdateWireframeBoxInfo();
+
+		return;
 	}
 }
 
@@ -377,7 +381,8 @@ void ARaft::InitializeAttachWall(ABuildingWall* NewWall)
 				->GetWallPlaceVectorByDirection(MoveTo[i], true)->GetComponentLocation());
 				NewWall->SetActorRotation(ParentFloor
 					->GetWallPlaceVectorByDirection(MoveTo[i], true)->GetComponentRotation());
-				
+
+				NewWall->UpdateWireframeBoxInfo();
 				ParentFloor->UpdateWireframeBoxInfo();
 			}
 		}

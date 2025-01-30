@@ -218,9 +218,17 @@ void UBuildingComponent::SpawnFrameFloor(const FHitResult& HitResult)
 	{
 		// 우선 값은 바로 할당하기
 		NewWireframe->SetWireframe(true);
+		// 우선은 해당 위치에 바로 부착하기.
 		NewWireframe->AttachToComponent(
 			HitResult.GetComponent(),
 			FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+
+		// 벽의 위치에 따라서 바닥이 돌아가서 설치되는 경우가 있어 그것을 방지하고자
+		// Yaw 값을 0으로 강제로 변경시켜 바닥이 무조건 앞을 바라보게 처리한다.
+		FRotator WireframeRotator = NewWireframe->GetActorRotation();
+		WireframeRotator.Yaw = 0;
+		NewWireframe->SetActorRotation(WireframeRotator);
+		
 		NewWireframe->SetWireframeMaterial(
 			CanBuildBlockBuild(NewWireframe) ?
 			WireframeMaterial : WireframeBlockMaterial);
