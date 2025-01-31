@@ -3,6 +3,7 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "project_02/DataTable/CraftingData.h"
+#include "project_02/DataTable/CreditData.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "BaseGameInstance.generated.h"
 
@@ -32,7 +33,10 @@ private:
 
 	UPROPERTY()
 	TMap<FString, TSubclassOf<ABuildingActor>> BuildingInfoMap;
-
+	
+	UPROPERTY()
+	TArray<FCreditData> CreditDataList;
+	
 	void LoadItemData();
 
 	void LoadCraftingData();
