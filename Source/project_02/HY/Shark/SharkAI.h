@@ -73,7 +73,6 @@ private:
 	FVector StartLocation;
 	FVector TargetLocation;
 
-	FTimerHandle DestroyTimerHandle;
 	FRotator BiteRotation = FRotator(0, 0, 0);
 
 	
@@ -102,9 +101,12 @@ private:
 	FVector NewRunawayLocation(FVector originLoc, float maxDist, float minDist);
 	FVector NewIdleLocation();
 	ABuildingFloor* GetFloor();
+	FTimerHandle SharkTimerHandle;
 	bool IsAttackableFloor(const TArray<FVector>& positionArr ,const FVector& floorPos);
 	void DamageFloor();
 	void SetBiteRotation(const FVector& dir);
+	void Died();
+	void Respawn();
 };
 
 

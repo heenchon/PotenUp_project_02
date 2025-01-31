@@ -10,4 +10,5 @@ enum class ESharkState : uint8
 	AttackRaft UMETA(DisplayName = "AttackRaft"),
 	RunAway UMETA(DisplayName = "RunAway"),
 	Turning UMETA(DisplayName = "Turning"),
+	Dead UMETA(DisplayName = "Dead")
 };

@@ -78,7 +78,6 @@ ABuildingFloor::ABuildingFloor()
 	WestWallSceneVector = CreateDefaultSubobject<USceneComponent>("West Wall Scene Vector");
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
-
 void ABuildingFloor::BeginPlay()
 {
 	Super::BeginPlay();
@@ -168,19 +167,6 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 		{
 			ChildFloor->UpdateWireframeBoxInfo();
 		}
-	}
-}
-
-void ABuildingFloor::SetCenter()
-{
-	Super::SetCenter();
-	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
-	{
-		if (!PC->GetPlayerRaft())
-		{
-			return;
-		}
-		PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this);
 	}
 }
 
@@ -329,5 +315,19 @@ TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByComponentBox(con
 		return IsReverse ? NorthWallSceneVector : SouthWallSceneVector;
 	}
 	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
+}
+
+void ABuildingFloor::DecreaseDurability()
+{
+	--Durability;
+	UE_LOG(LogTemp, Display, TEXT("남은 내구도: %f"), Durability);
+	if (Durability <= 0)
+	{
+		if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+		{
+			UE_LOG(LogTemp,Display,TEXT("판자 데이터 삭제"));
+			PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this, true);
+		}
+	}
 }
 
