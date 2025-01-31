@@ -22,7 +22,7 @@ public:
 	TObjectPtr<USceneComponent> GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse = false);
 	
 	void UpdateWireframeBoxInfo();
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -66,4 +66,6 @@ private:
 		AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep,
 		const FHitResult& SweepResult);
+
+	float Durability = 3.0f;
 };

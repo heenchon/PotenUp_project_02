@@ -82,7 +82,6 @@ ABuildingFloor::ABuildingFloor()
 	WestWallSceneVector->SetRelativeRotation({0, 180, 0});
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
-
 void ABuildingFloor::BeginPlay()
 {
 	Super::BeginPlay();
@@ -317,3 +316,4 @@ TObjectPtr<USceneComponent> ABuildingFloor::GetWallPlaceVectorByComponentBox(con
 	}
 	return IsReverse ? SouthWallSceneVector : NorthWallSceneVector;
 }
+
