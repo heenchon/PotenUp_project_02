@@ -30,28 +30,33 @@ public:
 	USceneComponent* MouthPosition;
 
 	//상어 속성
+	/**기본 이동 속도*/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkBasicSpeed = 1000.0f;
+	/**도망가거나, 공격하러 갈 때 이동 속도*/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkAttackSpeed = 1500.0f;
+	/**바닥을 부수러 가는 주기*/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float SharkAttackDuration = 15.0f;
+	/**플레이어 주변을 배회할 때, 랜덤 위치로 이동하는 주기*/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float IdleMoveDuration = 7.0f;
+	/**바닥을 물고 있을 때, 판자 내구도가 줄어드는 시간*/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float FloorDestroyDuration = 5.0f;
+	float FloorDestroyDuration = 3.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float HealthPoint = 20.0f;
+	float HealthPoint = 30.0f;
 
-	//타겟 도달 감지 범위
+	/** 목표 위치에 도달 여부를 감지할 기준*/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float DetectionDistance = 400.0f;
+	float DetectionDistance = 250.0f;
 
-	//도망 거리 범위
+	/** 도망갈 때 랜덤 위치 범위*/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	float MaxDist = 6000.0f;
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
-	float MinDist = 3000.0f;
+	float MinDist = 4000.0f;
 
 
 private:
@@ -74,7 +79,7 @@ private:
 	FVector TargetLocation;
 
 	FRotator BiteRotation = FRotator(0, 0, 0);
-
+	FVector BiteOffset = FVector(0, 0, 0);
 	
 protected:
 	// Called when the game starts or when spawned

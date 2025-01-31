@@ -93,7 +93,6 @@ void ASharkAI::OnMyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 			UE_LOG(LogTemp,Display,TEXT("%d대 맞음"), CurHitCount);
 			if (CurHitCount >= 3)
 			{
-				CurHitCount = 0;
 				GetWorld()->GetTimerManager().ClearTimer(SharkTimerHandle);
 				TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 				NextState = ESharkState::RunAway;
@@ -169,7 +168,8 @@ void ASharkAI::MoveToRaft(float DeltaTime)
 	if (FVector::Dist(curLoc,targetLoc) < DetectionDistance)
 	{
 		//타이머로 배 파괴 함수 실행.
-		GetWorld()->GetTimerManager().SetTimer(SharkTimerHandle,this, &ASharkAI::DamageFloor,FloorDestroyDuration,true);
+		GetWorld()->GetTimerManager().SetTimer(SharkTimerHandle,this,&ASharkAI::DamageFloor,FloorDestroyDuration,true);
+		CurHitCount = 0;
 		SetActorRotation(BiteRotation);
 		ChangeState(ESharkState::AttackRaft);
 	}
@@ -177,7 +177,7 @@ void ASharkAI::MoveToRaft(float DeltaTime)
 
 void ASharkAI::AttackRaft(float DeltaTime)
 {
-	SetActorLocation(Floor->GetActorLocation() - MouthPosition->GetComponentLocation()+ GetActorLocation());
+	SetActorLocation(Floor->GetActorLocation() - MouthPosition->GetComponentLocation()+ GetActorLocation() + BiteOffset);
 }
 
 void ASharkAI::DamageFloor()
@@ -186,6 +186,7 @@ void ASharkAI::DamageFloor()
 	
 	if (Floor->GetCurrentDurability() == 0)
 	{
+		//배가 부서지면, Runaway
 		GetWorld()->GetTimerManager().ClearTimer(SharkTimerHandle);
 		TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 		NextState = ESharkState::RunAway;
@@ -311,7 +312,7 @@ ABuildingFloor* ASharkAI::GetFloor()
 		}
 		if (IsAttackableFloor(positionArr, pos))
 		{
-			UE_LOG(LogTemp, Display, TEXT("공격할 판자 pos X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
+			// UE_LOG(LogTemp, Display, TEXT("공격할 판자 pos X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
 			return floor;
 		}
 	}
@@ -349,25 +350,29 @@ bool ASharkAI::IsAttackableFloor(const TArray<FVector>& positionArr, const FVect
 
 void ASharkAI::SetBiteRotation(const FVector& dir)
 {
-	if (dir == FVector(0, 1, 0)) 
-	{
-		// UE_LOG(LogTemp, Display, TEXT("동쪽이 비었음."));
-		BiteRotation = FRotator(30, -90, 0);
-	}
-	else if (dir == FVector(-1, 0, 0))
+	if (dir == FVector(-1, 0, 0))
 	{
 		// UE_LOG(LogTemp, Display, TEXT("남쪽이 비었음."));
 		BiteRotation = FRotator(30, 0, 0);
-	}
-	else if (dir == FVector(1, 0, 0))
-	{
-		// UE_LOG(LogTemp, Display, TEXT("북쪽이 비었음."));
-		BiteRotation = FRotator(30, 180, 0);
+		BiteOffset = FVector(-90, 0, 0);
 	}
 	else if (dir == FVector(0, -1, 0))
 	{
 		// UE_LOG(LogTemp, Display, TEXT("서쪽이 비었음."));
 		BiteRotation = FRotator(30, 90, 0);
+		BiteOffset = FVector(0, -90, 0);
+	}
+	else if (dir == FVector(0, 1, 0)) 
+	{
+		// UE_LOG(LogTemp, Display, TEXT("동쪽이 비었음."));
+		BiteRotation = FRotator(30, -90, 0);
+		BiteOffset = FVector(0, 90, 0);
+	}
+	else if (dir == FVector(1, 0, 0))
+	{
+		// UE_LOG(LogTemp, Display, TEXT("북쪽이 비었음."));
+		BiteRotation = FRotator(30, 180, 0);
+		BiteOffset = FVector(90, 0, 0);
 	}
 }
 
@@ -385,6 +390,8 @@ void ASharkAI::Died()
 void ASharkAI::Respawn()
 {
 	UE_LOG(LogTemp,Display,TEXT("상어 리스폰"));
+	GetWorld()->GetTimerManager().ClearTimer(SharkTimerHandle);
+	HealthPoint = 30.0f;
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 	TargetLocation = NewIdleLocation();
