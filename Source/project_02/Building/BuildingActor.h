@@ -21,6 +21,8 @@ public:
 	
 	void SetWireframe(const bool NewIsWireframe);
 
+	void FloorHide();
+
 	virtual void OnWireframeActive();
 	virtual void OnWireframeInactive();
 	virtual void SetCenter();

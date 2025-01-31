@@ -5,6 +5,8 @@
 #include "project_02/DataTable/BuildData.h"
 #include "BuildingFloor.generated.h"
 
+class ABrokenFloor;
+
 UCLASS()
 class PROJECT_02_API ABuildingFloor : public ABuildingActor
 {
@@ -20,10 +22,15 @@ public:
 	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse = false);
 	TObjectPtr<USceneComponent> GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse = false);
 	TObjectPtr<USceneComponent> GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse = false);
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<ABrokenFloor> BrokenFloorClass;
 	
 	void UpdateWireframeBoxInfo();
 	float GetDurability() const {return Durability;}
 	void DecreaseDurability();
+	float GetIsBroken() const {return bIsBroken;}
+	void SpawnBrokenFloor();
 
 protected:
 	virtual void BeginPlay() override;
@@ -70,4 +77,5 @@ private:
 		const FHitResult& SweepResult);
 
 	float Durability = 3.0f;
+	bool bIsBroken = false;
 };

@@ -1,5 +1,6 @@
 ﻿#include "BuildingFloor.h"
 
+#include "BrokenFloor.h"
 #include "BuildingWall.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
@@ -78,6 +79,7 @@ ABuildingFloor::ABuildingFloor()
 	WestWallSceneVector = CreateDefaultSubobject<USceneComponent>("West Wall Scene Vector");
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
 }
+
 void ABuildingFloor::BeginPlay()
 {
 	Super::BeginPlay();
@@ -325,9 +327,19 @@ void ABuildingFloor::DecreaseDurability()
 	{
 		if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
 		{
-			UE_LOG(LogTemp,Display,TEXT("판자 데이터 삭제"));
-			PC->GetPlayerRaft()->UpdateBuildMetaData(GetBuildPos(), this, true);
+			FloorHide();
+			SpawnBrokenFloor();
+			bIsBroken = true;
 		}
 	}
 }
 
+void ABuildingFloor::SpawnBrokenFloor()
+{
+	AActor* ChildActor = GetWorld()->SpawnActor<ABrokenFloor>(BrokenFloorClass);
+
+	if (ChildActor)
+	{
+		ChildActor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
+	}
+}

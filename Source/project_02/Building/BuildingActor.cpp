@@ -95,6 +95,11 @@ void ABuildingActor::SetWireframe(const bool NewIsWireframe)
 	}
 }
 
+void ABuildingActor::FloorHide()
+{
+	BodyMesh->SetVisibility(false);
+}
+
 void ABuildingActor::SetWireframeMaterial(UMaterial* NewMaterial)
 {
 	for (int i = 0; i < BodyMesh->GetMaterials().Num(); i++)
