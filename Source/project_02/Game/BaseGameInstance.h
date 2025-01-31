@@ -38,4 +38,6 @@ private:
 	void LoadCraftingData();
 
 	void LoadBuildingData();
+
+	void LoadCreditData();
 };

@@ -1,5 +1,4 @@
 ﻿#include "BaseGameInstance.h"
-
 #include "project_02/DataTable/BuildData.h"
 #include "project_02/DataTable/CraftingData.h"
 #include "project_02/DataTable/ItemInfoData.h"
@@ -9,6 +8,7 @@ UBaseGameInstance::UBaseGameInstance()
 	LoadItemData();
 	LoadCraftingData();
 	LoadBuildingData();
+	LoadCreditData();
 }
 
 void UBaseGameInstance::Init()
@@ -63,5 +63,31 @@ void UBaseGameInstance::LoadBuildingData()
 			const FBuildingInfo* Data = BuildingInfoDataTable.Object->FindRow<FBuildingInfo>(RowNames[i], "");
 			BuildingInfoMap.Add(RowNames[i].ToString(), Data->GetBuildClass());
 		}
+	}
+}
+
+void UBaseGameInstance::LoadCreditData()
+{
+	const FString ProjectDir = FPaths::ProjectDir();
+	const FString FilePath = FPaths::Combine(ProjectDir, TEXT("history.csv"));
+	
+	if (!FPaths::FileExists(FilePath))
+	{
+		return;
+	}
+
+	TArray<FString> CreditData;
+
+	const bool IsLoadSuccess = FFileHelper::LoadFileToStringArray(CreditData, *FilePath);
+	if (!IsLoadSuccess)
+	{
+		uint32 ErrorMsg = FPlatformMisc::GetLastError();
+		UE_LOG(LogTemp, Error, TEXT("Failed to load file: %s. Error: %d"), *FilePath, ErrorMsg);
+		return;	
+	}
+
+	for (FString Data : CreditData)
+	{
+		UE_LOG(LogTemp, Display, TEXT("Test Hi: %s"), *Data);
 	}
 }
