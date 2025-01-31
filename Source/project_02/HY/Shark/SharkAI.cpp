@@ -304,9 +304,9 @@ ABuildingFloor* ASharkAI::GetFloor()
 		ABuildingFloor* floor = Cast<ABuildingFloor>(raft->GetRaftBuildPointerData().FindRef(pos));
 		if (!floor)
 		{
-			return nullptr;
+			continue;
 		}
-		if (floor->GetIsMain())
+		if (floor->GetIsMain() || floor->GetCurrentDurability() == 0)
 		{
 			continue;
 		}
