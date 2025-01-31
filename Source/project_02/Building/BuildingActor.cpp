@@ -117,8 +117,9 @@ void ABuildingActor::AddDurability(const int8 AddValue)
 		return;
 	}
 	
-	// 음수 방지용
-	CurrentDurability = FMath::Max(CurrentDurability - AddValue, 0);
+	// 해당 로직 -> (현재 내구도 + 추가할 내구도)와 0 중에 더 큰 값을 반환하지만
+	// 그렇다고 최대 내구도 보다는 커지지 않게 하기 위한 처리
+	CurrentDurability = FMath::Min(FMath::Max<uint8>(CurrentDurability + AddValue, 0), MaxDurability);
 	UE_LOG(LogTemp, Display, TEXT("남은 내구도: %d"), CurrentDurability);
 
 	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
