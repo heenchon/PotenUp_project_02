@@ -32,4 +32,10 @@ private:
 
 	UPROPERTY()
 	TMap<FString, TSubclassOf<ABuildingActor>> BuildingInfoMap;
+
+	void LoadItemData();
+
+	void LoadCraftingData();
+
+	void LoadBuildingData();
 };

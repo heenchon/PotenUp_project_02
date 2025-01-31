@@ -6,6 +6,17 @@
 
 UBaseGameInstance::UBaseGameInstance()
 {
+	LoadItemData();
+	LoadCraftingData();
+	LoadBuildingData();
+}
+
+void UBaseGameInstance::Init()
+{
+}
+
+void UBaseGameInstance::LoadItemData()
+{
 	const static ConstructorHelpers::FObjectFinder<UDataTable>
 		ItemInfoDataTable(TEXT("/Script/Engine.DataTable'/Game/Sangmin/DataTable/DT_ItemData.DT_ItemData'"));
 
@@ -19,7 +30,10 @@ UBaseGameInstance::UBaseGameInstance()
 			ItemInfoList.Add(*InfoItem);
 		}
 	}
+}
 
+void UBaseGameInstance::LoadCraftingData()
+{
 	const static ConstructorHelpers::FObjectFinder<UDataTable>
 		CraftingInfoDataTable(TEXT("/Script/Engine.DataTable'/Game/Sangmin/DataTable/DT_CraftingData.DT_CraftingData'"));
 	
@@ -33,7 +47,10 @@ UBaseGameInstance::UBaseGameInstance()
 			CraftingInfoMap.Add(FCString::Atoi(*RowNames[i].ToString()), *Data);
 		}
 	}
+}
 
+void UBaseGameInstance::LoadBuildingData()
+{
 	const static ConstructorHelpers::FObjectFinder<UDataTable>
 		BuildingInfoDataTable(TEXT("/Script/Engine.DataTable'/Game/Sangmin/DataTable/DT_BuildingInfo.DT_BuildingInfo'"));
 
@@ -47,8 +64,4 @@ UBaseGameInstance::UBaseGameInstance()
 			BuildingInfoMap.Add(RowNames[i].ToString(), Data->GetBuildClass());
 		}
 	}
-}
-
-void UBaseGameInstance::Init()
-{
 }
