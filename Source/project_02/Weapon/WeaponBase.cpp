@@ -44,8 +44,8 @@ void AWeaponBase::OnOverlapAttackCollision(UPrimitiveComponent* OverlappedCompon
 	{
 		return;
 	}
-	UGameplayStatics::ApplyDamage(OtherActor, Damage,
-		nullptr, GetOwner(),
-		UDamageType::StaticClass());
+	// UGameplayStatics::ApplyDamage(OtherActor, Damage,
+	// 	nullptr, GetOwner(),
+	// 	UDamageType::StaticClass());
 }
 
