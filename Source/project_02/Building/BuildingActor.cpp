@@ -1,5 +1,10 @@
 ﻿#include "BuildingActor.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "project_02/Helper/BuildingHelper.h"
+#include "project_02/Player/BasePlayerController.h"
+#include "project_02/HY/Raft/Raft.h"
+
 
 ABuildingActor::ABuildingActor()
 {
@@ -17,6 +22,9 @@ void ABuildingActor::BeginPlay()
 	Super::BeginPlay();
 	OriginMaterials = BodyMesh->GetMaterials();
 
+	// 값 초기화
+	CurrentDurability = MaxDurability;
+	
 	if (IsMain)
 	{
 		OnWireframeInactive();
@@ -30,15 +38,6 @@ void ABuildingActor::BeginPlay()
 	{
 		OnWireframeActive();
 	}
-}
-
-float ABuildingActor::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
-{
-	if (!IsMain)
-	{
-		Destroy();
-	}
-	return DamageAmount;
 }
 
 void ABuildingActor::SetCenter()
@@ -111,6 +110,22 @@ void ABuildingActor::SetDefaultMaterial()
 	}
 }
 
+void ABuildingActor::AddDurability(const int8 AddValue)
+{
+	if (CurrentDurability == 0)
+	{
+		return;
+	}
+	
+	// 음수 방지용
+	CurrentDurability = FMath::Max(CurrentDurability - AddValue, 0);
+	UE_LOG(LogTemp, Display, TEXT("남은 내구도: %d"), CurrentDurability);
 
-
-
+	if (const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+	{
+		// 내구도에 따른 처리 이후에 동작시키기
+		// TODO: 내구성 정보를 저장하는 기능을 추가한다.
+		// PC->GetPlayerRaft()->UpdateBuildMetaData(
+		// 	GetBuildPos(), this, true);
+	}
+}

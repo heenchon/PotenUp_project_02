@@ -169,7 +169,7 @@ void ASharkAI::MoveToRaft(float DeltaTime)
 	if (FVector::Dist(curLoc,targetLoc) < DetectionDistance)
 	{
 		//타이머로 배 파괴 함수 실행.
-		GetWorld()->GetTimerManager().SetTimer(SharkTimerHandle,this,&ASharkAI::DamageFloor,FloorDestroyDuration,true);
+		GetWorld()->GetTimerManager().SetTimer(SharkTimerHandle,this, &ASharkAI::DamageFloor,FloorDestroyDuration,true);
 		SetActorRotation(BiteRotation);
 		ChangeState(ESharkState::AttackRaft);
 	}
@@ -182,19 +182,15 @@ void ASharkAI::AttackRaft(float DeltaTime)
 
 void ASharkAI::DamageFloor()
 {
-	Floor->DecreaseDurability();
+	Floor->AddDurability(-1);
 	
-	if (Floor->GetDurability() <= 0.0f)
+	if (Floor->GetCurrentDurability() == 0)
 	{
-		//배가 부서지면, Runaway
-		Floor->Destroy();
 		GetWorld()->GetTimerManager().ClearTimer(SharkTimerHandle);
-		
 		TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 		NextState = ESharkState::RunAway;
 		ChangeState(ESharkState::Turning);
 	}
-	
 }
 
 void ASharkAI::MoveToPlayer(float DeltaTime)
@@ -304,7 +300,11 @@ ABuildingFloor* ASharkAI::GetFloor()
 	//공격 가능한 판자 찾을 때까지 반복
 	for (FVector& pos : positionArr)
 	{
-		ABuildingFloor* floor = Cast<ABuildingFloor>(raft->GetRaftBuildPointerData()[pos]);
+		ABuildingFloor* floor = Cast<ABuildingFloor>(raft->GetRaftBuildPointerData().FindRef(pos));
+		if (!floor)
+		{
+			return nullptr;
+		}
 		if (floor->GetIsMain())
 		{
 			continue;

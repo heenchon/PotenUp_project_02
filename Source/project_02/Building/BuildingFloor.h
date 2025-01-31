@@ -22,8 +22,6 @@ public:
 	TObjectPtr<USceneComponent> GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse = false);
 	
 	void UpdateWireframeBoxInfo();
-	float GetDurability() const {return Durability;}
-	void DecreaseDurability();
 
 protected:
 	virtual void BeginPlay() override;
