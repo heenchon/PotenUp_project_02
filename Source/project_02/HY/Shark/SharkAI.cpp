@@ -38,7 +38,6 @@ void ASharkAI::BeginPlay()
 	TargetLocation = NewIdleLocation();
 	NextState = ESharkState::Idle;
 	CurrentState = ESharkState::Turning;
-	
 }
 
 // Called every frame
@@ -71,6 +70,8 @@ void ASharkAI::Tick(float DeltaTime)
 	case ESharkState::RunAway:
 		Runaway(DeltaTime);
 		break;
+	case ESharkState::Dead:
+		break;
 	default:
 		break;
 	}
@@ -82,6 +83,10 @@ void ASharkAI::OnMyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 	if (OtherActor->IsA(AWeaponBase::StaticClass()))
 	{
 		--HealthPoint;
+		if (HealthPoint <= 0)
+		{
+			Died();
+		}
 		if (CurrentState == ESharkState::AttackRaft)
 		{
 			++CurHitCount;
@@ -89,7 +94,7 @@ void ASharkAI::OnMyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 			if (CurHitCount >= 3)
 			{
 				CurHitCount = 0;
-				GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
+				GetWorld()->GetTimerManager().ClearTimer(SharkTimerHandle);
 				TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 				NextState = ESharkState::RunAway;
 				ChangeState(ESharkState::Turning);
@@ -164,7 +169,7 @@ void ASharkAI::MoveToRaft(float DeltaTime)
 	if (FVector::Dist(curLoc,targetLoc) < DetectionDistance)
 	{
 		//타이머로 배 파괴 함수 실행.
-		GetWorld()->GetTimerManager().SetTimer(DestroyTimerHandle,this,&ASharkAI::DamageFloor,FloorDestroyDuration,true);
+		GetWorld()->GetTimerManager().SetTimer(SharkTimerHandle,this,&ASharkAI::DamageFloor,FloorDestroyDuration,true);
 		SetActorRotation(BiteRotation);
 		ChangeState(ESharkState::AttackRaft);
 	}
@@ -183,7 +188,7 @@ void ASharkAI::DamageFloor()
 	{
 		//배가 부서지면, Runaway
 		Floor->Destroy();
-		GetWorld()->GetTimerManager().ClearTimer(DestroyTimerHandle);
+		GetWorld()->GetTimerManager().ClearTimer(SharkTimerHandle);
 		
 		TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 		NextState = ESharkState::RunAway;
@@ -300,7 +305,10 @@ ABuildingFloor* ASharkAI::GetFloor()
 	for (FVector& pos : positionArr)
 	{
 		ABuildingFloor* floor = Cast<ABuildingFloor>(raft->GetRaftBuildPointerData()[pos]);
-		
+		if (floor->GetIsMain())
+		{
+			continue;
+		}
 		if (IsAttackableFloor(positionArr, pos))
 		{
 			UE_LOG(LogTemp, Display, TEXT("공격할 판자 pos X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
@@ -361,4 +369,25 @@ void ASharkAI::SetBiteRotation(const FVector& dir)
 		// UE_LOG(LogTemp, Display, TEXT("서쪽이 비었음."));
 		BiteRotation = FRotator(30, 90, 0);
 	}
+}
+
+void ASharkAI::Died()
+{
+	UE_LOG(LogTemp,Display,TEXT("상어 죽었썩"));
+	CurrentState = ESharkState::Dead;
+	SetActorHiddenInGame(true);
+	SetActorEnableCollision(false);
+	TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
+	SetActorLocation(TargetLocation);
+	GetWorld()->GetTimerManager().SetTimer(SharkTimerHandle,this, &ASharkAI::Respawn,20.0f,false);
+}
+
+void ASharkAI::Respawn()
+{
+	UE_LOG(LogTemp,Display,TEXT("상어 리스폰"));
+	SetActorHiddenInGame(false);
+	SetActorEnableCollision(true);
+	TargetLocation = NewIdleLocation();
+	NextState = ESharkState::Idle;
+	CurrentState = ESharkState::Turning;
 }
