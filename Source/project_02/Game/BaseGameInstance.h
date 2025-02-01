@@ -20,7 +20,8 @@ public:
 	FORCEINLINE TArray<FItemInfoData> GetItemInfoList() const{ return ItemInfoList; }
 	FORCEINLINE TMap<uint32, FCraftingData> GetCraftingInfoMap() const{ return CraftingInfoMap; }
 	FORCEINLINE TMap<FString, TSubclassOf<ABuildingActor>> GetBuildingInfoMap() const{ return BuildingInfoMap; }
-
+	FORCEINLINE TArray<FCreditData> GetCreditDataList() const{ return CreditDataList; }
+	
 protected:
 	virtual void Init() override;
 	
