@@ -57,6 +57,10 @@ private:
 
 	void InitializeData();
 
+	void PlaceInitialBuild();
+
+	void PlaceInitialPlaceObject();
+
 	UPROPERTY()
 	TObjectPtr<ABuildingActor> CenterBuildActor;
 
