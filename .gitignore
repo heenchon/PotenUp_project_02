@@ -41,6 +41,8 @@
 *.VC.db
 *.VC.opendb
 
+history.csv
+
 # Precompiled Assets
 SourceArt/**/*.png
 SourceArt/**/*.tga

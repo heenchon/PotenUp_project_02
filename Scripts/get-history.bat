@@ -1,0 +1,1 @@
+git log --pretty=format:"'%an','%ad','%s'" --date=format:'%Y-%m-%d %H:%M:%S' | ForEach-Object { $_ -replace "'", '"' } | Out-File -Encoding UTF8 history.csv

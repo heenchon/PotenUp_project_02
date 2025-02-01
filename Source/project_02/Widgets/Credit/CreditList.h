@@ -1,0 +1,28 @@
+﻿#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "CreditList.generated.h"
+
+class UListView;
+
+UCLASS()
+class PROJECT_02_API UCreditList : public UUserWidget
+{
+	GENERATED_BODY()
+	
+protected:
+	virtual void NativeConstruct() override;
+	
+private:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UListView> CreditList;
+
+	// UFUNCTION()
+	// void OnScrollEnd(UObject* Item, UUserWidget* Widget);
+
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	uint8 DataCountPerScroll = 10;
+
+	uint16 CurrentIndex = 0;
+};
