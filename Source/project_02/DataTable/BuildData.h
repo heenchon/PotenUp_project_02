@@ -58,6 +58,9 @@ struct PROJECT_02_API FBuildData
 	EBlockCategory BlockCategory = EBlockCategory::Undefined;
 
 	UPROPERTY()
+	uint8 CurrentDurability = 0;
+
+	UPROPERTY()
 	bool IsMain = false;
 };
 

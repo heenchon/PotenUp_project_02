@@ -44,6 +44,7 @@ public:
 	FORCEINLINE EBlockType GetBlockType() const { return BlockType; }
 	FORCEINLINE EBlockCategory GetBlockCategory() const { return BlockCategory; }
 	FORCEINLINE uint8 GetCurrentDurability() const { return CurrentDurability; }
+	FORCEINLINE void SetCurrentDurability(const uint8 NewValue) { CurrentDurability = NewValue; }
 	
 	void SetDefaultMaterial();
 

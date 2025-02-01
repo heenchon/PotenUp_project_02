@@ -91,6 +91,7 @@ void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const
 		BuildData.BlockType = EBlockType::Wood;
 		BuildData.BlockCategory = EBlockCategory::Undefined;
 		BuildData.IsMain = IsCenter;
+		BuildData.CurrentDurability = Build->GetCurrentDurability();
 		
 		if (Build->IsA(ABuildingFloor::StaticClass()))
 		{
@@ -154,8 +155,19 @@ void ARaft::InitializeData()
 		
 		return;
 	}
-	TMap<FVector, FBuildData>& RecentSaveRaftMap = PC->GetRecentSaveData()->RaftBuildMetaData;
+	PlaceInitialBuild();
 
+void ARaft::PlaceInitialBuild()
+{
+	ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	
+	if (!PC)
+	{
+		return;
+	}
+	
+	TMap<FVector, FBuildData>& RecentSaveRaftMap = PC->GetRecentSaveData()->RaftBuildMetaData;
+	
 	// BFS를 이용해서 순차적으로 적용한다.
 	TQueue<FVector> RaftBuildBfs;
 	// 가장 중심점은 Zero이기 때문에, Zero Vector를 중심으로 처리한다.
@@ -176,7 +188,7 @@ void ARaft::InitializeData()
 		UE_LOG(LogTemp, Display, TEXT("Search Start Test Raft: %s"), *TopVector.ToString())
 		// C++의 구조화된 바인딩으로 JS에서 구조분해할당과 동일한 기능이다.
 		// 역시 JS는 C++ 기반이 맞다...
-		auto [BlockType, BlockCategory, IsMain] = RecentSaveRaftMap[TopVector];
+		auto [BlockType, BlockCategory, CurrentDurability, IsMain] = RecentSaveRaftMap[TopVector];
 
 		ABuildingActor* NewBuildingActor =
 			GetWorld()->SpawnActor<ABuildingActor>(
@@ -185,6 +197,7 @@ void ARaft::InitializeData()
 					BlockCategory), GetActorTransform());
 		// 처음에는 무조건 와이어프레임 상태이기 때문에 와이어프레임 상태를 종료해야 한다.
 		// 우선 메타 정보부터 다시 업데이트 처리를 한다.
+		NewBuildingActor->SetCurrentDurability(CurrentDurability);
 		UpdateBuildMetaData(TopVector, NewBuildingActor, false, IsMain);
 
 		if (IsMain)
