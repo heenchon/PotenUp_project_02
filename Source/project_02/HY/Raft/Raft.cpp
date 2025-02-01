@@ -9,8 +9,10 @@
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
+#include "project_02/Game/BaseGameInstance.h"
 #include "project_02/Game/RaftSaveGame.h"
 #include "project_02/Helper/BuildingHelper.h"
+#include "project_02/HY/Objects/PlaceObjects.h"
 #include "project_02/Player/BasePlayerController.h"
 
 ARaft::ARaft()
@@ -152,10 +154,12 @@ void ARaft::InitializeData()
 			UpdateBuildMetaData(FVector::Zero(), NewMainFloor, false, true);
 			NewMainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 		}
-		
 		return;
 	}
+	
 	PlaceInitialBuild();
+	PlaceInitialPlaceObject();
+}
 
 void ARaft::PlaceInitialBuild()
 {
@@ -213,6 +217,46 @@ void ARaft::PlaceInitialBuild()
 		EnqueueNextFloorDataByWall(RecentSaveRaftMap, NewBuildingActor, RaftBuildBfs);
 		
 		RaftBuildBfs.Pop();
+	}
+}
+
+void ARaft::PlaceInitialPlaceObject()
+{
+	ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	
+	if (!PC)
+	{
+		return;
+	}
+
+	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+	
+	for (const TTuple<FVector, FPlacedObjectDataArray>& RaftPlacedObjectMetaData
+		: PC->GetRecentSaveData()->RaftPlacedObjectMetaData)
+	{
+		for (const FPlacedObjectData& ObjectData : RaftPlacedObjectMetaData.Value.ObjectArray)
+		{
+			FItemInfoData ItemData = GI->GetItemInfoList()[ObjectData.ObjectId];
+
+			AActor* NewActor = GetWorld()->SpawnActor(ItemData.GetShowItemActor());
+			ABuildingActor* NewBuild = RaftBuildPointerData.FindRef(RaftPlacedObjectMetaData.Key);
+
+			if (!IsValid(NewBuild))
+			{
+				continue;
+			}
+			
+			NewActor->SetActorLocation(ObjectData.RelativeLoc);
+			NewActor->AttachToActor(NewBuild, FAttachmentTransformRules::KeepRelativeTransform);
+			UpdatePlacedObjectData(RaftPlacedObjectMetaData.Key, ObjectData);
+
+			APlaceObjects* PlaceObject = Cast<APlaceObjects>(NewActor);
+			if (!IsValid(PlaceObject))
+			{
+				continue;
+			}
+			PlaceObject->Place();
+		}
 	}
 }
 
