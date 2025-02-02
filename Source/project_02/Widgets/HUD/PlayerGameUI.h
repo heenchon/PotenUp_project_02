@@ -9,6 +9,7 @@ class UTextBlock;
 class UOverlay;
 class UInventoryHotSlot;
 class UStatusProgressBar;
+class UItemUI;
 
 UCLASS()
 class PROJECT_02_API UPlayerGameUI : public UUserWidget
@@ -43,9 +44,16 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOverlay> InteractiveUI;
 	
+	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> InteractiveUITitle;
 	
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UImage> HookProgressBar;
+	
+
+public:
+	//희연
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UItemUI> ItemMainUI;
 };
