@@ -20,8 +20,7 @@ private:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UListView> CreditList;
 
-	// UFUNCTION()
-	// void OnScrollEnd(UObject* Item, UUserWidget* Widget);
+	void OnScrollMoveItem(UObject* Item, UUserWidget& Widget);
 
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
 	uint8 DataCountPerScroll = 10;

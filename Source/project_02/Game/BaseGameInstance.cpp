@@ -87,6 +87,7 @@ void UBaseGameInstance::LoadCreditData()
 		return;
 	}
 
+	uint32 NewIndex = 0;
 	for (FString Content : Contents)
 	{
 		FString Temp;
@@ -142,6 +143,8 @@ void UBaseGameInstance::LoadCreditData()
 		}
 
 		FCreditData NewCreditData;
+		NewCreditData.Index = ++NewIndex;
+		
 		NewCreditData.DeveloperName = Value[0];
 		
 		FDateTime CreditDateTime;
@@ -151,11 +154,5 @@ void UBaseGameInstance::LoadCreditData()
 		NewCreditData.CommitDesc = Value[2];
 
 		CreditDataList.Add(NewCreditData);
-	}
-
-	for (auto [DeveloperName, CommitDate, CommitDesc] : CreditDataList)
-	{
-		UE_LOG(LogTemp, Display, TEXT("Credit Result: %s | %s | %s"),
-			*DeveloperName, *CommitDate.ToString(), *CommitDesc)
 	}
 }
