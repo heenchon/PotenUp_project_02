@@ -4,6 +4,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainUI.generated.h"
 
+class UCreditList;
 class USelectMapList;
 class UCreateNewMap;
 class UOverlay;
@@ -25,11 +26,20 @@ private:
 	TObjectPtr<UButton> ContinueGameButton;
 	
 	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UButton> CreditButton;
+	
+	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UButton> QuitGameButton;
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UOverlay> SubModuleOverlay;
 
+	UPROPERTY()
+	TObjectPtr<UCreditList> CreditList;
+	
+	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UCreditList> CreditListClass;
+	
 	UPROPERTY(EditAnywhere, Category = "Options", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UCreateNewMap> CreateNewMapClass;
 	
@@ -41,4 +51,7 @@ private:
 
 	UFUNCTION()
 	void OnClickContinueGameButton();
+	
+	UFUNCTION()
+	void OnClickCreditGameButton();
 };

@@ -1,5 +1,6 @@
 ﻿#include "CraftingDetailInfo.h"
 
+#include "Components/Image.h"
 #include "Components/TextBlock.h"
 #include "project_02/Helper/ItemHelper.h"
 #include "project_02/Player/BasePlayerState.h"
@@ -12,6 +13,12 @@ void UCraftingDetailInfo::InitializeData(
 	{
 		return;
 	}
+
+	UTexture2D* LoadedTexture = FItemHelper::GetItemInfoById(
+		GetWorld(), CraftItemKeyAndCount.Key)
+	.GetThumbnail()
+	.LoadSynchronous();
+	ItemThumbnail.Get()->SetBrushFromTexture(LoadedTexture);
 
 	const FText ItemName =
 		FText::FromString(

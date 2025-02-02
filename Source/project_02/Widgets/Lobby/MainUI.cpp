@@ -4,6 +4,7 @@
 #include "Components/Overlay.h"
 #include "Module/MapCreate/CreateNewMap.h"
 #include "Module/MapSelect/SelectMapList.h"
+#include "project_02/Widgets/Credit/CreditList.h"
 
 void UMainUI::NativeConstruct()
 {
@@ -12,7 +13,9 @@ void UMainUI::NativeConstruct()
 	NewGameButton->OnClicked.AddDynamic(
 	this, &ThisClass::OnClickNewGameButton);
 	ContinueGameButton->OnClicked.AddDynamic(
-		this, &ThisClass::OnClickContinueGameButton);
+	this, &ThisClass::OnClickContinueGameButton);
+	CreditButton->OnClicked.AddDynamic(
+		this, &ThisClass::OnClickCreditGameButton);
 }
 
 void UMainUI::OnClickNewGameButton()
@@ -28,3 +31,10 @@ void UMainUI::OnClickContinueGameButton()
 	SubModuleOverlay->ClearChildren();
 	SubModuleOverlay->AddChild(NewWidget);
 }
+
+void UMainUI::OnClickCreditGameButton()
+{
+	CreditList = CreateWidget<UCreditList>(this, CreditListClass);
+	CreditList->AddToViewport();
+}
+
