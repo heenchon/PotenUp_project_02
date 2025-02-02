@@ -3,10 +3,11 @@
 #include "CoreMinimal.h"
 #include "project_02/Tool/InteractiveItem.h"
 #include "GameFramework/Actor.h"
+#include "project_02/Tool/InteractiveInterface.h"
 #include "Sail.generated.h"
 
 UCLASS()
-class PROJECT_02_API ASail : public AInteractiveItem
+class PROJECT_02_API ASail : public AInteractiveItem, public IInteractiveInterface
 {
 	GENERATED_BODY()
 	
@@ -26,6 +27,8 @@ public:
 	float MaxSailStrength = 6.0f;
 	UPROPERTY(EditAnywhere)
 	double RotationMultiplier = 2.0;
+
+	virtual FString GetDisplayText() const override;
 
 protected:
 	// Called when the game starts or when spawned

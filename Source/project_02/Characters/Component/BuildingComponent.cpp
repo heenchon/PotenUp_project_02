@@ -170,7 +170,7 @@ void UBuildingComponent::CreateWireframeForObject(const FHitResult& HitResult)
 		
 		if (APlaceObjects* PlaceObject = Cast<APlaceObjects>(CurrentWireframeActor))
 		{
-			PlaceObject->IsEnabled = false;
+			PlaceObject->UnPlace();
 		}
 		return;
 	}
@@ -435,7 +435,7 @@ void UBuildingComponent::BuildAndUpdatePlacedObjectData()
 		}
 
 		PlaceObject->SetDefaultMaterial();
-		PlaceObject->IsEnabled = true;
+		PlaceObject->Place();
 		
 		CurrentWireframeActor = nullptr;
 		CurrentWireframeBox = nullptr;

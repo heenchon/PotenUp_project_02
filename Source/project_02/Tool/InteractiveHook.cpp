@@ -144,6 +144,9 @@ void AInteractiveHook::OnOverlapHookGrab(
 		))
 		{
 			AttachToActor(HitResult.GetActor(), FAttachmentTransformRules::KeepWorldTransform);
+			FVector NewLocation = GetActorLocation();
+			NewLocation.Z = 0;
+			SetActorLocation(NewLocation);
 		}
 	}
 

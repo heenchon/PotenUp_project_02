@@ -52,13 +52,16 @@ struct PROJECT_02_API FBuildData
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY()
-	EBlockType BlockType;
+	EBlockType BlockType = EBlockType::Undefined;
 	
 	UPROPERTY()
-	EBlockCategory BlockCategory;
+	EBlockCategory BlockCategory = EBlockCategory::Undefined;
 
 	UPROPERTY()
-	bool IsMain;
+	uint8 CurrentDurability = 0;
+
+	UPROPERTY()
+	bool IsMain = false;
 };
 
 USTRUCT(BlueprintType)
@@ -67,10 +70,10 @@ struct PROJECT_02_API FPlacedObjectData
 	GENERATED_USTRUCT_BODY()
 	
 	UPROPERTY()
-	FVector RelativeLoc;
+	FVector RelativeLoc = FVector::Zero();
 
 	UPROPERTY()
-	uint32 ObjectId;
+	uint32 ObjectId = 0;
 };
 
 USTRUCT(BlueprintType)

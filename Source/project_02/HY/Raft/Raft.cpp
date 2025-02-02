@@ -9,8 +9,10 @@
 #include "project_02/Building/BuildingActor.h"
 #include "project_02/Building/BuildingFloor.h"
 #include "project_02/Building/BuildingWall.h"
+#include "project_02/Game/BaseGameInstance.h"
 #include "project_02/Game/RaftSaveGame.h"
 #include "project_02/Helper/BuildingHelper.h"
+#include "project_02/HY/Objects/PlaceObjects.h"
 #include "project_02/Player/BasePlayerController.h"
 
 ARaft::ARaft()
@@ -91,6 +93,7 @@ void ARaft::UpdateBuildMetaData(const FVector& Pos, ABuildingActor* Build, const
 		BuildData.BlockType = EBlockType::Wood;
 		BuildData.BlockCategory = EBlockCategory::Undefined;
 		BuildData.IsMain = IsCenter;
+		BuildData.CurrentDurability = Build->GetCurrentDurability();
 		
 		if (Build->IsA(ABuildingFloor::StaticClass()))
 		{
@@ -151,11 +154,24 @@ void ARaft::InitializeData()
 			UpdateBuildMetaData(FVector::Zero(), NewMainFloor, false, true);
 			NewMainFloor->AttachToActor(this, FAttachmentTransformRules::KeepRelativeTransform);
 		}
-		
 		return;
 	}
-	TMap<FVector, FBuildData>& RecentSaveRaftMap = PC->GetRecentSaveData()->RaftBuildMetaData;
+	
+	PlaceInitialBuild();
+	PlaceInitialPlaceObject();
+}
 
+void ARaft::PlaceInitialBuild()
+{
+	ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	
+	if (!PC)
+	{
+		return;
+	}
+	
+	TMap<FVector, FBuildData>& RecentSaveRaftMap = PC->GetRecentSaveData()->RaftBuildMetaData;
+	
 	// BFS를 이용해서 순차적으로 적용한다.
 	TQueue<FVector> RaftBuildBfs;
 	// 가장 중심점은 Zero이기 때문에, Zero Vector를 중심으로 처리한다.
@@ -176,7 +192,7 @@ void ARaft::InitializeData()
 		UE_LOG(LogTemp, Display, TEXT("Search Start Test Raft: %s"), *TopVector.ToString())
 		// C++의 구조화된 바인딩으로 JS에서 구조분해할당과 동일한 기능이다.
 		// 역시 JS는 C++ 기반이 맞다...
-		auto [BlockType, BlockCategory, IsMain] = RecentSaveRaftMap[TopVector];
+		auto [BlockType, BlockCategory, CurrentDurability, IsMain] = RecentSaveRaftMap[TopVector];
 
 		ABuildingActor* NewBuildingActor =
 			GetWorld()->SpawnActor<ABuildingActor>(
@@ -185,6 +201,7 @@ void ARaft::InitializeData()
 					BlockCategory), GetActorTransform());
 		// 처음에는 무조건 와이어프레임 상태이기 때문에 와이어프레임 상태를 종료해야 한다.
 		// 우선 메타 정보부터 다시 업데이트 처리를 한다.
+		NewBuildingActor->SetCurrentDurability(CurrentDurability);
 		UpdateBuildMetaData(TopVector, NewBuildingActor, false, IsMain);
 
 		if (IsMain)
@@ -200,6 +217,46 @@ void ARaft::InitializeData()
 		EnqueueNextFloorDataByWall(RecentSaveRaftMap, NewBuildingActor, RaftBuildBfs);
 		
 		RaftBuildBfs.Pop();
+	}
+}
+
+void ARaft::PlaceInitialPlaceObject()
+{
+	ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+	
+	if (!PC)
+	{
+		return;
+	}
+
+	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+	
+	for (const TTuple<FVector, FPlacedObjectDataArray>& RaftPlacedObjectMetaData
+		: PC->GetRecentSaveData()->RaftPlacedObjectMetaData)
+	{
+		for (const FPlacedObjectData& ObjectData : RaftPlacedObjectMetaData.Value.ObjectArray)
+		{
+			FItemInfoData ItemData = GI->GetItemInfoList()[ObjectData.ObjectId];
+
+			AActor* NewActor = GetWorld()->SpawnActor(ItemData.GetShowItemActor());
+			ABuildingActor* NewBuild = RaftBuildPointerData.FindRef(RaftPlacedObjectMetaData.Key);
+
+			if (!IsValid(NewBuild))
+			{
+				continue;
+			}
+			
+			NewActor->SetActorLocation(ObjectData.RelativeLoc);
+			NewActor->AttachToActor(NewBuild, FAttachmentTransformRules::KeepRelativeTransform);
+			UpdatePlacedObjectData(RaftPlacedObjectMetaData.Key, ObjectData);
+
+			APlaceObjects* PlaceObject = Cast<APlaceObjects>(NewActor);
+			if (!IsValid(PlaceObject))
+			{
+				continue;
+			}
+			PlaceObject->Place();
+		}
 	}
 }
 
