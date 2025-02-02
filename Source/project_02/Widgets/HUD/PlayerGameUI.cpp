@@ -1,5 +1,6 @@
 ﻿#include "PlayerGameUI.h"
 
+#include "ItemUI.h"
 #include "../HUD/Module/StatusProgressBar.h"
 #include "Components/Image.h"
 #include "Components/Overlay.h"
@@ -49,4 +50,3 @@ void UPlayerGameUI::SetProgressPercent(const float Percent)
 {
 	HookProgressBar->GetDynamicMaterial()->SetScalarParameterValue("Percent", Percent);
 }
-

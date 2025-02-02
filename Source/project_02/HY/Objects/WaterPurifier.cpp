@@ -6,6 +6,9 @@
 #include "project_02/Game/BaseGameInstance.h"
 #include "project_02/Player/BasePlayerState.h"
 #include "project_02/HY/Items/Cup.h"
+#include "project_02/Player/BasePlayerController.h"
+#include "project_02/Widgets/HUD/ItemUI.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
 
 
 AWaterPurifier::AWaterPurifier()
@@ -40,6 +43,14 @@ void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 			cup->FillFreshWater();
 			bIsPurified = false;
 			WaterMesh->SetVisibility(false);
+
+			//TODO: id 교체
+			const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+			const FItemInfoData ItemInfoData = GI->GetItemInfoList()[17];
+			
+			ABasePlayerController* PC = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
+			check(PC)
+			PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(1,ItemInfoData.GetDisplayName(),ItemInfoData.GetThumbnail());
 			return;
 		}
 		//컵 속의 물을 없애고, 정수 시작
