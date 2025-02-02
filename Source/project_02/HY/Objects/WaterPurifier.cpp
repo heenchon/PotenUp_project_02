@@ -46,7 +46,7 @@ void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 
 			//TODO: id 교체
 			const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
-			const FItemInfoData ItemInfoData = GI->GetItemInfoList()[0]; // 정수 컵 id
+			const FItemInfoData ItemInfoData = GI->GetItemInfoList()[17];
 			
 			ABasePlayerController* PC = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
 			check(PC)

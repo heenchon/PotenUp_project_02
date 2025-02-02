@@ -9,6 +9,8 @@
 #include "project_02/Characters/Component/SurvivalComponent.h"
 #include "project_02/Game/BaseGameInstance.h"
 #include "project_02/Player/BasePlayerController.h"
+#include "project_02/Widgets/HUD/ItemUI.h"
+#include "project_02/Widgets/HUD/PlayerGameUI.h"
 
 bool ACup::bIsFresh = false;
 bool ACup::bIsSea = false;
@@ -51,47 +53,41 @@ void ACup::Tick(float DeltaTime)
 void ACup::Use()
 {
 	Super::Use();
+	if (bIsEmpty && IsLookingSea())
+	{
+		UE_LOG(LogTemp, Display, TEXT("바닷물 채우기"));
+		FillSeaWater();
+
+		//TODO: id 교체
+		const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+		const FItemInfoData ItemInfoData = GI->GetItemInfoList()[16];
+			
+		ABasePlayerController* PC = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
+		check(PC)
+		PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(1,ItemInfoData.GetDisplayName(),ItemInfoData.GetThumbnail());
+		return;
+	}
 	if (bIsFresh)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("담수 먹기"));
-		bIsEmpty = true; bIsFresh = false;
-		WaterMesh->SetVisibility(false);
+		EmptyCup();
 		SurvivalComponent->IncreaseThirst(10);
 		return;
 	}
 	if (bIsSea)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("바닷물 먹기"));
-		bIsEmpty = true; bIsSea = false;
-		WaterMesh->SetVisibility(false);
+		UE_LOG(LogTemp, Display, TEXT("바닷물 먹기"));
+		EmptyCup();
 		SurvivalComponent->DecreaseThirst(10);
-		return;
-	}
-	if (bLookingSea)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("바닷물 채우기"));
-		bIsEmpty = false; bIsSea = true;
-		WaterMesh->SetVisibility(true);
-
-		//TODO: id 교체
-		const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
-		const FItemInfoData ItemInfoData = GI->GetItemInfoList()[0]; // 바닷물 컵 id
-			
-		ABasePlayerController* PC = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
-		check(PC)
-		PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(1,ItemInfoData.GetDisplayName(),ItemInfoData.GetThumbnail());
 	}
 }
 
 void ACup::FillSeaWater()
 {
-	if (bIsEmpty)
-	{
-		bIsEmpty = false;
-		bIsSea = true;
-		WaterMesh->SetMaterial(0,Ocean);
-		WaterMesh->SetVisibility(true);
-	}
+	bIsEmpty = false;
+	bIsSea = true;
+	WaterMesh->SetMaterial(0,Ocean);
+	WaterMesh->SetVisibility(true);
 }
 
 void ACup::FillFreshWater()

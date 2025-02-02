@@ -33,8 +33,6 @@ void UItemUI::AddItemGetUI(uint8 count, FString displayName,TSoftObjectPtr<UText
 		{
 			newSlot->SetHorizontalAlignment(HAlign_Center);
 		}
-		
-		itemGetUI->AddToViewport();
 	}
 	
 	UpdateItemListPosition();
