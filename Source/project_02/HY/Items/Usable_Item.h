@@ -1,15 +1,14 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-#pragma once
+﻿#pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 // 직접 사용하기 위해서는 일단은 전방선언 불가함
 #include "project_02/DataTable/ItemInfoData.h"
+#include "project_02/Tool/InteractiveInterface.h"
 #include "Usable_Item.generated.h"
 
 UCLASS()
-class PROJECT_02_API AUsable_Item : public AActor
+class PROJECT_02_API AUsable_Item : public AActor, public IInteractiveInterface
 {
 	GENERATED_BODY()
 

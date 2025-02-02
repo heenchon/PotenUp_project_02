@@ -4,6 +4,7 @@
 #include "Components/Image.h"
 #include "Components/Overlay.h"
 #include "Components/TextBlock.h"
+#include "project_02/Tool/InteractiveInterface.h"
 #include "project_02/Widgets/Inventory/InventoryHotSlot.h"
 
 void UPlayerGameUI::SetHotSlotIndex(const uint8 PrevIndex, const uint8 NextIndex)
@@ -28,10 +29,10 @@ void UPlayerGameUI::SetThirstPercent(const uint8 Current, const uint8 Max)
 
 void UPlayerGameUI::SetInteractiveUIStatus(const AActor* Target)
 {
-	if (IsValid(Target))
+	if (const IInteractiveInterface* Interactive = Cast<IInteractiveInterface>(Target))
 	{
 		InteractiveUI->SetVisibility(ESlateVisibility::Visible);
-		InteractiveUITitle->SetText(FText::FromString(Target->GetName()));
+		InteractiveUITitle->SetText(FText::FromString(Interactive->GetDisplayText()));
 	} else
 	{
 		InteractiveUI->SetVisibility(ESlateVisibility::Hidden);

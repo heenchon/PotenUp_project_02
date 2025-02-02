@@ -1,5 +1,9 @@
 ﻿#include "Grill.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/Characters/Component/InventoryComponent.h"
+#include "project_02/Game/BaseGameInstance.h"
 #include "project_02/HY/Items/FishRaw.h"
 #include "project_02/Player/BasePlayerState.h"
 
@@ -17,8 +21,6 @@ AGrill::AGrill()
 	Id = 13;
 }
 
-
-// Called when the game starts or when spawned
 void AGrill::BeginPlay()
 {
 	Super::BeginPlay();
@@ -29,12 +31,6 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 	Super::Interact(input, curItemIndex);
 	if (!bIsCooking)
 	{
-		// if (FString* CookedTo = FItemHelper::GetItemInfoById(GetWorld(),
-		// 	PS->GetPlayerInventoryList()[curItemIndex].GetId())
-		// 	.GetOptionData().Find(EOptionDataKey::CookedTo))
-		// {
-		// 	// CookedTo
-		// }
 		// TODO: 하드코딩이니까 나중에 리팩토링 필요함.
 		
 		if (AFishRaw* fishRaw = Cast<AFishRaw>(input))
@@ -59,6 +55,27 @@ void AGrill::ProcessComplete()
 	bIsCooking = false;
 }
 
+FString AGrill::GetDisplayText() const
+{
+	if (!bIsCooking)
+	{
+		return "회수하기";
+	}
+	
+	const APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	const ABasePlayerState* PS = Player->GetPlayerState<ABasePlayerState>();
+	if (!Player || !PS)
+	{
+		return "";
+	}
 
+	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+	const FItemMetaInfo ItemMetaData = PS->GetPlayerInventoryList()[Player->GetInventoryComponent()->GetSelectedHotSlotIndex()];
+	const FItemInfoData ItemInfoData = GI->GetItemInfoList()[ItemMetaData.GetId()];
+	if (ItemInfoData.GetOptionData().Find(EOptionDataKey::CookedTo))
+	{
+		return ItemInfoData.GetDisplayName() + " 굽기";
+	}
 
-
+	return "";
+}

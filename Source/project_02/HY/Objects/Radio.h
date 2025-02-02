@@ -18,6 +18,8 @@ public:
 	TSubclassOf<class UUserWidget> EndingWidgetClass;
 	UPROPERTY()
 	UUserWidget* EndingUI;
+
+	virtual FString GetDisplayText() const override;
 	
 protected:
 	virtual void BeginPlay() override;

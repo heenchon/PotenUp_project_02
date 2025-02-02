@@ -11,6 +11,11 @@ ARadio::ARadio()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+FString ARadio::GetDisplayText() const
+{
+	return "라디오 틀기";	
+}
+
 void ARadio::BeginPlay()
 {
 	Super::BeginPlay();
