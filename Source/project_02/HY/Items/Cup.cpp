@@ -7,6 +7,8 @@
 #include "WaterBodyOceanActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Characters/Component/SurvivalComponent.h"
+#include "project_02/Game/BaseGameInstance.h"
+#include "project_02/Player/BasePlayerController.h"
 
 bool ACup::bIsFresh = false;
 bool ACup::bIsSea = false;
@@ -70,6 +72,14 @@ void ACup::Use()
 		UE_LOG(LogTemp, Warning, TEXT("바닷물 채우기"));
 		bIsEmpty = false; bIsSea = true;
 		WaterMesh->SetVisibility(true);
+
+		//TODO: id 교체
+		const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+		const FItemInfoData ItemInfoData = GI->GetItemInfoList()[0]; // 바닷물 컵 id
+			
+		ABasePlayerController* PC = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
+		check(PC)
+		PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(1,ItemInfoData.GetDisplayName(),ItemInfoData.GetThumbnail());
 	}
 }
 
