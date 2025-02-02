@@ -27,4 +27,8 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Interact() override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Text", meta = (AllowPrivateAccess = true))
+	FString RadioInteractiveText = TEXT("라디오 틀기");
 };

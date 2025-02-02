@@ -13,7 +13,7 @@ ARadio::ARadio()
 
 FString ARadio::GetDisplayText() const
 {
-	return "라디오 틀기";	
+	return RadioInteractiveText;	
 }
 
 void ARadio::BeginPlay()

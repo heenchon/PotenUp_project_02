@@ -1,15 +1,15 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿#include "WaterPurifier.h"
 
-
-#include "WaterPurifier.h"
-
+#include "Kismet/GameplayStatics.h"
+#include "project_02/Characters/PlayerCharacter.h"
+#include "project_02/Characters/Component/InventoryComponent.h"
+#include "project_02/Game/BaseGameInstance.h"
+#include "project_02/Player/BasePlayerState.h"
 #include "project_02/HY/Items/Cup.h"
 
 
-// Sets default values
 AWaterPurifier::AWaterPurifier()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 	ProcessDuration = 5.0f;
 	
@@ -20,13 +20,11 @@ AWaterPurifier::AWaterPurifier()
 	Id = 14;
 }
 
-// Called when the game starts or when spawned
 void AWaterPurifier::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-// Called every frame
 void AWaterPurifier::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
@@ -64,3 +62,22 @@ void AWaterPurifier::ProcessComplete()
 	bIsPurified = true;
 }
 
+FString AWaterPurifier::GetDisplayText() const
+{
+	const APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
+	if (!Player)
+	{
+		return Super::GetDisplayText();
+	}
+
+	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
+	const FItemMetaInfo ItemMetaData = PS->GetPlayerInventoryList()[Player->GetInventoryComponent()->GetSelectedHotSlotIndex()];
+	const FItemInfoData ItemInfoData = GI->GetItemInfoList()[ItemMetaData.GetId()];
+	
+	if (ItemInfoData.GetOptionData().Find(EOptionDataKey::CookedTo))
+	{
+		return FString::Printf(TEXT("%s 끓이기"),* ItemInfoData.GetDisplayName());
+	}
+
+	return Super::GetDisplayText();
+}

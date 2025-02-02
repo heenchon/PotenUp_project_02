@@ -59,23 +59,23 @@ FString AGrill::GetDisplayText() const
 {
 	if (!bIsCooking)
 	{
-		return "회수하기";
+		return TEXT("회수하기");
 	}
 	
 	const APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
-	const ABasePlayerState* PS = Player->GetPlayerState<ABasePlayerState>();
-	if (!Player || !PS)
+	if (!Player)
 	{
-		return "";
+		return Super::GetDisplayText();
 	}
 
 	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
 	const FItemMetaInfo ItemMetaData = PS->GetPlayerInventoryList()[Player->GetInventoryComponent()->GetSelectedHotSlotIndex()];
 	const FItemInfoData ItemInfoData = GI->GetItemInfoList()[ItemMetaData.GetId()];
+	
 	if (ItemInfoData.GetOptionData().Find(EOptionDataKey::CookedTo))
 	{
-		return ItemInfoData.GetDisplayName() + " 굽기";
+		return FString::Printf(TEXT("%s 굽기"),* ItemInfoData.GetDisplayName());
 	}
 
-	return "";
+	return Super::GetDisplayText();
 }

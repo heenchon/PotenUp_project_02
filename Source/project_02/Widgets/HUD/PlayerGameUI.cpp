@@ -31,7 +31,13 @@ void UPlayerGameUI::SetInteractiveUIStatus(const AActor* Target)
 {
 	if (const IInteractiveInterface* Interactive = Cast<IInteractiveInterface>(Target))
 	{
+		if (Interactive->GetDisplayText() == "")
+		{
+			InteractiveUI->SetVisibility(ESlateVisibility::Hidden);
+			return;
+		}
 		InteractiveUI->SetVisibility(ESlateVisibility::Visible);
+		const FText NewText = FText::FromString(Interactive->GetDisplayText());
 		InteractiveUITitle->SetText(FText::FromString(Interactive->GetDisplayText()));
 	} else
 	{
