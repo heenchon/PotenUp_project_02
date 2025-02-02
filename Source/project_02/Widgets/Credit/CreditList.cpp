@@ -6,11 +6,11 @@
 
 void UCreditList::NativeConstruct()
 {
-	// CreditList->OnItemScrolledIntoView().AddUFunction(
-	// 	this, "OnScrollEnd");
+	Super::NativeConstruct();
 
 	UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
-	
+
+	CreditList->SetScrollbarVisibility(ESlateVisibility::Hidden);
 	for (int i = 0; i < GI->GetCreditDataList().Num(); i++)
 	{
 		UCreditObject* CreditObject = NewObject<UCreditObject>();
@@ -19,13 +19,11 @@ void UCreditList::NativeConstruct()
 	}
 }
 
-// void UCreditList::OnScrollEnd(UObject* Item, UUserWidget* Widget)
-// {
-// 	const UCreditObject* CreditObject = Cast<UCreditObject>(Item);
-// 	if (!CreditObject)
-// 	{
-// 		return;
-// 	}
-// 	
-// 	UE_LOG(LogTemp, Display, TEXT("%s"), *CreditObject->Data.DeveloperName);
-// }
+void UCreditList::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+	Super::NativeTick(MyGeometry, InDeltaTime);
+
+	const float CurrentScroll = CreditList->GetScrollOffset();
+
+	CreditList->SetScrollOffset(CurrentScroll + ScrollSpeed * InDeltaTime);
+}
