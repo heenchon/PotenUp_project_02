@@ -25,6 +25,8 @@ public:
 	UMaterialInterface* Fresh;
 	
 	bool bIsPurified;
+	
+	virtual FString GetDisplayText() const override;
 
 protected:
 	// Called when the game starts or when spawned

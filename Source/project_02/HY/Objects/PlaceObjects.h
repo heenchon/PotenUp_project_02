@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "project_02/Tool/InteractiveInterface.h"
 #include "PlaceObjects.generated.h"
 
 class AUsable_Item;
@@ -11,7 +12,7 @@ class ABuildingActor;
 class ABasePlayerState;
 
 UCLASS()
-class PROJECT_02_API APlaceObjects : public AActor
+class PROJECT_02_API APlaceObjects : public AActor, public IInteractiveInterface
 {
 	GENERATED_BODY()
 

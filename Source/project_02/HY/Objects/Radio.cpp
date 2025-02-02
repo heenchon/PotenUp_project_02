@@ -11,6 +11,11 @@ ARadio::ARadio()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
+FString ARadio::GetDisplayText() const
+{
+	return RadioInteractiveText;	
+}
+
 void ARadio::BeginPlay()
 {
 	Super::BeginPlay();

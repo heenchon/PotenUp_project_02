@@ -114,15 +114,11 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	float UseInteractiveRange;
 
-	// TODO: Inventory 보다 더 적절한 곳이 있어 보여 우선
-	// PlayerCharacter로 처리
 	UPROPERTY()
 	TObjectPtr<AActor> FindDroppedActor;
 
 	bool IsInteracting;
 
-	// TODO: 추후 HookRope 자체를 공통화해서 상호작용하는 액터 자체를 적용할 예정
-	// 우선은 하드코딩으로 처리
 	UPROPERTY()
 	TObjectPtr<AActor> MainHandTool;
 

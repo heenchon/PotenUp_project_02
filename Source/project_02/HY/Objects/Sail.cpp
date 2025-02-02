@@ -49,6 +49,17 @@ void ASail::BeginPlay()
 	SetActorScale3D(FVector(0.2, 2.0, 1.0));
 }
 
+FString ASail::GetDisplayText() const
+{
+	if (!bSailOn)
+	{
+		return TEXT("돛 펼치기");
+	}
+	
+	return TEXT("돛 접기\n돛 돌리기");
+}
+
+
 // Called every frame
 void ASail::Tick(float DeltaTime)
 {
