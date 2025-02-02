@@ -13,6 +13,6 @@ void UCreditInfo::NativeOnListItemObjectSet(UObject* ListItemObject)
 	}
 
 	Title->SetText(FText::FromString(CreditObject->Data.DeveloperName));
-	DateTime->SetText(FText::FromString(CreditObject->Data.CommitDate.ToFormattedString(TEXT("yyyy.mm.dd"))));
+	DateTime->SetText(FText::FromString(CreditObject->Data.CommitDate.ToFormattedString(TEXT("%Y.%m.%d"))));
 	Desc->SetText(FText::FromString(CreditObject->Data.CommitDesc));
 }
