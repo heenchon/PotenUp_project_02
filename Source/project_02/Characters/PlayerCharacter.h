@@ -152,4 +152,7 @@ private:
 	void FindToUse();
 	
 	bool IsBlockAction() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Camera", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UCameraShakeBase> DamagedCameraShake;
 };

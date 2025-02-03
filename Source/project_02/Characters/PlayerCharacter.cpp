@@ -394,6 +394,9 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	UE_LOG(LogTemp, Display, TEXT("Player Damaged Value: %f"), DamageAmount);
 	SurvivalComponent->AddDamage(static_cast<uint8>(DamageAmount));
+	const FVector LaunchTo = (GetActorLocation() - DamageCauser->GetActorLocation()).GetSafeNormal(1);
+	AddMovementInput(LaunchTo, DamageAmount, true);
+	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DamagedCameraShake);
 	return DamageAmount;
 }
 
