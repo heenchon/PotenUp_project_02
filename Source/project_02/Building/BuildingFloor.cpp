@@ -2,6 +2,7 @@
 
 #include "BuildingWall.h"
 #include "Components/BoxComponent.h"
+#include "Components/DecalComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/DataTable/BuildData.h"
 #include "project_02/Player/BasePlayerController.h"
@@ -81,6 +82,10 @@ ABuildingFloor::ABuildingFloor()
 	WestWallSceneVector->SetRelativeLocation({0, -85.526552, 120});
 	WestWallSceneVector->SetRelativeRotation({0, 180, 0});
 	WestWallSceneVector->SetupAttachment(GetRootComponent());
+
+	CrackDecal = CreateDefaultSubobject<UDecalComponent>(TEXT("CrackDecal"));
+	CrackDecal->SetupAttachment(RootComponent);
+	CrackDecal->SetVisibility(false);
 }
 void ABuildingFloor::BeginPlay()
 {
@@ -172,6 +177,15 @@ void ABuildingFloor::UpdateBuildData(const UPrimitiveComponent* TargetComp, ABui
 	}
 	
 	Super::UpdateBuildData(TargetComp, ChildBuild);
+}
+
+void ABuildingFloor::AddDurability(const int8 AddValue)
+{
+	Super::AddDurability(AddValue);
+	if (GetCurrentDurability() == 0)
+	{
+		CrackDecal->SetVisibility(true);
+	}
 }
 
 void ABuildingFloor::UpdateWireframeBoxInfo()

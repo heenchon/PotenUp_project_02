@@ -16,6 +16,7 @@ public:
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
+	virtual void AddDurability(const int8 AddValue) override;
 
 	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse = false);
 	TObjectPtr<USceneComponent> GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse = false);
@@ -39,6 +40,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> SouthBodyBox;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UDecalComponent> CrackDecal;
 	
 	// TODO: 이 부분 별도의 Actor Component 고려해보기
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
