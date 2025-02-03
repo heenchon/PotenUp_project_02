@@ -20,11 +20,9 @@
 #include "project_02/HY/Objects/PlaceObjects.h"
 
 // TODO: 상민띠가 아이템 클래스 만들면 교체
-#include "project_02/Game/BaseGameInstance.h"
 #include "project_02/HY/Items/Usable_Item.h"
 #include "project_02/HY/Objects/Sail.h"
 #include "project_02/Weapon/WeaponBase.h"
-#include "project_02/Widgets/HUD/ItemUI.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -114,12 +112,6 @@ void APlayerCharacter::UseItem()
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
 		
-		const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
-		const FItemInfoData ItemInfoData = GI->GetItemInfoList()[Trash->GetItemMetaInfo().GetId()];
-		
-		ABasePlayerController* PC = Cast<ABasePlayerController>(GetController());
-		check(PC)
-		PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(1,ItemInfoData.GetDisplayName(),ItemInfoData.GetThumbnail());
 		return;
 	}
 
