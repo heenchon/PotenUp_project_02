@@ -31,8 +31,9 @@ void AFishCooked::BeginPlay()
 void AFishCooked::Use()
 {
 	Super::Use();
-	UE_LOG(LogTemp, Warning, TEXT("물고기 냠냠"));
 	PS->DropItem(InventoryComponent->GetSelectedHotSlotIndex(),1);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(),
+		UsedSound, GetActorLocation(), GetActorRotation());
 	SurvivalComponent->IncreaseHunger(10);
 	this->Destroy();
 }

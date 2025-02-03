@@ -27,6 +27,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Options")
+	TObjectPtr<USoundWave> UsedSound;
+
 public:
 	virtual void Use();
 	virtual void ApplyTo();

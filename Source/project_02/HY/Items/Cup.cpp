@@ -71,6 +71,8 @@ void ACup::Use()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("담수 먹기"));
 		EmptyCup();
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(),
+			UsedSound, GetActorLocation(), GetActorRotation());
 		SurvivalComponent->IncreaseThirst(10);
 		return;
 	}
@@ -78,6 +80,8 @@ void ACup::Use()
 	{
 		UE_LOG(LogTemp, Display, TEXT("바닷물 먹기"));
 		EmptyCup();
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(),
+			UsedSound, GetActorLocation(), GetActorRotation());
 		SurvivalComponent->DecreaseThirst(10);
 	}
 }
