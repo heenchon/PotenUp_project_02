@@ -81,6 +81,9 @@ private:
 	FRotator BiteRotation = FRotator(0, 0, 0);
 	FVector BiteOffset = FVector(0, 0, 0);
 	
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<USoundWave> HitSound;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

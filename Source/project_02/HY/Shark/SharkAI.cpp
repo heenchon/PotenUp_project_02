@@ -89,6 +89,8 @@ void ASharkAI::OnMyBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		}
 		if (CurrentState == ESharkState::AttackRaft)
 		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(),
+				HitSound, GetActorLocation(), GetActorRotation());
 			++CurHitCount;
 			UE_LOG(LogTemp,Display,TEXT("%d대 맞음"), CurHitCount);
 			if (CurHitCount >= 3)
