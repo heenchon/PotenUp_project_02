@@ -16,16 +16,13 @@ void APaddleTest::BeginPlay()
 	if (!Player)
 	{
 		Player = UGameplayStatics::GetPlayerPawn(GetWorld(),0);
-		// UE_LOG(LogTemp,Warning,TEXT("플레이어는? %s"),*Player->GetName());
 	}
 	RaftGameState = GetWorld()->GetGameState<ARaftGameState>();
 
 	DivingCallback.BindDynamic(this, &ThisClass::OnPaddlingPlayCallback);
-	DivingFinish.BindDynamic(this, &ThisClass::OnPaddlingFinish);
 
 	PaddlingTimeline->SetLooping(true);
 	PaddlingTimeline->AddInterpFloat(PaddlingTimingCurve, DivingCallback);
-	PaddlingTimeline->SetTimelineFinishedFunc(DivingFinish);
 }
 
 void APaddleTest::PaddlingStart()
@@ -39,11 +36,27 @@ void APaddleTest::PaddlingStart()
 		//Yaw값만을 반영하는 플레이어 정면
 		const FRotator PlayerRotator = Player->GetActorRotation();
 		PaddleVelocity = FRotator(0.0f, PlayerRotator.Yaw,0.0f).Vector();
-		
+
+		if (!TimerToSail.IsValid())
+		{
+			GetWorld()->GetTimerManager().SetTimer(TimerToSail,
+				FTimerDelegate::CreateUObject(
+					this, &ThisClass::OnPaddleingInTime), SoundCooldown, true, 0);
+		} else
+		{
+		GetWorld()->GetTimerManager().UnPauseTimer(TimerToSail);
+		}
 		PaddlingTimeline->PlayFromStart();
 		bIsPaddling= true;
 	}
 }
+
+void APaddleTest::OnPaddleingInTime()
+{
+	UGameplayStatics::PlaySoundAtLocation(
+		GetWorld(), PaddlingSound, GetActorLocation(), GetActorRotation());
+}
+
 
 void APaddleTest::OnPaddlingPlayCallback(float Output)
 {
@@ -53,13 +66,9 @@ void APaddleTest::OnPaddlingPlayCallback(float Output)
 
 void APaddleTest::PaddlingEnd()
 {
-	UE_LOG(LogTemp, Warning, TEXT("paddling stop"));
 	bIsPaddling= false;
+	GetWorld()->GetTimerManager().PauseTimer(TimerToSail);
 	PaddlingTimeline->Stop();
-}
-
-void APaddleTest::OnPaddlingFinish()
-{
 }
 
 bool APaddleTest::GetPlayerRaft()
