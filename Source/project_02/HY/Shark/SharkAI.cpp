@@ -5,6 +5,7 @@
 #include "Kismet/GameplayStatics.h"
 // #include "project_02/Helper/EnumHelper.h"
 #include "Algo/RandomShuffle.h"
+#include "Components/AudioComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "project_02/Player/BasePlayerController.h"
 #include "project_02/Characters/Component/SwimmingComponent.h"
@@ -173,6 +174,8 @@ void ASharkAI::MoveToRaft(float DeltaTime)
 		GetWorld()->GetTimerManager().SetTimer(SharkTimerHandle,this,&ASharkAI::DamageFloor,FloorDestroyDuration,true);
 		CurHitCount = 0;
 		SetActorRotation(BiteRotation);
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(),
+				WoodBiteSound, GetActorLocation(), GetActorRotation());
 		ChangeState(ESharkState::AttackRaft);
 	}
 }
@@ -185,10 +188,14 @@ void ASharkAI::AttackRaft(float DeltaTime)
 void ASharkAI::DamageFloor()
 {
 	Floor->AddDurability(-1);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(),
+				WoodBiteSound, GetActorLocation(), GetActorRotation());
 	
 	if (Floor->GetCurrentDurability() == 0)
 	{
 		//배가 부서지면, Runaway
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(),
+				WoodBreakSound, GetActorLocation(), GetActorRotation());
 		GetWorld()->GetTimerManager().ClearTimer(SharkTimerHandle);
 		TargetLocation = NewRunawayLocation(GetActorLocation(),MaxDist,MinDist);
 		NextState = ESharkState::RunAway;
