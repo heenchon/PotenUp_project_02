@@ -81,8 +81,14 @@ private:
 	FRotator BiteRotation = FRotator(0, 0, 0);
 	FVector BiteOffset = FVector(0, 0, 0);
 	
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true), Category= "Sound")
 	TObjectPtr<USoundWave> HitSound;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true), Category= "Sound")
+	TObjectPtr<USoundWave> WoodBreakSound;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true), Category= "Sound")
+	TObjectPtr<USoundWave> WoodBiteSound;
 	
 protected:
 	// Called when the game starts or when spawned
