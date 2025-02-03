@@ -51,7 +51,7 @@ void UBuildingComponent::TraceGroundToBuild(const FVector& TraceTo)
 		GetOwner()->GetActorLocation() + TraceTo * TraceRange,
 		GetCheckTraceChannel(),
 		false, IgnoreActors,
-		EDrawDebugTrace::Type::ForOneFrame,
+		EDrawDebugTrace::Type::None,
 		HitResult,
 		true,
 		FLinearColor::Red,
