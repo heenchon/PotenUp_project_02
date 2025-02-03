@@ -4,6 +4,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "RaftGameMode.generated.h"
 
+class ULoadingUI;
+
 UCLASS()
 class PROJECT_02_API ARaftGameMode : public AGameModeBase
 {
@@ -17,9 +19,17 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ULoadingUI> LoadingUIClass;
+
+	UPROPERTY()
+	TObjectPtr<ULoadingUI> LoadingUI;
+	
 	FString MapName;
 	
 	bool IsLoading = false;
+	
+	FTimerHandle LoadingEndTimer;
 
 	UFUNCTION()
 	void OnLevelLoadComplete();

@@ -12,6 +12,7 @@ class PROJECT_02_API ULoadingUI : public UUserWidget
 	GENERATED_BODY()
 
 public:
+	void PlayStart();
 	void PlayEnd();
 
 protected:
