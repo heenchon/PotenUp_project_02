@@ -121,8 +121,11 @@ void ATrashSpawner::RespawnTrashAt(ATrash* Trash)
 
 void ATrashSpawner::UpdateDestroyLocation()
 {
-	FVector newDestroyLoc = Player->GetActorLocation() + GS->WindDirection * -1.0f*(SpawnDistance+DestroyDistance);
-	DestroyCollision->SetWorldLocation(FVector(newDestroyLoc.X, newDestroyLoc.Y, 0.0f));
+	if (Player)
+	{
+		FVector newDestroyLoc = Player->GetActorLocation() + GS->WindDirection * -1.0f*(SpawnDistance+DestroyDistance);
+		DestroyCollision->SetWorldLocation(FVector(newDestroyLoc.X, newDestroyLoc.Y, 0.0f));
+	}
 }
 
 ATrash* ATrashSpawner::NewTrashSpawn()
