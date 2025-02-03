@@ -46,6 +46,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Wireframe", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UMaterial> WireframeBlockMaterial;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Sound", meta = (AllowPrivateAccess = true))
+	TObjectPtr<USoundWave> PlaceSound;
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true, ClampMin = 0))
 	float TraceRange = 0.f;
 	

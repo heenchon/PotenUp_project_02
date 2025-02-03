@@ -304,6 +304,8 @@ void UBuildingComponent::BuildWireframe()
 		return;	
 	}
 
+	UGameplayStatics::PlaySound2D(GetWorld(), PlaceSound);
+	
 	// 설치류 블럭에 대한 대응 처리
 	BuildAndUpdatePlacedObjectData();
 
