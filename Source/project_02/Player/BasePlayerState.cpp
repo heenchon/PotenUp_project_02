@@ -11,6 +11,7 @@
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/Inventory/InventoryHotSlot.h"
 #include "project_02/Widgets/Inventory/InventoryList.h"
+#include "project_02/Widgets/HUD/ItemUI.h"
 
 ABasePlayerState::ABasePlayerState()
 {
@@ -236,6 +237,13 @@ uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 
 	// UI 및 정보 업데이트
 	OnUpdateInventory();
+	ABasePlayerController* PC = Cast<ABasePlayerController>(GetPlayerController());
+	if (PC)
+	{
+		PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(
+		ItemInfo.GetCurrentCount() - RemainResult,
+		ItemInfoById.GetDisplayName(),ItemInfoById.GetThumbnail());
+	}
 	
 	if (RemainResult > 0)
 	{

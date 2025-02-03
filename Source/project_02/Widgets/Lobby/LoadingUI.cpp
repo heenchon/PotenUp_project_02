@@ -14,6 +14,12 @@ void ULoadingUI::OnFinishFadeOut()
 	RemoveFromParent();
 }
 
+void ULoadingUI::PlayStart()
+{
+	PlayAnimation(FadeIn);
+}
+
+
 void ULoadingUI::PlayEnd()
 {
 	PlayAnimation(FadeOut);

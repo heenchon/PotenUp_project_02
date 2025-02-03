@@ -48,4 +48,3 @@ void AWeaponBase::OnOverlapAttackCollision(UPrimitiveComponent* OverlappedCompon
 		nullptr, GetOwner(),
 		UDamageType::StaticClass());
 }
-
