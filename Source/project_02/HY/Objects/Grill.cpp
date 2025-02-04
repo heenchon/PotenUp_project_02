@@ -48,7 +48,7 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 void AGrill::ProcessComplete()
 {
 	Super::ProcessComplete();
-	UE_LOG(LogTemp,Warning,TEXT("물고기 조리 완료."));
+	UE_LOG(LogTemp,Display,TEXT("물고기 조리 완료."));
 	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp, FoodPoint->GetRelativeTransform());
 	fishCooked->AttachToActor(this,FAttachmentTransformRules::KeepRelativeTransform);
 	RawFoodMesh->SetVisibility(false);
@@ -59,7 +59,7 @@ FString AGrill::GetDisplayText() const
 {
 	if (!bIsCooking)
 	{
-		return TEXT("회수하기");
+		return TEXT("Get Food");
 	}
 	
 	const APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
@@ -74,7 +74,7 @@ FString AGrill::GetDisplayText() const
 	
 	if (ItemInfoData.GetOptionData().Find(EOptionDataKey::CookedTo))
 	{
-		return FString::Printf(TEXT("%s 굽기"),* ItemInfoData.GetDisplayName());
+		return FString::Printf(TEXT("%s Cook"),* ItemInfoData.GetDisplayName());
 	}
 
 	return Super::GetDisplayText();

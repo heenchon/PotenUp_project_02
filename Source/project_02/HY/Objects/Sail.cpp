@@ -53,10 +53,10 @@ FString ASail::GetDisplayText() const
 {
 	if (!bSailOn)
 	{
-		return TEXT("돛 펼치기");
+		return TEXT("Unfurl sails");
 	}
 	
-	return TEXT("돛 접기\n돛 돌리기");
+	return TEXT("Furl sails");
 }
 
 

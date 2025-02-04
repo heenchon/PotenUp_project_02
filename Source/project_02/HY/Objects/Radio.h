@@ -30,5 +30,5 @@ public:
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Text", meta = (AllowPrivateAccess = true))
-	FString RadioInteractiveText = TEXT("라디오 틀기");
+	FString RadioInteractiveText = TEXT("Turn On Radio");
 };
