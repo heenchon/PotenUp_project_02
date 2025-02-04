@@ -38,3 +38,8 @@ void AFishCooked::Use()
 	this->Destroy();
 }
 
+FString AFishCooked::GetDisplayText() const
+{
+	return FoodInteractiveText;
+}
+

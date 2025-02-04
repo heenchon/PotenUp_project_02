@@ -33,4 +33,10 @@ protected:
 
 public:
 	virtual void Use() override;
+
+	virtual FString GetDisplayText() const override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Text", meta = (AllowPrivateAccess = true))
+	FString FoodInteractiveText = TEXT("Get Fish");
 };
