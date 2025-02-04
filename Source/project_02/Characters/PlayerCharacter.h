@@ -155,4 +155,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Camera", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UCameraShakeBase> DamagedCameraShake;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Sound", meta = (AllowPrivateAccess = true))
+	TObjectPtr<USoundWave> DamagedSound;
 };
