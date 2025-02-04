@@ -44,7 +44,7 @@ void ARaftGameMode::MoveToGame()
 	UGameplayStatics::UnloadStreamLevel(GetWorld(), "MainLevel", FLatentActionInfo(), true);
 	
 	// 동기 처리기 때문에 이 동작이 완료되지 않는 이상 아래 로직이 수행되지 않는다.
-	UGameplayStatics::LoadStreamLevel(GetWorld(), "Ocean_Test",
+	UGameplayStatics::LoadStreamLevel(GetWorld(), "OceanLevel",
 	true, true, LatentInfo);
 }
 
