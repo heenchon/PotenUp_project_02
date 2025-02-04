@@ -47,7 +47,7 @@ void ABasePlayerController::InitializeData()
 		SpawnTransform = RecentSaveData->LastPlayerTransform;
 	} else
 	{
-		SpawnTransform.SetLocation(PrevPawn->GetActorLocation());
+		SpawnTransform.SetLocation(DefaultSpawnPoint);
 	}
 	
 	if (APlayerCharacter* PlayerPawn = GetWorld()->SpawnActor<APlayerCharacter>(PlayerClass, SpawnTransform))
@@ -84,7 +84,7 @@ void ABasePlayerController::SpawnRaft()
 			Raft = GetWorld()->SpawnActor<ARaft>(RaftClass, GetRecentSaveData()->LastRaftTransform);
 		} else
 		{
-			FVector InitialLocation = GetPawn()->GetActorLocation();
+			FVector InitialLocation = DefaultSpawnPoint;
 			InitialLocation.Z = 0;
 			Raft = GetWorld()->SpawnActor<ARaft>(RaftClass, InitialLocation, FRotator::ZeroRotator);
 		}

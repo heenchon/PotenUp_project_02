@@ -1,9 +1,12 @@
 ﻿#include "Trash.h"
 #include "BuoyancyComponent.h"
+#include "TrashSpawner.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Helper/ItemHelper.h"
 #include "project_02/DataTable/ItemInfoData.h"
 #include "project_02/HY/RaftGameState.h"
+#include "project_02/HY/Raft/Raft.h"
+#include "project_02/Player/BasePlayerController.h"
 
 
 ATrash::ATrash()
@@ -64,7 +67,8 @@ void ATrash::UpdateItemInfo(const uint32 RemainCount)
 {
 	if (RemainCount == 0)
 	{
-		Destroy();
+		GetWorld()->GetFirstPlayerController<ABasePlayerController>()
+		->GetPlayerRaft()->GetTrashSpawner()->DeactivePooledObject(this);
 	} else
 	{
 		ItemMetaInfo.SetCurrentCount(RemainCount);

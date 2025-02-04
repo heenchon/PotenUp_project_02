@@ -5,6 +5,7 @@
 #include "project_02/DataTable/BuildData.h"
 #include "Raft.generated.h"
 
+class ATrashSpawner;
 class ABuildingWall;
 class ABuildingFloor;
 class ABuildingActor;
@@ -29,6 +30,7 @@ public:
 	
 	float SailStrength = 1.0f;
 
+	FORCEINLINE TObjectPtr<ATrashSpawner> GetTrashSpawner() const { return TrashSpawner; }
 	FORCEINLINE TMap<FVector, FBuildData> GetRaftBuildMetaData() const { return RaftBuildMetaData; }
 	FORCEINLINE TMap<FVector, ABuildingActor*> GetRaftBuildPointerData() const { return RaftBuildPointerData; }
 	FORCEINLINE TMap<FVector, TArray<FPlacedObjectData>> GetRaftPlacedObjectData() const { return RaftPlacedObjectData; }
@@ -43,9 +45,10 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
-	void SpawnSailActor();
 
 private:
+	void SpawnSailActor();
+	void SpawnTrashSpawner();
 	// 벽과 바닥 등 순수 건축물에 대한 정보 메타 데이터 값
 	// 벽의 경우는 바닥이 2, 3이라면 그 중간 2.5에 높이는 동일하게 가져간다.
 	// 즉 벽은 바닥과 바닥 사이의 정보를 검증하는 역할
@@ -55,6 +58,9 @@ private:
 
 	TMap<FVector, TArray<FPlacedObjectData>> RaftPlacedObjectData;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Options", meta = (AllowPrivateAccess = true))
+	TSubclassOf<ATrashSpawner> TrashSpawnerClass;
+
 	void InitializeData();
 
 	void PlaceInitialBuild();
@@ -63,6 +69,9 @@ private:
 
 	UPROPERTY()
 	TObjectPtr<ABuildingActor> CenterBuildActor;
+
+	UPROPERTY()
+	TObjectPtr<ATrashSpawner> TrashSpawner;
 
 	void InitializeAttachFloor(ABuildingFloor* NewFloor);
 	

@@ -13,6 +13,7 @@
 #include "project_02/Game/RaftSaveGame.h"
 #include "project_02/Helper/BuildingHelper.h"
 #include "project_02/HY/Objects/PlaceObjects.h"
+#include "project_02/HY/Trash/TrashSpawner.h"
 #include "project_02/Player/BasePlayerController.h"
 
 ARaft::ARaft()
@@ -57,6 +58,7 @@ void ARaft::Initialize()
 {
 	InitializeData();
 	SpawnSailActor();
+	SpawnTrashSpawner();
 }
 
 void ARaft::Tick(float DeltaTime)
@@ -67,6 +69,12 @@ void ARaft::Tick(float DeltaTime)
 	
 	AddActorLocalOffset(RaftGameState->WindDirection
 		* DeltaTime * RaftGameState->WindStrength * SailStrength);
+}
+
+void ARaft::SpawnTrashSpawner()
+{
+	TrashSpawner = GetWorld()->SpawnActor<ATrashSpawner>(TrashSpawnerClass);
+	TrashSpawner->Initialize();
 }
 
 void ARaft::SpawnSailActor()
