@@ -24,6 +24,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Materials")
 	UMaterialInterface* Fresh;
 	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundWave> WaterBoilingSound;
+
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> BoilingSoundComponent;
+	
 	bool bIsPurified;
 	bool bIsWater = false;
 	
