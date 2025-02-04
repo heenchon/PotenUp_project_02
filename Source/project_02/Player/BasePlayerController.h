@@ -46,6 +46,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Player", meta = (AllowPrivateAccess = true))
 	TSubclassOf<APlayerCharacter> PlayerClass;
 	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Player", meta = (AllowPrivateAccess = true))
+	FVector DefaultSpawnPoint = {-23900, 0, 350};
+	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|UI", meta = (AllowPrivateAccess = true))
 	TSubclassOf<UMainUI> MainUIClass;
 	
