@@ -56,7 +56,7 @@ void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 		//컵 속의 물을 없애고, 정수 시작
 		if (cup->bIsSea)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("정수기에 바닷물 넣기"));
+			UE_LOG(LogTemp, Display, TEXT("정수기에 바닷물 넣기"));
 			WaterMesh->SetVisibility(true);
 			WaterMesh->SetMaterial(0,Ocean);
 			cup->EmptyCup();
@@ -68,7 +68,7 @@ void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 void AWaterPurifier::ProcessComplete()
 {
 	Super::ProcessComplete();
-	UE_LOG(LogTemp, Warning, TEXT("정수 완료."));
+	UE_LOG(LogTemp, Display, TEXT("정수 완료."));
 	WaterMesh->SetMaterial(0,Fresh);
 	bIsPurified = true;
 }
@@ -87,8 +87,14 @@ FString AWaterPurifier::GetDisplayText() const
 	
 	if (ItemInfoData.GetOptionData().Find(EOptionDataKey::CookedTo))
 	{
-		return FString::Printf(TEXT("%s 끓이기"),* ItemInfoData.GetDisplayName());
+		if (!bIsPurified)
+		{
+			if (bIsWater)
+			{
+				return FString::Printf(TEXT("%s Get Fresh Water"),* ItemInfoData.GetDisplayName());
+			}
+			return FString::Printf(TEXT("%s Add Seawater"),* ItemInfoData.GetDisplayName());
+		}
 	}
-
 	return Super::GetDisplayText();
 }

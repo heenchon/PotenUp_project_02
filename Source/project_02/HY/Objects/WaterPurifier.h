@@ -25,6 +25,7 @@ public:
 	UMaterialInterface* Fresh;
 	
 	bool bIsPurified;
+	bool bIsWater = false;
 	
 	virtual FString GetDisplayText() const override;
 
