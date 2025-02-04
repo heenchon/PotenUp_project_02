@@ -20,6 +20,7 @@
 #include "project_02/HY/Objects/PlaceObjects.h"
 
 // TODO: 상민띠가 아이템 클래스 만들면 교체
+#include "Kismet/GameplayStatics.h"
 #include "project_02/HY/Items/Usable_Item.h"
 #include "project_02/HY/Objects/Sail.h"
 #include "project_02/Weapon/WeaponBase.h"
@@ -230,9 +231,9 @@ void APlayerCharacter::OnInteractivePressed()
 		Weapon->Attack();
 	}
 	
-	if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
+	if (AUsable_Item* UsableItem = Cast<AUsable_Item>(MainHandTool))
 	{
-		static_cast<AUsable_Item*>(MainHandTool)->Use();
+		UsableItem->Use();
 	}
 
 	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
@@ -397,6 +398,7 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 	const FVector LaunchTo = (GetActorLocation() - DamageCauser->GetActorLocation()).GetSafeNormal(1);
 	AddMovementInput(LaunchTo, DamageAmount, true);
 	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DamagedCameraShake);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamagedSound, GetActorLocation(), GetActorRotation());
 	return DamageAmount;
 }
 
