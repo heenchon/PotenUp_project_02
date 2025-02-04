@@ -54,15 +54,21 @@ void AWaterPurifier::Interact(AUsable_Item* input, int curItemIndex)
 			ABasePlayerController* PC = Cast<ABasePlayerController>(GetWorld()->GetFirstPlayerController());
 			check(PC)
 			PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(1,ItemInfoData.GetDisplayName(),ItemInfoData.GetThumbnail());
-			BoilingSoundComponent->Deactivate();
+			if (BoilingSoundComponent)
+			{
+				BoilingSoundComponent->Deactivate();
+			}
 			return;
 		}
 		//컵 속의 물을 없애고, 정수 시작
 		if (cup->bIsSea)
 		{
 			UE_LOG(LogTemp, Display, TEXT("정수기에 바닷물 넣기"));
-			BoilingSoundComponent->Activate();
-			BoilingSoundComponent->Play();
+			if (BoilingSoundComponent)
+			{
+				BoilingSoundComponent->Activate();
+				BoilingSoundComponent->Play();
+			}
 			WaterMesh->SetVisibility(true);
 			WaterMesh->SetMaterial(0,Ocean);
 			cup->EmptyCup();

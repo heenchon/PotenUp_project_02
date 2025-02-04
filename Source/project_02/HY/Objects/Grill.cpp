@@ -42,8 +42,11 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 			fishRaw->PutOnGrill();
 			bIsCooking = true;
 			RawFoodMesh->SetVisibility(true);
-			GrillingSoundComponent->Activate();
-			GrillingSoundComponent->Play();
+			if (GrillingSoundComponent)
+			{
+				GrillingSoundComponent->Activate();
+				GrillingSoundComponent->Play();	
+			}
 			ProcessStart();
 		}
 	}
@@ -55,7 +58,10 @@ void AGrill::ProcessComplete()
 	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp, FoodPoint->GetRelativeTransform());
 	fishCooked->AttachToActor(this,FAttachmentTransformRules::KeepRelativeTransform);
 	RawFoodMesh->SetVisibility(false);
-	GrillingSoundComponent->Deactivate();
+	if (GrillingSoundComponent)
+	{
+		GrillingSoundComponent->Deactivate();
+	}
 	bIsCooking = false;
 }
 
