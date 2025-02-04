@@ -3,7 +3,9 @@
 #include "FishingFloat.h"
 
 #include "FishingRod.h"
+#include "MaterialHLSLTree.h"
 #include "Components/BoxComponent.h"
+#include "Components/WidgetComponent.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -16,6 +18,10 @@ AFishingFloat::AFishingFloat()
 	StaticMesh->SetupAttachment(Root);
 	Collision = CreateDefaultSubobject<UBoxComponent>("Collision");
 	Collision->SetupAttachment(StaticMesh);
+
+	FishWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComponent"));
+	FishWidget->SetupAttachment(RootComponent);
+	FishWidget->SetVisibility(false);
 }
 
 void AFishingFloat::BeginPlay()
@@ -63,6 +69,7 @@ void AFishingFloat::Waiting(float deltaTime)
 	{
 		CurTime = 0.0f;
 		//낚싯대->물고기 낚였다는 정보 전달.
+		FishWidget->SetVisibility(true);
 		FishingRod->StartFishing();
 		StartLocation = GetActorLocation();
 		ZTimeline.PlayFromStart();
@@ -75,9 +82,11 @@ void AFishingFloat::Fishing(float deltaTime)
 {
 	// UE_LOG(LogTemp, Display, TEXT("물고기와 겨루는 중..."));
 	CurTime += deltaTime;
+	ZTimeline.TickTimeline(deltaTime);
 	if (CurTime > FishingTime)
 	{
 		UE_LOG(LogTemp, Display, TEXT("물고기 놓쳤썩"));
+		FishWidget->SetVisibility(false);
 		FishingRod->FishingFail();
 		Destroy();
 	}

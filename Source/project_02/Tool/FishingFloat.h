@@ -7,6 +7,7 @@
 #include "GameFramework/Actor.h"
 #include "FishingFloat.generated.h"
 
+class UWidgetComponent;
 class AFishingRod;
 
 UCLASS()
@@ -70,5 +71,9 @@ public:
 	void Fishing(float deltaTime);
 	void SetFishingRod(AFishingRod* fishingRod);
 	void FishBate(float value);
+
+private:
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UWidgetComponent> FishWidget;
 };
 
