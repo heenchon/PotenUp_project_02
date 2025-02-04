@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "BuildingActor.h"
+#include "project_02/DataTable/BuildData.h"
 #include "BuildingFloor.generated.h"
 
 UCLASS()
@@ -12,13 +13,17 @@ class PROJECT_02_API ABuildingFloor : public ABuildingActor
 public:
 	ABuildingFloor();
 	
-	virtual void SetCenter() override;
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
+	virtual void AddDurability(const int8 AddValue) override;
+
+	TObjectPtr<UBoxComponent> GetFloorBoxByDirection(const EBlockPos Direction, const bool IsReverse = false);
+	TObjectPtr<USceneComponent> GetWallPlaceVectorByDirection(const EBlockPos Direction, const bool IsReverse = false);
+	TObjectPtr<USceneComponent> GetWallPlaceVectorByComponentBox(const UPrimitiveComponent* ComponentBox, const bool IsReverse = false);
 	
 	void UpdateWireframeBoxInfo();
-	
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -35,6 +40,9 @@ private:
 	
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UBoxComponent> SouthBodyBox;
+
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UDecalComponent> CrackDecal;
 	
 	// TODO: 이 부분 별도의 Actor Component 고려해보기
 	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = true))
@@ -62,4 +70,6 @@ private:
 		AActor* OtherActor, UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex, bool bFromSweep,
 		const FHitResult& SweepResult);
+
+	float Durability = 3.0f;
 };

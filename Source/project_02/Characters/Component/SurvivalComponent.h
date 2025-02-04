@@ -16,6 +16,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE bool GetIsDied() const { return IsDied; }
+	FORCEINLINE TPair<uint8, uint8> GetHealthMap() const { return HealthInfo; }
+	FORCEINLINE TPair<uint8, uint8> GetHungerMap() const { return HungerInfo; }
+	FORCEINLINE TPair<uint8, uint8> GetThirstMap() const { return ThirstInfo; }
 
 	void SetHealth(const uint8 NewValue);
 	void SetHunger(const uint8 NewValue);
@@ -34,8 +37,7 @@ public:
 	
 	void InitialSurvivalData();
 	
-protected:
-	virtual void BeginPlay() override;
+	void Initialize();
 
 private:
 	bool IsDied = false;

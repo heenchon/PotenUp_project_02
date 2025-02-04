@@ -4,10 +4,11 @@
 #include "TrashSpawner.h"
 
 #include "Trash.h"
-#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/BoxComponent.h"
+#include "project_02/HY/Raft/Raft.h"
 #include "project_02/HY/RaftGameState.h"
-
+#include "project_02/Player/BasePlayerController.h"
 
 ATrashSpawner::ATrashSpawner()
 {
@@ -25,12 +26,11 @@ void ATrashSpawner::MyOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	}
 }
 
-void ATrashSpawner::BeginPlay()
+void ATrashSpawner::Initialize()
 {
-	Super::BeginPlay();
 	DestroyCollision->OnComponentBeginOverlap.AddDynamic(this,&ATrashSpawner::MyOverlap);
 	
-	Player = UGameplayStatics::GetPlayerPawn(GetWorld(), 0);
+	BaseRaft = GetWorld()->GetFirstPlayerController<ABasePlayerController>()->GetPlayerRaft();
 	GS = Cast<ARaftGameState>(UGameplayStatics::GetGameState(GetWorld()));
 	
 	PooledObjects.Empty(PoolSize);
@@ -95,10 +95,10 @@ TSubclassOf<ATrash> ATrashSpawner::GetRandomTrash()
 
 FVector ATrashSpawner::GetRandomLocation() // 오브젝트 스폰할 랜덤 위치 지정
 {
-	if (Player)
+	if (BaseRaft)
 	{
-		FVector playerLoc = Player->GetActorLocation();
-		FVector targetLoc = playerLoc + GS->WindDirection*SpawnDistance;
+		FVector RaftLocation = BaseRaft->GetActorLocation();
+		FVector targetLoc = RaftLocation + GS->WindDirection*SpawnDistance;
 		
 		float randX= FMath::FRandRange(-X, X);
 		float randY= FMath::FRandRange(-Y, Y);
@@ -121,8 +121,11 @@ void ATrashSpawner::RespawnTrashAt(ATrash* Trash)
 
 void ATrashSpawner::UpdateDestroyLocation()
 {
-	FVector newDestroyLoc = Player->GetActorLocation() + GS->WindDirection * -1.0f*(SpawnDistance+DestroyDistance);
-	DestroyCollision->SetWorldLocation(FVector(newDestroyLoc.X, newDestroyLoc.Y, 0.0f));
+	if (BaseRaft)
+	{
+		FVector newDestroyLoc = BaseRaft->GetActorLocation() + GS->WindDirection * -1.0f*(SpawnDistance+DestroyDistance);
+		DestroyCollision->SetWorldLocation(FVector(newDestroyLoc.X, newDestroyLoc.Y, 0.0f));
+	}
 }
 
 ATrash* ATrashSpawner::NewTrashSpawn()

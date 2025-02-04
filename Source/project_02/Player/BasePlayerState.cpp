@@ -5,9 +5,13 @@
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Characters/Component/InventoryComponent.h"
 #include "project_02/DataTable/ItemInfoData.h"
+#include "project_02/Game/RaftSaveGame.h"
 #include "project_02/Helper/ItemHelper.h"
+#include "project_02/Widgets/HUD/PlayerEquipmentUI.h"
 #include "project_02/Widgets/HUD/PlayerGameUI.h"
 #include "project_02/Widgets/Inventory/InventoryHotSlot.h"
+#include "project_02/Widgets/Inventory/InventoryList.h"
+#include "project_02/Widgets/HUD/ItemUI.h"
 
 ABasePlayerState::ABasePlayerState()
 {
@@ -16,8 +20,25 @@ ABasePlayerState::ABasePlayerState()
 
 void ABasePlayerState::InitializeData()
 {
+	// 아래 부터는 게임을 처음 시작한 경우 초기 아이템을 지급하는 로직
 	const FItemMetaInfo EmptyItem;
 	PlayerInventoryList.Init(EmptyItem, GetTotalSlotCount());
+	
+	if (ABasePlayerController* PC = Cast<ABasePlayerController>(GetPlayerController()))
+	{
+		if (PC->GetRecentSaveData()->IsAlreadyStart)
+		{
+			// 순회를 돌면서 값을 복사해서 넣어둔다.
+			for (int i = 0; i < PC->GetRecentSaveData()->PlayerInventoryList.Num(); i++)
+			{
+				// 복사해서 넣어주는 것이 좋다.
+				PlayerInventoryList[i] = PC->GetRecentSaveData()->PlayerInventoryList[i];
+			}
+			
+			UpdateCurrentRemainItemValue();
+			return;
+		}
+	}
 	
 	for (int i = 0; i < InitialItemList.Num(); i++)
 	{
@@ -33,12 +54,22 @@ void ABasePlayerState::InitializeData()
 	UpdateCurrentRemainItemValue();
 }
 
+bool ABasePlayerState::HasItemInInventory(const uint32 Id, const uint32 Count)
+{
+	if (CurrentRemainItemValue.Find(Id))
+	{
+		return CurrentRemainItemValue[Id] >= Count;
+	}
+	
+	return false;
+}
+
 // TODO: 이건 내부 로직에서 아이템 변경될 때 마다 처리하기
 void ABasePlayerState::UpdateCurrentRemainItemValue()
 {
 	TMap<uint32, uint32> NewMap;
 	
-	for (int i = 0; i < InitialItemList.Num(); i++)
+	for (int i = 0; i < PlayerInventoryList.Num(); i++)
 	{
 		if (NewMap.Find(PlayerInventoryList[i].GetId())) 
 		{
@@ -51,10 +82,6 @@ void ABasePlayerState::UpdateCurrentRemainItemValue()
 	}
 	CurrentRemainItemValue.Empty();
 	CurrentRemainItemValue.Append(NewMap); 
-}
-
-void ABasePlayerState::BeginPlay()
-{
 }
 
 void ABasePlayerState::SwapItemInInventory(const uint16 Prev, const uint16 Next)
@@ -88,7 +115,7 @@ void ABasePlayerState::SetPlayerHandItemByPS(const uint16 NewIndex)
 	}
 }
 
-
+// 특정 Index에 특정 아이템을 넣어둔다.
 uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaInfo& ItemInfo)
 {
 	const FItemInfoData& ItemInfoById = FItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
@@ -142,7 +169,7 @@ uint32 ABasePlayerState::AddItemToInventory(const uint16 Index, const FItemMetaI
 		}
 	}
 
-	UpdateCurrentRemainItemValue();
+	OnUpdateInventory();
 	return RemainCount > 0 ? RemainCount : 0;
 }
 
@@ -154,7 +181,6 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 		const FItemMetaInfo ClearItemMeta;
 		PlayerInventoryList[Index] = ClearItemMeta;
 		OnUpdateInventory();
-		UpdateCurrentRemainItemValue();
 		return true;
 	}
 	
@@ -176,6 +202,7 @@ bool ABasePlayerState::DropItem(const uint16 Index, const uint32 Count)
 	return true;
 }
 
+// 정해진 규칙에 의거해 아이템을 순서대로 넣어둔다.
 uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 {
 	const FItemInfoData& ItemInfoById = FItemHelper::GetItemInfoById(GetWorld(), ItemInfo.GetId());
@@ -208,15 +235,22 @@ uint32 ABasePlayerState::AddItem(const FItemMetaInfo& ItemInfo)
 		}
 	}
 
+	// UI 및 정보 업데이트
+	OnUpdateInventory();
+	ABasePlayerController* PC = Cast<ABasePlayerController>(GetPlayerController());
+	if (PC)
+	{
+		PC->GetPlayerUI()->ItemMainUI->AddItemGetUI(
+		ItemInfo.GetCurrentCount() - RemainResult,
+		ItemInfoById.GetDisplayName(),ItemInfoById.GetThumbnail());
+	}
+	
 	if (RemainResult > 0)
 	{
 		// TODO: 이후에 대한 처리 로직은 다른 곳에 이관해야 함
 		UE_LOG(LogTemp, Error, TEXT("인벤토리 초과함"))
 		return RemainResult;
 	}
-
-	// UI 업데이트
-	OnUpdateInventory();
 	
 	return 0;
 }
@@ -225,6 +259,7 @@ bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
 {
 	uint32 RemainNum = Count;
 	TArray<uint32> CanRemoveIndexList;
+	
 	for (int i = 0; i < GetTotalSlotCount(); i++)
 	{
 		if (PlayerInventoryList[i].GetId() == Id)
@@ -278,10 +313,24 @@ bool ABasePlayerState::RemoveItem(const uint16 Id, const uint32 Count)
 	return false;
 }
 
+// TODO: 이 함수가 여러번 호출될 수 있음. 차라리 모든 인벤 업데이트 이후 별도로 처리하는 것 또한 좋아보임
 void ABasePlayerState::OnUpdateInventory()
 {
-	ABasePlayerController* PC = static_cast<ABasePlayerController*>(GetPlayerController());
+	if (ABasePlayerController* PC = Cast<ABasePlayerController>(GetPlayerController()))
+	{
+		PC->GetPlayerUI()->GetInventoryHotSlot()->UpdateInventoryArray();
+	}
+
+	if (const APlayerCharacter* Player = GetPawn<APlayerCharacter>())
+	{
+		if (!Player->GetInventoryComponent()->GetInventoryUI())
+		{
+			return;
+		}
+		
+		Player->GetInventoryComponent()->GetInventoryUI()
+		->GetInventoryList()->UpdateInventoryArray();
+	}
 
 	UpdateCurrentRemainItemValue();
-	PC->GetPlayerUI()->GetInventoryHotSlot()->UpdateInventoryArray();
 }

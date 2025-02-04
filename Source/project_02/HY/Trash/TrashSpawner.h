@@ -1,11 +1,11 @@
 ﻿// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "TrashSpawner.generated.h"
 
+class ARaft;
 class UBoxComponent;
 class ATrash;
 class APawn;
@@ -23,7 +23,8 @@ public:
 	UBoxComponent* DestroyCollision;
 
 	UPROPERTY()
-	APawn* Player;
+	TObjectPtr<ARaft> BaseRaft;
+	
 	UPROPERTY()
 	const ARaftGameState* GS;
 	
@@ -43,9 +44,8 @@ public:
 	float SpawnDistance = 3000.0f;
 	UPROPERTY(EditAnywhere, Category = "Object Pool|Distance")
 	float DestroyDistance = 1000.0f;
-	
-protected:
-	virtual void BeginPlay() override;
+
+	void Initialize();
 
 private:
 	TArray<ATrash*> PooledObjects;

@@ -4,13 +4,15 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "project_02/Tool/InteractiveInterface.h"
 #include "PlaceObjects.generated.h"
 
 class AUsable_Item;
+class ABuildingActor;
 class ABasePlayerState;
 
 UCLASS()
-class PROJECT_02_API APlaceObjects : public AActor
+class PROJECT_02_API APlaceObjects : public AActor, public IInteractiveInterface
 {
 	GENERATED_BODY()
 
@@ -52,10 +54,14 @@ public:
 	UPROPERTY()
 	TArray<TObjectPtr<UMaterialInterface>> OriginMaterials;
 	
-	FORCEINLINE void SetDefaultMaterial();
-	
+	void SetDefaultMaterial();
 	void SetWireframeMaterial(UMaterial* NewMaterial);
+	
+	FORCEINLINE uint32 GetId() const { return Id; }
 
+protected:
+	uint32 Id;
+	
 private:
 	UFUNCTION()
 	void OnBeginOverlapMesh(UPrimitiveComponent* OverlappedComponent,

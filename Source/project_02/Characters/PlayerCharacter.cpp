@@ -20,6 +20,7 @@
 #include "project_02/HY/Objects/PlaceObjects.h"
 
 // TODO: 상민띠가 아이템 클래스 만들면 교체
+#include "Kismet/GameplayStatics.h"
 #include "project_02/HY/Items/Usable_Item.h"
 #include "project_02/HY/Objects/Sail.h"
 #include "project_02/Weapon/WeaponBase.h"
@@ -41,13 +42,20 @@ APlayerCharacter::APlayerCharacter()
 	CameraComponent->SetupAttachment(SpringArm);
 }
 
-void APlayerCharacter::BeginPlay()
+void APlayerCharacter::PossessedBy(AController* NewController)
 {
-	Super::BeginPlay();
+	Super::PossessedBy(NewController);
+	
+	const APlayerController* PC = Cast<APlayerController>(NewController);
+	
+	if (!PC)
+	{
+		return;
+	}
 	
 	if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
 			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-				GetLocalViewingPlayerController()->GetLocalPlayer()))
+				PC->GetLocalPlayer()))
 	{
 		Subsystem->AddMappingContext(DefaultMappingContext, 0);
 	}
@@ -79,12 +87,23 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		, this, &ThisClass::RotatePressed);
 		EnhancedInputComponent->BindAction(RotateInputAction, ETriggerEvent::Triggered
 		, this, &ThisClass::RotateReleased);
+		
+		EnhancedInputComponent->BindAction(SaveInputAction, ETriggerEvent::Started
+		, this, &ThisClass::SaveGame);
 	}
+
+	// Input 관련 정보도 여기 들어있기 때문에 초기 세팅을
+	// SetupPlayerInputComponent 시점에서 같이 처리해준다. (좋은 코드 방식은 아닌 것 같음 - 명시적이지 않다)
+	BuildingComponent->Initialize();
+	InventoryComponent->Initialize();
+	SurvivalComponent->Initialize();
+	SwimmingComponent->Initialize();
 }
 
 // E키 사용
 void APlayerCharacter::UseItem()
 {
+	
 	ABasePlayerState* PS = static_cast<ABasePlayerState*>(GetPlayerState());
 	
 	if (IsValid(FindDroppedActor) && FindDroppedActor.IsA(ATrash::StaticClass()))
@@ -93,6 +112,7 @@ void APlayerCharacter::UseItem()
 		
 		const uint32 RemainValue = PS->AddItem(Trash->GetItemMetaInfo());
 		Trash->UpdateItemInfo(RemainValue);
+		
 		return;
 	}
 
@@ -166,7 +186,7 @@ void APlayerCharacter::SetViewItemOnHand(const FItemInfoData& NewItemInfo)
 	{
 		BuildingComponent->SetBuildMode(true);
 		BuildingComponent->SetCustomBuildBlueprint(NewItemInfo.GetShowItemActor());
-		BuildingComponent->SetBuildType(EBuildType::Object);
+		BuildingComponent->SetBuildType(EBlockCategory::Object);
 		return;
 	}
 
@@ -211,9 +231,9 @@ void APlayerCharacter::OnInteractivePressed()
 		Weapon->Attack();
 	}
 	
-	if (MainHandTool && MainHandTool.IsA(AUsable_Item::StaticClass()))
+	if (AUsable_Item* UsableItem = Cast<AUsable_Item>(MainHandTool))
 	{
-		static_cast<AUsable_Item*>(MainHandTool)->Use();
+		UsableItem->Use();
 	}
 
 	if (MainHandTool && MainHandTool.IsA(APaddleTest::StaticClass()))
@@ -375,6 +395,10 @@ float APlayerCharacter::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 {
 	UE_LOG(LogTemp, Display, TEXT("Player Damaged Value: %f"), DamageAmount);
 	SurvivalComponent->AddDamage(static_cast<uint8>(DamageAmount));
+	const FVector LaunchTo = (GetActorLocation() - DamageCauser->GetActorLocation()).GetSafeNormal(1);
+	AddMovementInput(LaunchTo, DamageAmount, true);
+	GetWorld()->GetFirstPlayerController()->ClientStartCameraShake(DamagedCameraShake);
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), DamagedSound, GetActorLocation(), GetActorRotation());
 	return DamageAmount;
 }
 
@@ -384,3 +408,10 @@ bool APlayerCharacter::IsBlockAction() const
 	return SurvivalComponent->GetIsDied() || InventoryComponent->GetIsOpenInventory();
 }
 
+void APlayerCharacter::SaveGame()
+{
+	if (ABasePlayerController* PC = GetController<ABasePlayerController>())
+	{
+		PC->SaveGame();
+	}
+}

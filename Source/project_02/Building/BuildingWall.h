@@ -16,6 +16,9 @@ public:
 	virtual void OnWireframeActive() override;
 	virtual void OnWireframeInactive() override;
 	virtual void UpdateBuildData(const UPrimitiveComponent* TargetComp, ABuildingActor* ChildBuild) override;
+	
+	TObjectPtr<UBoxComponent> GetBoxByDirection(const EBlockPos Direction, const bool IsReverse = false) const;
+	void UpdateWireframeBoxInfo();
 
 protected:
 	virtual void BeginPlay() override;

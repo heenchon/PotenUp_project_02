@@ -12,10 +12,8 @@ USurvivalComponent::USurvivalComponent()
 	
 }
 
-void USurvivalComponent::BeginPlay()
+void USurvivalComponent::Initialize()
 {
-	Super::BeginPlay();
-	
 	InitialSurvivalData();
 }
 
@@ -97,8 +95,11 @@ void USurvivalComponent::OnChangedHealth()
 		
 		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
 		check(PC);
-		
-		PC->GetPlayerUI()->SetHealthPercent(HealthInfo.Key, HealthInfo.Value);
+
+		if (PC->GetPlayerUI())
+		{
+			PC->GetPlayerUI()->SetHealthPercent(HealthInfo.Key, HealthInfo.Value);
+		}
 	}
 }
 
@@ -110,9 +111,10 @@ void USurvivalComponent::OnChangedHunger()
 		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
 		check(PC);
 		
-		
-		
-		PC->GetPlayerUI()->SetHungerPercent(HungerInfo.Key, HungerInfo.Value);
+		if (PC->GetPlayerUI())
+		{
+			PC->GetPlayerUI()->SetHungerPercent(HungerInfo.Key, HungerInfo.Value);
+		}
 	}
 }
 
@@ -124,7 +126,10 @@ void USurvivalComponent::OnChangedThirst()
 		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
 		check(PC);
 		
-		PC->GetPlayerUI()->SetThirstPercent(ThirstInfo.Key, ThirstInfo.Value);
+		if (PC->GetPlayerUI())
+		{
+			PC->GetPlayerUI()->SetThirstPercent(ThirstInfo.Key, ThirstInfo.Value);
+		}
 	}
 }
 

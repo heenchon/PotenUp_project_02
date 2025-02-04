@@ -44,11 +44,21 @@ void ASail::BeginPlay()
 		WindStrength = RaftGameState->WindStrength;
 	}
 	
-	APlayerCharacter* player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
-	PlayerController = player->GetController();
+	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 	//TODO: 후에 에셋 바꾸면 필요없어질 내용.
 	SetActorScale3D(FVector(0.2, 2.0, 1.0));
 }
+
+FString ASail::GetDisplayText() const
+{
+	if (!bSailOn)
+	{
+		return TEXT("Unfurl sails");
+	}
+	
+	return TEXT("Furl sails");
+}
+
 
 // Called every frame
 void ASail::Tick(float DeltaTime)

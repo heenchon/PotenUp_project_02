@@ -51,12 +51,11 @@ public:
 	ASail* Sail;
 	
 protected:
-	virtual void BeginPlay() override;
+	virtual void PossessedBy(AController* NewController) override;
 
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
 
 private:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, meta=(AllowPrivateAccess = true))
@@ -99,10 +98,13 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> UseInputAction;
 
-	//희연
 	UPROPERTY(EditAnywhere, Category = "Options|Input"
 		, meta = (AllowPrivateAccess = true))
 	TObjectPtr<UInputAction> RotateInputAction;
+	
+	UPROPERTY(EditAnywhere, Category = "Options|Input"
+		, meta = (AllowPrivateAccess = true))
+	TObjectPtr<UInputAction> SaveInputAction;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Options|Data"
 		, meta = (AllowPrivateAccess = true))
@@ -112,15 +114,11 @@ private:
 		, meta = (AllowPrivateAccess = true))
 	float UseInteractiveRange;
 
-	// TODO: Inventory 보다 더 적절한 곳이 있어 보여 우선
-	// PlayerCharacter로 처리
 	UPROPERTY()
 	TObjectPtr<AActor> FindDroppedActor;
 
 	bool IsInteracting;
 
-	// TODO: 추후 HookRope 자체를 공통화해서 상호작용하는 액터 자체를 적용할 예정
-	// 우선은 하드코딩으로 처리
 	UPROPERTY()
 	TObjectPtr<AActor> MainHandTool;
 
@@ -147,8 +145,17 @@ private:
 	void RotatePressed();
 	UFUNCTION()
 	void RotateReleased();
+
+	UFUNCTION()
+	void SaveGame();
 	
 	void FindToUse();
 	
 	bool IsBlockAction() const;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Camera", meta = (AllowPrivateAccess = true))
+	TSubclassOf<UCameraShakeBase> DamagedCameraShake;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Sound", meta = (AllowPrivateAccess = true))
+	TObjectPtr<USoundWave> DamagedSound;
 };

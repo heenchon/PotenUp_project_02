@@ -18,6 +18,8 @@ public:
 	TSubclassOf<class UUserWidget> EndingWidgetClass;
 	UPROPERTY()
 	UUserWidget* EndingUI;
+
+	virtual FString GetDisplayText() const override;
 	
 protected:
 	virtual void BeginPlay() override;
@@ -25,4 +27,8 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void Interact() override;
+
+private:
+	UPROPERTY(EditDefaultsOnly, Category = "Options|Text", meta = (AllowPrivateAccess = true))
+	FString RadioInteractiveText = TEXT("Turn On Radio");
 };

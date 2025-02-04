@@ -5,6 +5,8 @@
 
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Building/BuildingFloor.h"
+#include "project_02/HY/Raft/Raft.h"
+#include "project_02/Player/BasePlayerController.h"
 #include "project_02/Player/BasePlayerState.h"
 
 // Sets default values

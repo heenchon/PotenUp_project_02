@@ -41,6 +41,7 @@ protected:
 
 private:
 	FVector PaddleVelocity;
+	uint8 SoundCooldown = 2;
 	
 	FTimerHandle PaddleTimerHandle;
 	
@@ -50,15 +51,18 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
 	TObjectPtr<UCurveFloat> PaddlingTimingCurve;
 	
-	FOnTimelineFloat DivingCallback;
+	UPROPERTY(EditDefaultsOnly, Category="Options", meta = (AllowPrivateAccess = true))
+	TObjectPtr<USoundWave> PaddlingSound;
 	
-	FOnTimelineEvent DivingFinish;
+	FOnTimelineFloat DivingCallback;
+
+	FTimerHandle TimerToSail;
 	
 	UFUNCTION()
 	void OnPaddlingPlayCallback(float Output);
-	
+
 	UFUNCTION()
-	void OnPaddlingFinish();
+	void OnPaddleingInTime();
 	
 public:
 	UFUNCTION()

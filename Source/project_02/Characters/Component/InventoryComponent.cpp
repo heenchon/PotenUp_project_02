@@ -15,9 +15,8 @@ UInventoryComponent::UInventoryComponent()
 {
 }
 
-void UInventoryComponent::BeginPlay()
+void UInventoryComponent::Initialize()
 {
-	Super::BeginPlay();
 	if (const APlayerCharacter* Player = Cast<APlayerCharacter>(GetOwner()))
 	{
 		if (UEnhancedInputComponent* EnhancedInputComponent = Cast<UEnhancedInputComponent>(Player->InputComponent))
@@ -49,6 +48,11 @@ void UInventoryComponent::DropItem()
 
 void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 {
+	if (IsOpenInventory)
+	{
+		return;
+	}
+	
 	const float NewValue = Value.Get<float>();
 	// UI 관련 변화
 	const uint8 PrevIndex = SelectedHotSlot;
@@ -61,6 +65,11 @@ void UInventoryComponent::ChangeHotSlot(const FInputActionValue& Value)
 
 void UInventoryComponent::SetHotSlot(const FInputActionValue& Value)
 {
+	if (IsOpenInventory)
+	{
+		return;
+	}
+	
 	// 기본 주입 값에 0을 넣어주면 동작하지 않는 문제로 0번 칸이 1부터 시작
 	const float NewValue = Value.Get<float>() - 1;
 	// UI 관련 변화
@@ -139,16 +148,12 @@ void UInventoryComponent::ToggleInventory()
 		{
 			return;
 		}
-
-		if (Player->GetBuildingComponent()->GetCanBuildMode())
-		{
-			return;
-		}
 		
 		if (!IsValid(EquipmentUI))
 		{
 			EquipmentUI = CreateWidget<UPlayerEquipmentUI>(
 				Cast<ABasePlayerController>(Player->GetController()), EquipmentUIClass);
+			EquipmentUI->AddToViewport();
 		}
 
 		ABasePlayerController* PC = Cast<ABasePlayerController>(Player->GetController());
@@ -156,7 +161,8 @@ void UInventoryComponent::ToggleInventory()
 		// 인벤토리 실질적 토글
 		if (IsOpenInventory)
 		{
-			EquipmentUI->RemoveFromParent();
+			// TODO: 제거가 아닌 Hidden 처리할 것 이라면 Focus 관련 관리 추가할 필요 있음
+			EquipmentUI->SetVisibility(ESlateVisibility::Hidden);
 			if (PC)
 			{
 				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(false);
@@ -164,7 +170,13 @@ void UInventoryComponent::ToggleInventory()
 			}
 		} else
 		{
-			EquipmentUI->AddToViewport();
+			// 새로 인벤토리를 열 때 건축모드면 열지 않는다.
+			if (Player->GetBuildingComponent()->GetCanBuildMode())
+			{
+				return;
+			}
+			// 화면에 보이고 인터렉션 가능에, 레이어 밖으로 나가도 상호작용 가능하게 처리함.
+			EquipmentUI->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 			if (PC)
 			{
 				Cast<ABasePlayerController>(Player->GetController())->SetShowMouseCursor(true);
