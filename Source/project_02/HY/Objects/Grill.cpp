@@ -1,5 +1,6 @@
 ﻿#include "Grill.h"
 
+#include "Components/AudioComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "project_02/Characters/PlayerCharacter.h"
 #include "project_02/Characters/Component/InventoryComponent.h"
@@ -24,6 +25,8 @@ AGrill::AGrill()
 void AGrill::BeginPlay()
 {
 	Super::BeginPlay();
+	GrillingSoundComponent = UGameplayStatics::SpawnSoundAttached(GrillingSound, GetRootComponent());
+	GrillingSoundComponent->Deactivate();
 }
 
 void AGrill::Interact(AUsable_Item* input, int curItemIndex)
@@ -39,6 +42,8 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 			fishRaw->PutOnGrill();
 			bIsCooking = true;
 			RawFoodMesh->SetVisibility(true);
+			GrillingSoundComponent->Activate();
+			GrillingSoundComponent->Play();
 			ProcessStart();
 		}
 	}
@@ -50,6 +55,7 @@ void AGrill::ProcessComplete()
 	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp, FoodPoint->GetRelativeTransform());
 	fishCooked->AttachToActor(this,FAttachmentTransformRules::KeepRelativeTransform);
 	RawFoodMesh->SetVisibility(false);
+	GrillingSoundComponent->Deactivate();
 	bIsCooking = false;
 }
 

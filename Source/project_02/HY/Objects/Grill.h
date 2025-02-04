@@ -20,6 +20,12 @@ public:
 	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	TSubclassOf<AUsable_Item> FishCookedTemp;
 	
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<USoundWave> GrillingSound;
+
+	UPROPERTY()
+	TObjectPtr<UAudioComponent> GrillingSoundComponent;
+	
 	bool bIsCooking;
 	bool bIsCooked = false;
 	
