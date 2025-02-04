@@ -80,21 +80,17 @@ FString AWaterPurifier::GetDisplayText() const
 	{
 		return Super::GetDisplayText();
 	}
-
+	
 	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
 	const FItemMetaInfo ItemMetaData = PS->GetPlayerInventoryList()[Player->GetInventoryComponent()->GetSelectedHotSlotIndex()];
 	const FItemInfoData ItemInfoData = GI->GetItemInfoList()[ItemMetaData.GetId()];
 	
-	if (ItemInfoData.GetOptionData().Find(EOptionDataKey::CookedTo))
+	if (!bIsPurified)
 	{
-		if (!bIsPurified)
-		{
-			if (bIsWater)
-			{
-				return FString::Printf(TEXT("%s Get Fresh Water"),* ItemInfoData.GetDisplayName());
-			}
-			return FString::Printf(TEXT("%s Add Seawater"),* ItemInfoData.GetDisplayName());
-		}
+		return FString::Printf(TEXT("Add Seawater"));
 	}
-	return Super::GetDisplayText();
+	else
+	{
+		return FString::Printf(TEXT("Get Fresh Water"));
+	}
 }

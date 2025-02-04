@@ -37,7 +37,6 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 		{
 			PS->DropItem(curItemIndex, 1);
 			fishRaw->PutOnGrill();
-			UE_LOG(LogTemp, Warning, TEXT("물고기 굽기 시작."));
 			bIsCooking = true;
 			RawFoodMesh->SetVisibility(true);
 			ProcessStart();
@@ -48,7 +47,6 @@ void AGrill::Interact(AUsable_Item* input, int curItemIndex)
 void AGrill::ProcessComplete()
 {
 	Super::ProcessComplete();
-	UE_LOG(LogTemp,Display,TEXT("물고기 조리 완료."));
 	AUsable_Item* fishCooked = GetWorld()->SpawnActor<AUsable_Item>(FishCookedTemp, FoodPoint->GetRelativeTransform());
 	fishCooked->AttachToActor(this,FAttachmentTransformRules::KeepRelativeTransform);
 	RawFoodMesh->SetVisibility(false);
@@ -59,7 +57,7 @@ FString AGrill::GetDisplayText() const
 {
 	if (!bIsCooking)
 	{
-		return TEXT("Get Food");
+		return TEXT("Add Food");
 	}
 	
 	const APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(GetWorld(), 0));
@@ -71,11 +69,6 @@ FString AGrill::GetDisplayText() const
 	const UBaseGameInstance* GI = GetGameInstance<UBaseGameInstance>();
 	const FItemMetaInfo ItemMetaData = PS->GetPlayerInventoryList()[Player->GetInventoryComponent()->GetSelectedHotSlotIndex()];
 	const FItemInfoData ItemInfoData = GI->GetItemInfoList()[ItemMetaData.GetId()];
-	
-	if (ItemInfoData.GetOptionData().Find(EOptionDataKey::CookedTo))
-	{
-		return FString::Printf(TEXT("%s Cook"),* ItemInfoData.GetDisplayName());
-	}
 
 	return Super::GetDisplayText();
 }
