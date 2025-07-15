@@ -45,7 +45,6 @@ void ASharkAI::BeginPlay()
 void ASharkAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 	// UE_LOG(LogTemp, Display, TEXT("%s"), *FEnumHelper::GetClassEnumKeyAsString(CurrentState));
 	
 	switch (CurrentState)
@@ -300,17 +299,21 @@ void ASharkAI::Turning(float DeltaTime)
 
 ABuildingFloor* ASharkAI::GetFloor()
 {
-	TArray<FVector> positionArr;
 	const ABasePlayerController* PC = Cast<ABasePlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	ARaft* raft = PC->GetPlayerRaft();
-	raft->GetRaftBuildPointerData().GetKeys(positionArr);
 	
-	Algo::RandomShuffle(positionArr);
+	//Reservoir Sampling: 알 수 없는 크기 n에서 무작위의 표본 k개를 선정하기 위한 알고리즘
+	const auto& map = raft->GetRaftBuildPointerData();
+	int attackableFloorCount = 0;
+	
+	TArray<FVector> positionArr;
+	map.GetKeys(positionArr);
 
-	//공격 가능한 판자 찾을 때까지 반복
-	for (FVector& pos : positionArr)
+	ABuildingFloor* selectedFloor = nullptr;
+
+	for (auto& pair : map)
 	{
-		ABuildingFloor* floor = Cast<ABuildingFloor>(raft->GetRaftBuildPointerData().FindRef(pos));
+		ABuildingFloor* floor = Cast<ABuildingFloor>(pair.Value);
 		if (!floor)
 		{
 			continue;
@@ -319,13 +322,23 @@ ABuildingFloor* ASharkAI::GetFloor()
 		{
 			continue;
 		}
-		if (IsAttackableFloor(positionArr, pos))
+		
+		if (!IsAttackableFloor(positionArr, pair.Key))
 		{
-			// UE_LOG(LogTemp, Display, TEXT("공격할 판자 pos X: %f, Y: %f, Z: %f"), pos.X, pos.Y, pos.Z);
-			return floor;
+			continue;
+		}
+
+		// 모든 조건을 만족하는, 공격가능한 판자일 경우
+		++attackableFloorCount;
+
+		if (FMath::RandRange(1,attackableFloorCount) == 1)
+		{
+			UE_LOG(LogTemp, Display, TEXT("선정된 판자 위치 X: %f, Y: %f"), pair.Key.X, pair.Key.Y);
+			selectedFloor = floor;
 		}
 	}
-	return nullptr;
+	
+	return selectedFloor;
 }
 
 bool ASharkAI::IsAttackableFloor(const TArray<FVector>& positionArr, const FVector& floorPos)
