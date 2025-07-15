@@ -36,8 +36,4 @@ public:
 	void DestroyItemGetUI();
 
 	void InitItemUI(UItemUI* mainUI,uint8 count,FString displayName,TObjectPtr<UTexture2D> texture);
-	
-	void SetItemCount(uint8 count);
-	void SetItemName(FString displayName);
-	void SetItemThumbnail(TSoftObjectPtr<UTexture2D> texture);
 };

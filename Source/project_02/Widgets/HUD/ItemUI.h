@@ -31,7 +31,6 @@ private:
 public:
 	void AddItemGetUI(uint8 count,FString displayName,TSoftObjectPtr<UTexture2D> texture);
 	void RemoveItemGetUI(UItemGetUI* itemGetUI);
-	void UpdateItemListPosition();
 };
 
 

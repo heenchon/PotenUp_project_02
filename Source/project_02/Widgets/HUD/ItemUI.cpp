@@ -34,23 +34,9 @@ void UItemUI::AddItemGetUI(uint8 count, FString displayName,TSoftObjectPtr<UText
 			newSlot->SetHorizontalAlignment(HAlign_Center);
 		}
 	}
-	
-	UpdateItemListPosition();
 }
 
 void UItemUI::RemoveItemGetUI(UItemGetUI* itemGetUI)
 {
 	ItemGetUIList.Remove(itemGetUI);
-	UpdateItemListPosition();
-}
-
-void UItemUI::UpdateItemListPosition()
-{
-	UCanvasPanelSlot* canvasSlot = Cast<UCanvasPanelSlot>(ItemListWrapper->Slot);
-	if (canvasSlot)
-	{
-		FMargin newOffsets = canvasSlot->GetOffsets();
-		newOffsets.Top = -ItemGetUIList.Num() * 108.0f; // ItemGetUI Y 사이즈
-		canvasSlot->SetOffsets(newOffsets);
-	}
 }

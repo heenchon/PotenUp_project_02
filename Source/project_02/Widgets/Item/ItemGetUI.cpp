@@ -27,15 +27,3 @@ void UItemGetUI::InitItemUI(UItemUI* mainUI,uint8 count,FString displayName,TObj
 	ItemThumbnail->SetBrushFromTexture(texture);
 	ItemName->SetText(FText::FromString(displayName));
 }
-
-void UItemGetUI::SetItemCount(uint8 count)
-{
-}
-
-void UItemGetUI::SetItemName(FString displayName)
-{
-}
-
-void UItemGetUI::SetItemThumbnail(TSoftObjectPtr<UTexture2D> texture)
-{
-}
